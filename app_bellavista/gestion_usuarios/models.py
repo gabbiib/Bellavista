@@ -40,7 +40,7 @@ class reportes_problemas(models.Model):
     descripcion = models.TextField()
     marco = models.CharField(max_length=255, blank=True, null=True) 
     medida_marco = models.TextField(default='Sin medir')
-    foto_url = models.ImageField(upload_to='reportes_fotos/', blank=True, null=True)  # Cambiado a ImageField
+    foto_url = models.ImageField(upload_to='reportes_fotos/', blank=True, null=True) 
     fecha_reporte = models.DateField(null=True)
 
     def __str__(self):
@@ -53,5 +53,5 @@ class gestion_fallas(models.Model):
     ubicacion_geografica = models.CharField(max_length=255)
     estado = models.CharField(max_length=50)
     fecha_reporte = models.DateTimeField()
-    latitud = models.FloatField(null=True, blank=True)  # Permite null en la base de datos y blank en formularios
+    latitud = models.FloatField(null=True, blank=True)  #
     longitud = models.FloatField(null=True, blank=True)
