@@ -1,15 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST
-from .models import trabajadores  # Asegúrate de tener un modelo trabajadores
 from django.db.models import Q
-from django.shortcuts import render
-from django.db.models import Count
-from django.http import JsonResponse
-from django.http import HttpResponse
-from .models import reportes_problemas
 from django.db.models import Value, F
 from django.db.models.functions import Concat
+from django.db.models import Count, Value
+from .models import reportes_problemas, trabajadores
 
 
 def index(request):
@@ -33,7 +29,7 @@ def perform_add(request):
         apellido_m = request.POST.get('Apellido_M')
         fecha_n = request.POST.get('Fecha_N')
         cod_rol = request.POST.get('cod_rol')
-        correo = request.POST.get('correo')  # Cambiado a 'correo'
+        correo = request.POST.get('correo') 
         password = request.POST.get('password')
 
         # Verifica si el ID o el correo ya existen en la base de datos
@@ -48,7 +44,7 @@ def perform_add(request):
             Apellido_M=apellido_m,
             Fecha_N=fecha_n,
             cod_rol=cod_rol,
-            correo=correo  # Cambiado a 'correo'
+            correo=correo  
         )
 
         # Hashear la contraseña y guardarla
@@ -158,79 +154,7 @@ def get_usuarios(request):
     usuarios = trabajadores.objects.all()
     data = [{'id': usuario.id_trabajador, 'full_name': usuario.full_name()} for usuario in usuarios]
     return JsonResponse(data, safe=False)
-######################
-#def dashboard_view(request):
-    trabajadores_list = trabajadores.objects.all()
-    ubicaciones = gestion_fallas.objects.values_list('ubicacion_geografica', flat=True).distinct()
-    tipos_incidente = reportes_problemas.objects.values_list('tipo_incidente', flat=True).distinct()  # Nuevo filtro
-
-    return render(request, 'dashboard.html', {
-        'trabajadores': trabajadores_list,
-        'ubicaciones': ubicaciones,
-        'tipos_incidente': tipos_incidente  # Pasar tipos de incidente al contexto
-    })
-
-#def filtrar_fallas(request):
-    estado = request.GET.get('estado', None)
-    trabajador = request.GET.get('trabajador', None)
-    ubicacion = request.GET.get('ubicacion', None)
-    tipo_incidente = request.GET.get('tipo_incidente', None)  # Nuevo filtro
-    fecha_inicio = request.GET.get('fecha_inicio', None)
-    fecha_fin = request.GET.get('fecha_fin', None)
-
-    fallas = gestion_fallas.objects.all()
     
-    #if estado:
-     #   fallas = fallas.filter(estado=estado)
-    
-   # if trabajador:
-    #    fallas = fallas.filter(rut_usuario__id_trabajador=trabajador)
-
-    #if ubicacion:
-     #   fallas = fallas.filter(ubicacion_geografica=ubicacion)
-
-    #if tipo_incidente:  # Aplicar filtro por tipo de incidente
-     #   fallas = fallas.filter(id_reporte__tipo_incidente=tipo_incidente)
-
-    # Filtrar por fecha de reporte
-    #if fecha_inicio and fecha_fin:
-     #   fallas = fallas.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
-
-    #categorias = ['Pendiente', 'Resuelto', 'En Progreso']
-    #series = [
-       # fallas.filter(estado='Pendiente').count(),
-      #  fallas.filter(estado='Resuelto').count(),
-     #   fallas.filter(estado='En Progreso').count()
-    #]
-
-    # Datos para el gráfico de barras múltiples (desempeño de trabajadores a lo largo del tiempo)
-    #fechas_reporte = fallas.dates('fecha_reporte', 'month', order='ASC')
-   # trabajadores_series = []
-  #  
- #   for trabajador in trabajadores.objects.all():
-#        data = []
-       # for fecha in fechas_reporte:
-      #      count = fallas.filter(rut_usuario=trabajador, fecha_reporte__year=fecha.year, fecha_reporte__month=fecha.month).count()
-     #       data.append(count)
-    #    trabajadores_series.append({
-   #         'name': f"{trabajador.Nombre} {trabajador.Apellido_P} {trabajador.Apellido_M}",
-  #          'data': data
- #       })
-#
-  #  return JsonResponse({
- #       'categorias': categorias,
-#        'series': series,
-     #   'fechas_reporte': [fecha.strftime('%Y-%m') for fecha in fechas_reporte],
-    #    'trabajadores_series': trabajadores_series
-   # })
-
-########################################
-from django.db.models import Count, Value
-from django.db.models.functions import Concat
-from django.http import JsonResponse
-from django.shortcuts import render
-from .models import reportes_problemas, trabajadores
-
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = reportes_problemas.objects.all()
