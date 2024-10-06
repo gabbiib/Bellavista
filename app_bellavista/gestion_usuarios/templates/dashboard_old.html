@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestión de Fallas</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Highcharts Library -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    
+    <!-- Custom CSS for Grid Layout -->
+    <style>
+        /* Fondo con patrón de topografía */
+        body {
+            background-image: url("{% static 'image/topography.png' %}");
+            background-repeat: repeat;  /* Se asegura de que el patrón se repita */
+            background-size: cover;     /* Ajusta el tamaño para que cubra el fondo */
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            grid-gap: 20px;
+            padding: 20px;
+        }
+        .filter-section {
+            background-color: #f7f7f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-left: 1px;
+        }
+        .chart-section {
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        .filter-title {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .filter-logo {
+            width: 100%;
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <!-- Imagen encima del título -->
+            <img src="{% static 'media/logogris.svg' %}" alt="Logo" class="filter-logo">
+            <h4 class="filter-title">Filtros</h4>
+            <form id="filter-form">
+                <!-- Filtro por Estado -->
+                <div class="form-group">
+                    <label for="filter-estado">Estado de la Falla:</label>
+                    <select class="form-control" id="filter-estado">
+                        <option value="">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Resuelto">Resuelto</option>
+                        <option value="En Progreso">En Progreso</option>
+                    </select>
+                </div>
+
+                <!-- Filtro por Trabajador (Nombre completo) -->
+                <div class="form-group">
+                    <label for="filter-trabajador">Trabajador:</label>
+                    <select class="form-control" id="filter-trabajador">
+                        <option value="">Todos</option>
+                        {% for trabajador in trabajadores %}
+                        <option value="{{ trabajador.id_trabajador }}">{{ trabajador.Nombre }} {{ trabajador.Apellido_P }} {{ trabajador.Apellido_M }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtro por Tipo de Incidente -->
+                <div class="form-group">
+                    <label for="filter-tipo-incidente">Tipo de Incidente:</label>
+                    <select class="form-control" id="filter-tipo-incidente">
+                        <option value="">Todos</option>
+                        {% for tipo in tipos_incidente %}
+                        <option value="{{ tipo }}">{{ tipo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtro por Ubicación Geográfica -->
+                <div class="form-group">
+                    <label for="filter-ubicacion">Ubicación Geográfica:</label>
+                    <select class="form-control" id="filter-ubicacion">
+                        <option value="">Todas</option>
+                        {% for ubicacion in ubicaciones %}
+                        <option value="{{ ubicacion }}">{{ ubicacion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtro por Fecha Inicio -->
+                <div class="form-group">
+                    <label for="filter-fecha-inicio">Fecha Inicio:</label>
+                    <input type="date" class="form-control" id="filter-fecha-inicio">
+                </div>
+
+                <!-- Filtro por Fecha Fin -->
+                <div class="form-group">
+                    <label for="filter-fecha-fin">Fecha Fin:</label>
+                    <input type="date" class="form-control" id="filter-fecha-fin">
+                </div>
+
+                <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
+                <button type="button" class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+                
+            </form>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <div class="chart-container" id="chart-container">
+                <h4>Gráfico de Incidentes</h4>
+                <div id="incidentChart"></div>
+                <!-- Gráfico se renderiza aquí -->
+            </div>
+            <div class="chart-container" id="chart-barra-multiple">
+                <h4>Desempeño de Trabajadores a lo Largo del Tiempo</h4>
+                <div id="trabajadoresChart"></div>
+                <!-- Gráfico de barras se renderiza aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        // Función para aplicar los filtros con AJAX
+        function applyFilters() {
+            var estado = $('#filter-estado').val();
+            var trabajador = $('#filter-trabajador').val();
+            var tipoIncidente = $('#filter-tipo-incidente').val();
+            var ubicacion = $('#filter-ubicacion').val();
+            var fechaInicio = $('#filter-fecha-inicio').val();
+            var fechaFin = $('#filter-fecha-fin').val();
+
+            // Validación de las fechas
+            if ((fechaInicio && !fechaFin) || (!fechaInicio && fechaFin)) {
+                alert('Debes seleccionar ambas fechas si eliges alguna.');
+                return;
+            }
+
+            $.ajax({
+                url: "{% url 'filtrar_fallas' %}",
+                method: "GET",
+                data: {
+                    estado: estado,
+                    trabajador: trabajador,
+                    tipo_incidente: tipoIncidente,
+                    ubicacion: ubicacion,
+                    fecha_inicio: fechaInicio,
+                    fecha_fin: fechaFin
+                },
+                success: function (data) {
+                    updateChart(data);
+                    updateBarChart(data);
+                }
+            });
+        }
+
+        // Función para limpiar los filtros de fecha
+        function clearDateFilters() {
+            $('#filter-fecha-inicio').val('');
+            $('#filter-fecha-fin').val('');
+            applyFilters();  // Volver a aplicar filtros para actualizar gráficos
+        }
+
+        // Función para actualizar el gráfico de incidentes
+        function updateChart(data) {
+            Highcharts.chart('incidentChart', {
+                chart: {
+                    type: 'pie'  // gráfico de dona
+                },
+                title: {
+                    text: 'Estados de Incidentes'
+                },
+                plotOptions: {
+                    pie: {
+                        innerSize: '50%',  // gráfico de dona
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.name}: {point.y} ({point.percentage:.1f}%)'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Incidentes',
+                    colorByPoint: true,
+                    data: [
+                        { name: 'Pendiente', y: data.series[0] },
+                        { name: 'Resuelto', y: data.series[1] },
+                        { name: 'En Progreso', y: data.series[2] }
+                    ]
+                }]
+            });
+        }
+
+        // Función para actualizar el gráfico de barras múltiples (desempeño de trabajadores)
+        function updateBarChart(data) {
+            Highcharts.chart('trabajadoresChart', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Desempeño de Trabajadores'
+                },
+                xAxis: {
+                    categories: data.fechas_reporte  // Fechas de reporte
+                },
+                yAxis: {
+                    title: {
+                        text: 'Cantidad de Incidentes'
+                    }
+                },
+                series: data.trabajadores_series  // Series de cada trabajador
+            });
+        }
+
+        // Inicialización de los gráficos
+        $(document).ready(function() {
+            updateIncidentChart();  // Inicializar el gráfico de incidentes
+            updateBarChart();       // Inicializar el gráfico de barras
+            applyFilters();  // Cargar datos iniciales sin filtros
+        });
+    </script>
+
+</body>
+</html>

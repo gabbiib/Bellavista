@@ -1,0 +1,397 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+
+    <!-- jQuery y DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/media/topography.png');
+            background-repeat: repeat;
+            background-position: top left;
+            height: 100vh;
+            background-size: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+        .filter-container {
+            width: 300px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-right: 1px solid #ccc;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            margin-left: 15px; 
+            margin-top: 0;
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+
+        .container {
+            margin-left: 340px; 
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start; /* Alinea los gráficos a la izquierda */
+            padding: 20px;
+        }
+
+        .chart-section {
+            flex: 1; /* Permite que cada gráfico ocupe el espacio disponible */
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            margin-right: 15px;
+            min-width: 300px;
+            border: 4px solid #003366; /* Asegura que los gráficos no se hagan demasiado pequeños */
+        }
+
+        #incidentChart, #trabajadoresChart {
+            height: 400px;
+            width: 100%; 
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #filterButton {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #062a51;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 90%;
+        }
+        #filterButton:hover {
+            background-color: #123253;
+        }
+
+        .filter-logo {
+            width: 100%;
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+        .filter-section {
+            background-color: #f7f7f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+
+        <h1></h1>
+        
+        <div class="filter-container">
+            <img src="{% static 'media/logogris.svg' %}" alt="Logo" class="filter-logo">
+            <h4 class="filter-title">Filtros</h4>
+            <form id="filter-form">
+                <div class="form-group">
+                    <label for="filter-tipo">Tipos de Problemas:</label>
+                    <select class="form-control" id="filter-tipo">
+                        <option value="">Todos</option>
+                        {% for tipo in tipos %}
+                        <option value="{{ tipo }}">{{ tipo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="filter-trabajador">Trabajador:</label>
+                    <select class="form-control" id="filter-trabajador">
+                        <option value="">Todos</option>
+                        {% for trabajador in trabajadores %}
+                        <option value="{{ trabajador.id_trabajador }}">{{ trabajador.Nombre }} {{ trabajador.Apellido_P }} {{ trabajador.Apellido_M }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                    
+                <div class="form-group">
+                    <label for="filter-marco">Marcos:</label>
+                    <select class="form-control" id="filter-marco">
+                        <option value="">Todos</option>
+                        {% for marco in marcos %}
+                        <option value="{{ marco }}">{{ marco }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="filter-fecha-inicio">Fecha Inicio:</label>
+                    <input type="date" class="form-control" id="filter-fecha-inicio">
+                </div>
+    
+                <div class="form-group">
+                    <label for="filter-fecha-fin">Fecha Fin:</label>
+                    <input type="date" class="form-control" id="filter-fecha-fin">
+                </div>
+    
+                <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
+                <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
+            </form>
+        </div>
+    
+        <div class="container">
+            <div class="chart-section">
+                <h4></h4>
+                <div id="incidentChart"></div>
+            </div>
+            <div class="chart-section">
+                <h4></h4>
+                <div id="trabajadoresChart"></div>
+            </div>
+        </div>
+        
+        <div class="container mt-5">
+            <h4>Datos de Reportes</h4>
+            <table id="dataGrid" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo de Problema</th>
+                        <th>Trabajador</th>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí se llenarán los datos dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // Función para aplicar los filtros con AJAX
+        function applyFilters() {
+            var tipoIncidente = $('#filter-tipo').val();
+            var trabajador = $('#filter-trabajador').val();
+            var marco = $('#filter-marco').val();
+            var fechaInicio = $('#filter-fecha-inicio').val();
+            var fechaFin = $('#filter-fecha-fin').val();
+            
+            // Validación de las fechas
+            if ((fechaInicio && !fechaFin) || (!fechaInicio && fechaFin)) {
+                alert('Debes seleccionar ambas fechas si eliges alguna.');
+                return;
+            }
+
+            $.ajax({
+                url: "{% url 'filtrar_reportes' %}",
+                method: "GET",
+                data: {
+                    trabajador: trabajador,
+                    marco: marco,
+                    tipo_incidente: tipoIncidente,
+                    fecha_inicio: fechaInicio,
+                    fecha_fin: fechaFin
+                },
+                success: function (data) {
+                    updateIncidentChart(data);
+                    updateBarChart(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al aplicar filtros: ", error);
+                }
+            });
+        }
+    
+        // Función para limpiar los filtros de fecha
+        function clearDateFilters() {
+            $('#filter-fecha-inicio').val('');
+            $('#filter-fecha-fin').val('');
+            applyFilters();  // Volver a aplicar filtros para actualizar gráficos
+        }
+    
+        // Función para actualizar el gráfico de incidentes por tipo
+        function updateIncidentChart(data) {
+            Highcharts.chart('incidentChart', {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Incidentes Reportados por Tipo'
+                },
+                plotOptions: {
+                    pie: {
+                        innerSize: '50%',  // gráfico de dona
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.name}: {point.y} ({point.percentage:.1f}%)'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Tipos de Problemas',
+                    data: data.categorias.map(function(categoria, index) {
+                        return {
+                            name: categoria,
+                            y: data.series[index]
+                        };
+                    }),
+                    showInLegend: true,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}: {point.percentage:.1f} %'
+                    }
+                }]
+            });
+        }
+    
+        // Función para actualizar el gráfico de barras múltiples (desempeño de trabajadores)
+        function updateBarChart(data) {
+            Highcharts.chart('trabajadoresChart', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Desempeño de Trabajadores'
+                },
+                xAxis: {
+                    categories: data.fechas_reporte  // Fechas de reporte
+                },
+                yAxis: {
+                    title: {
+                        text: 'Cantidad de Incidentes'
+                    }
+                },
+                series: data.trabajadores_series  // Series de cada trabajador
+            });
+        }
+    
+            
+        $(document).ready(function() {
+            // Inicialización de los gráficos 
+            $.ajax({
+                url: "{% url 'filtrar_reportes' %}",
+                method: "GET",
+                success: function(data) {
+                    console.log(data); // Verifica la estructura de los datos
+                    updateIncidentChart(data);  // Inicializar el gráfico de incidentes
+                    updateBarChart(data);        // Inicializar el gráfico de barras
+
+                    // Inicializar el DataTable después de cargar los datos
+                    $('#dataGrid').DataTable({
+                        // Configuración del AJAX
+                        ajax: {
+                            url: "{% url 'filtrar_reportes' %}",  // Asegúrate de que esta URL devuelva los datos en formato JSON
+                            dataSrc: '',  // Modifica esto según la estructura de tus datos
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                // Manejo de errores
+                                console.error('Error en la carga de datos:', textStatus, errorThrown);
+                                alert('No se pudieron cargar los datos. Intente de nuevo más tarde.');
+                            }
+                        },
+                        // Definición de las columnas
+                        columns: [
+                            { data: 'id', title: 'ID' },  // Cambia esto según tus datos
+                            { data: 'tipo_problema', title: 'Tipo de Problema' },  // Cambia esto según tus datos
+                            { data: 'trabajador', title: 'Trabajador' },  // Cambia esto según tus datos
+                            { data: 'fecha', title: 'Fecha' },  // Cambia esto según tus datos
+                            { data: 'descripcion', title: 'Descripción' }  // Cambia esto según tus datos
+                        ],
+                        // Configuración de la paginación y longitud de página
+                        paging: true,
+                        pageLength: 10,
+                        lengthMenu: [10, 25, 50, 100],
+                        // Configuración de la tabla
+                        responsive: true,
+                        autoWidth: false,
+                        // Opciones de exportación
+                        dom: 'Bfrtip',
+                        buttons: [
+                            {
+                                extend: 'copy',
+                                text: 'Copiar',
+                                titleAttr: 'Copiar datos',
+                                className: 'btn btn-primary'
+                            },
+                            {
+                                extend: 'csv',
+                                text: 'Exportar a CSV',
+                                titleAttr: 'Exportar a CSV',
+                                className: 'btn btn-success'
+                            },
+                            {
+                                extend: 'excel',
+                                text: 'Exportar a Excel',
+                                titleAttr: 'Exportar a Excel',
+                                className: 'btn btn-info'
+                            },
+                            {
+                                extend: 'pdf',
+                                text: 'Exportar a PDF',
+                                titleAttr: 'Exportar a PDF',
+                                className: 'btn btn-danger'
+                            },
+                            {
+                                extend: 'print',
+                                text: 'Imprimir',
+                                titleAttr: 'Imprimir',
+                                className: 'btn btn-warning'
+                            }
+                        ],
+                        // Personalización de la apariencia de la tabla
+                        language: {
+                            url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json'  // Cargar archivo de idioma en español
+                        },
+                        // Ordenación
+                        order: [[0, 'asc']],  // Ordenar por la primera columna (ID)
+                        // Funciones adicionales para mejorar la experiencia del usuario
+                        initComplete: function(settings, json) {
+                            console.log('DataTable inicializado con éxito.');
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al cargar datos iniciales: ", error);
+                }
+            });
+        });
+</script>
+
+</body>
+</html>

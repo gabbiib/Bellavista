@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Información</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            margin-top: 200px;
+        }
+
+        .main-container h1 {
+            text-align: center;
+        }
+
+        select {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        label, input, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px;
+            margin-top: 5px;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            margin-bottom: 2px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #1abc9c;
+        }
+
+        button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        a button {
+            background-color: #e74c3c;
+            margin-top: 5px;
+        }
+
+        a button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h1>Editar Información</h1>
+
+        <form method="POST" action="/editData/">
+            {% csrf_token %}
+            <label for="nameSelect">Selecciona el usuario:</label>
+            <select id="nameSelect" name="fullName" required>
+                <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+            </select>
+            
+            <div class="input-group">
+                <label for="editId">RUT:</label>
+                <input type="text" id="editId" name="newId" required placeholder="Ej: 21026807" maxlength="8">
+                <input type="hidden" id="originalId" name="originalId">
+                
+                <label for="editName">Nombre:</label>
+                <input type="text" id="editName" name="newName" required>
+                <input type="hidden" id="originalName" name="originalName">
+            </div>
+            
+            <div class="input-group">
+                <label for="editLastName">Apellido Paterno:</label>
+                <input type="text" id="editLastName" name="newLastName" required>
+                <input type="hidden" id="originalLastName" name="originalLastName">
+                
+                <label for="editMotherLastName">Apellido Materno:</label>
+                <input type="text" id="editMotherLastName" name="newMotherLastName" required>
+                <input type="hidden" id="originalMotherLastName" name="originalMotherLastName">
+            </div>
+
+            <div class="input-group">
+                <label for="editDate">Fecha de Nacimiento:</label>
+                <input type="date" id="editDate" name="newDate" required>
+                <input type="hidden" id="originalDate" name="originalDate">
+                
+                <label for="editRole">Código de Rol:</label>
+                <input type="text" id="editRole" name="newRole" required>
+                <input type="hidden" id="originalRole" name="originalRole">
+            </div>
+
+            <div class="input-group">
+                <label for="editEmail">Correo:</label>
+                <input type="email" id="editEmail" name="newEmail" required>
+                <input type="hidden" id="originalEmail" name="originalEmail">
+            </div>
+            
+            <button type="submit" id="saveChanges" disabled>Guardar Cambios</button>
+            <div id="noChangesWarning" style="display: none; color: red; text-align: center;">
+                No se han realizado cambios. Por favor, modifica algún campo para guardar.
+            </div>
+        </form>        
+
+        <a href="{% url 'index' %}"><button>Volver a la Página Principal</button></a>
+    </div>
+
+    <script>
+        // Función para limpiar todos los campos
+        function clearForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('editName').value = '';
+            document.getElementById('editLastName').value = '';
+            document.getElementById('editMotherLastName').value = '';
+            document.getElementById('editDate').value = '';
+            document.getElementById('editRole').value = '';
+            document.getElementById('editEmail').value = '';
+            document.getElementById('saveChanges').disabled = true;
+        }
+    
+        // Cargar nombres desde la base de datos
+        async function loadNames() {
+            try {
+                const response = await fetch('/getNames');
+                const names = await response.json();
+                const select = document.getElementById('nameSelect');
+    
+                // Limpiar el select antes de añadir nuevas opciones
+                select.innerHTML = '';
+    
+                // Agregar una opción vacía al principio
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Selecciona un usuario';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                select.appendChild(defaultOption);
+    
+                // Rellenar el select con los nombres completos
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name; // Valor del option es el fullName
+                    option.textContent = name; // Nombre completo
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando nombres:', error);
+            }
+        }
+    
+        // Cargar datos del usuario seleccionado
+        async function loadUserData(fullName) {
+            try {
+                const response = await fetch(`/getUserData?fullName=${encodeURIComponent(fullName)}`);
+                const userData = await response.json();
+                
+                // Rellenar los campos del formulario con los datos del usuario
+                document.getElementById('editId').value = userData.id_trabajador;
+                document.getElementById('originalId').value = userData.id_trabajador;
+                document.getElementById('editName').value = userData.Nombre;
+                document.getElementById('originalName').value = userData.Nombre;
+                document.getElementById('editLastName').value = userData.Apellido_P;
+                document.getElementById('originalLastName').value = userData.Apellido_P;
+                document.getElementById('editMotherLastName').value = userData.Apellido_M;
+                document.getElementById('originalMotherLastName').value = userData.Apellido_M;
+                document.getElementById('editDate').value = userData.Fecha_N;
+                document.getElementById('originalDate').value = userData.Fecha_N;
+                document.getElementById('editRole').value = userData.cod_rol;
+                document.getElementById('originalRole').value = userData.cod_rol;
+                document.getElementById('editEmail').value = userData.correo;
+                document.getElementById('originalEmail').value = userData.correo;
+                document.getElementById('saveChanges').disabled = false; // Habilitar botón de guardar cambios
+            } catch (error) {
+                console.error('Error cargando datos del usuario:', error);
+            }
+        }
+    
+        // Evento cuando cambia la selección del nombre
+        document.getElementById('nameSelect').addEventListener('change', (e) => {
+            const fullName = e.target.value;
+            if (fullName) {
+                loadUserData(fullName);
+            } else {
+                clearForm(); // Limpiar el formulario si no hay selección
+            }
+        });
+    
+        // Validar cambios en el formulario
+        const form = document.querySelector('form');
+        const saveButton = document.getElementById('saveChanges');
+        const noChangesWarning = document.getElementById('noChangesWarning');
+    
+        form.addEventListener('input', () => {
+            // Compara los valores actuales con los valores originales
+            const hasChanges = Array.from(form.elements).some(input => 
+                input.type !== 'hidden' && input.value !== input.previousElementSibling.value
+            );
+            
+            // Habilitar o deshabilitar el botón según si hay cambios
+            save
+            saveButton.disabled = !hasChanges;
+            noChangesWarning.style.display = hasChanges ? 'none' : 'block';
+        });
+    
+        // Inicializar cargando los nombres
+        loadNames();
+    </script>
+
+</body>
+</html>
