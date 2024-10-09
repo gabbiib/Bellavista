@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST
+from .models import reportes_problemas, Usuarios  
 from django.db.models import Q
-from django.db.models import Value, F
-from django.db.models.functions import Concat
 from django.db.models import Count, Value
-from .models import reportes_problemas, trabajadores
-
+from django.db.models.functions import Concat
+from django.contrib import messages
+from datetime import datetime
+from .models import Usuarios
+from django.db.utils import IntegrityError
 
 def index(request):
     return render(request, 'index.html')
@@ -29,7 +31,7 @@ def perform_add(request):
         apellido_m = request.POST.get('Apellido_M')
         fecha_n = request.POST.get('Fecha_N')
         cod_rol = request.POST.get('cod_rol')
-        correo = request.POST.get('correo') 
+        correo = request.POST.get('correo')  # Cambiado a 'correo'
         password = request.POST.get('password')
 
         # Verifica si el ID o el correo ya existen en la base de datos
@@ -44,7 +46,7 @@ def perform_add(request):
             Apellido_M=apellido_m,
             Fecha_N=fecha_n,
             cod_rol=cod_rol,
-            correo=correo  
+            correo=correo  # Cambiado a 'correo'
         )
 
         # Hashear la contraseña y guardarla
@@ -58,35 +60,6 @@ def perform_add(request):
         # Si no es una solicitud POST, redirigir al formulario de agregar
         return redirect('add_page')
 
-def get_user_data(request):
-    full_name = request.GET.get('fullName')
-    if not full_name:
-        return HttpResponse('Nombre es obligatorio.', status=400)
-
-    try:
-        # Split sin perder espacios en nombres compuestos
-        nombres = full_name.split(' ')
-        if len(nombres) < 3:
-            return HttpResponse('Nombre completo inválido.', status=400)
-
-        apellido_m = nombres.pop()
-        apellido_p = nombres.pop()
-        nombre = ' '.join(nombres)  # Restaura el nombre en caso de que tenga más de una palabra
-
-        trabajador = trabajadores.objects.get(Nombre=nombre, Apellido_P=apellido_p, Apellido_M=apellido_m)
-        
-        data = {
-            'id_trabajador': trabajador.id_trabajador,
-            'Nombre': trabajador.Nombre,
-            'Apellido_P': trabajador.Apellido_P,
-            'Apellido_M': trabajador.Apellido_M,
-            'Fecha_N': trabajador.Fecha_N,
-            'cod_rol': trabajador.cod_rol,
-            'correo': trabajador.correo,
-        }
-        return JsonResponse(data)
-    except trabajadores.DoesNotExist:
-        return HttpResponse('Usuario no encontrado', status=404)
 
 
 @require_POST
@@ -118,66 +91,122 @@ def perform_delete(request):
 
 def success_delete(request):
     return render(request, 'success_delete.html')
+#### ------------------------------------------------edit---------------------------------------------
+def get_user_data(request):
+    full_name = request.GET.get('fullName')
+    if not full_name:
+        return HttpResponse('El nombre es obligatorio.', status=400)
+
+    # Separar el fullName en nombre, apellido paterno y apellido materno
+    try:
+        nombre, apellido_p, apellido_m = full_name.split()
+    except ValueError:
+        return HttpResponse('El formato del nombre no es válido.', status=400)
+
+    try:
+        # Buscar el usuario en la base de datos
+        usuario = Usuarios.objects.get(nombre=nombre, apellido_p=apellido_p, apellido_m=apellido_m)
+        user_data = {
+            'rut': usuario.rut,
+            'nombre': usuario.nombre,
+            'apellido_p': usuario.apellido_p,
+            'apellido_m': usuario.apellido_m,
+            'fecha_n': usuario.fecha_n,
+            #'rol': usuario.rol,  
+            'correo': usuario.correo,
+            'telefono': usuario.telefono,
+        }
+        return JsonResponse(user_data)
+    except Usuarios.DoesNotExist:
+        return HttpResponse('Usuario no encontrado.', status=404)
 
 def get_names(request):
-    trabajadores_list = trabajadores.objects.all()
-    names = [f"{t.Nombre} {t.Apellido_P} {t.Apellido_M}" for t in trabajadores_list]
+    trabajadores_list = Usuarios.objects.all()
+    names = [f"{t.nombre} {t.apellido_p} {t.apellido_m}" for t in trabajadores_list]
     return JsonResponse(names, safe=False)
 
 @require_POST
 def edit_data(request):
     original_id = request.POST.get('originalId')
-    new_id = request.POST.get('newId')
-    new_name = request.POST.get('newName')
-    new_last_name = request.POST.get('newLastName')
-    new_mother_last_name = request.POST.get('newMotherLastName')
-    new_date = request.POST.get('newDate')
-    new_role = request.POST.get('newRole')
-    new_email = request.POST.get('newEmail')
+    new_id = request.POST.get('rut')  # coincide con el nombre en tu HTML
+    new_name = request.POST.get('nombre')
+    new_last_name = request.POST.get('apellido_p')
+    new_mother_last_name = request.POST.get('apellido_m')
+    new_date = request.POST.get('fecha_n')
+    new_email = request.POST.get('correo')
+    new_telefono = request.POST.get('telefono')
 
     try:
-        trabajador = trabajadores.objects.get(id_trabajador=original_id)
-        trabajador.id_trabajador = new_id
-        trabajador.Nombre = new_name
-        trabajador.Apellido_P = new_last_name
-        trabajador.Apellido_M = new_mother_last_name
-        trabajador.Fecha_N = new_date
-        trabajador.cod_rol = new_role
-        trabajador.correo = new_email
-        trabajador.save()
-        return render(request, 'success_edit.html')
-    except trabajadores.DoesNotExist:
-        return HttpResponse('No se encontró el trabajador para actualizar.', status=404)
+        # Obtenemos el trabajador original
+        trabajador = Usuarios.objects.get(rut=original_id)
 
+        # Verificamos si hay cambios en los campos
+        if (trabajador.rut == new_id and
+            trabajador.nombre == new_name and
+            trabajador.apellido_p == new_last_name and
+            trabajador.apellido_m == new_mother_last_name and
+            str(trabajador.fecha_n) == new_date and  # convertimos fecha a str para comparar
+            trabajador.correo == new_email and
+            trabajador.telefono == new_telefono):
+            
+            return JsonResponse({'error': 'No se han realizado cambios'}, status=400)
+
+        # Verificar si el nuevo RUT ya existe
+        if new_id != original_id and Usuarios.objects.filter(rut=new_id).exists():
+            return JsonResponse({'error': 'El RUT ya está en uso por otro trabajador.'}, status=400)
+
+        # Actualizar los campos del trabajador
+        trabajador.rut = new_id
+        trabajador.nombre = new_name
+        trabajador.apellido_p = new_last_name
+        trabajador.apellido_m = new_mother_last_name
+        
+        # Convertir la fecha de string a objeto de fecha
+        trabajador.fecha_n = datetime.strptime(new_date, '%Y-%m-%d').date()
+
+        trabajador.correo = new_email
+        trabajador.telefono = new_telefono
+        trabajador.save()
+
+        messages.success(request, "Los cambios se han guardado correctamente.")
+        return JsonResponse({'success': True})  # Puedes también usar redirect aquí si prefieres
+
+    except Usuarios.DoesNotExist:
+        return JsonResponse({'error': 'No se encontró el trabajador para actualizar.'}, status=404)
+
+    except IntegrityError as e:
+        return JsonResponse({'error': f'Error al guardar los datos: {str(e)}'}, status=400)
+
+def success_edit(request):
+    return render(request, 'success_edit.html')
 
 def get_usuarios(request):
-    usuarios = trabajadores.objects.all()
-    data = [{'id': usuario.id_trabajador, 'full_name': usuario.full_name()} for usuario in usuarios]
+    usuarios = usuarios.objects.all()
+    data = [{'id': usuario.rut, 'full_name': usuario.full_name()} for usuario in usuarios]
     return JsonResponse(data, safe=False)
-    
+
+#------------------------------------DASHBOARD----------------
+from django.db.models import Count
+
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = reportes_problemas.objects.all()
+    
     # Obtener todos los trabajadores
-    trabajadores_list = trabajadores.objects.all()
+    trabajadores_list = Usuarios.objects.all()
 
     # Filtrar incidentes por tipo
     tipo_incidentes = incidentes.values('tipo_incidente').annotate(count=Count('id'))
     tipos = [tipo['tipo_incidente'] for tipo in tipo_incidentes]
     counts = [tipo['count'] for tipo in tipo_incidentes]
 
-    # Calcular el porcentaje de cada tipo de incidente
-    total_incidentes = sum(counts)
-    porcentajes = [(count / total_incidentes * 100) if total_incidentes > 0 else 0 for count in counts]
-
-    # Marcas disponibles (mantener si es necesario en la plantilla)
-    marcos = ['Marco 1', 'Marco 2', 'Marco 3', 'Marco 4', 'Marco 5', 'Marco 6']
+    # Obtener marcos únicos desde el modelo reportes_problemas
+    marcos = incidentes.values_list('marco', flat=True).distinct()
 
     context = {
         'tipos': tipos,
         'counts': counts,
-        'porcentajes': porcentajes,
-        'marcos': marcos,
+        'marcos': marcos,  # Asegúrate de que marcos está en el contexto
         'trabajadores': trabajadores_list,
     }
 
@@ -197,7 +226,7 @@ def dashboard(request):
             incidentes = incidentes.filter(marco=marco_seleccionado)
 
         if trabajador_seleccionado:
-            incidentes = incidentes.filter(rut_usuario__id_trabajador=trabajador_seleccionado)
+            incidentes = incidentes.filter(rut_usuario__rut=trabajador_seleccionado)
 
         if fecha_inicio and fecha_fin:
             incidentes = incidentes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
@@ -216,7 +245,7 @@ def dashboard(request):
 
 def filtrar_reportes(request):
     # Obtener los filtros del request
-    medida_marco = request.GET.get('medida_marco', None)
+    #medida_marco = request.GET.get('medida_marco', None)
     trabajador = request.GET.get('trabajador', None)
     marco = request.GET.get('marco', None)
     tipo_incidente = request.GET.get('tipo_incidente', None)
@@ -227,15 +256,11 @@ def filtrar_reportes(request):
     reportes = reportes_problemas.objects.all()
 
     # Aplicar filtros
-    if medida_marco:
-        reportes = reportes.filter(medida_marco=medida_marco)
+    #if medida_marco:
+        #reportes = reportes.filter(medida_marco=medida_marco)
 
     if trabajador:
-        reportes = reportes.filter(
-            id_trabajador__in=trabajadores.objects.annotate(
-                nombre_completo=Concat('Nombre', Value(' '), 'Apellido_P', Value(' '), 'Apellido_M')
-            ).filter(nombre_completo__icontains=trabajador)
-        )
+        reportes = reportes.filter(rut_usuario__rut=trabajador) 
 
     if marco:
         reportes = reportes.filter(marco=marco)
@@ -258,13 +283,13 @@ def filtrar_reportes(request):
     fechas_reporte = reportes.dates('fecha_reporte', 'month', order='ASC')
     trabajadores_series = []
 
-    for trabajador in trabajadores.objects.all():
+    for trabajador in Usuarios.objects.all():
         data = []
         for fecha in fechas_reporte:
             count = reportes.filter(rut_usuario=trabajador, fecha_reporte__year=fecha.year, fecha_reporte__month=fecha.month).count()
             data.append(count)
         trabajadores_series.append({
-            'name': f"{trabajador.Nombre} {trabajador.Apellido_P} {trabajador.Apellido_M}",
+            'name': f"{trabajador.nombre} {trabajador.apellido_p} {trabajador.apellido_m}",
             'data': data
         })
 
@@ -274,4 +299,3 @@ def filtrar_reportes(request):
         'fechas_reporte': [fecha.strftime('%Y-%m') for fecha in fechas_reporte],
         'trabajadores_series': trabajadores_series
     })
-    

@@ -9,18 +9,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
-
-    <!-- jQuery y DataTables JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
 
     <style>
         body {
@@ -122,86 +110,68 @@
 </head>
 <body>
 
-        <h1></h1>
-        
-        <div class="filter-container">
-            <img src="{% static 'media/logogris.svg' %}" alt="Logo" class="filter-logo">
-            <h4 class="filter-title">Filtros</h4>
-            <form id="filter-form">
-                <div class="form-group">
-                    <label for="filter-tipo">Tipos de Problemas:</label>
-                    <select class="form-control" id="filter-tipo">
-                        <option value="">Todos</option>
-                        {% for tipo in tipos %}
-                        <option value="{{ tipo }}">{{ tipo }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+    <h1></h1>
     
-                <div class="form-group">
-                    <label for="filter-trabajador">Trabajador:</label>
-                    <select class="form-control" id="filter-trabajador">
-                        <option value="">Todos</option>
-                        {% for trabajador in trabajadores %}
-                        <option value="{{ trabajador.id_trabajador }}">{{ trabajador.Nombre }} {{ trabajador.Apellido_P }} {{ trabajador.Apellido_M }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                    
-                <div class="form-group">
-                    <label for="filter-marco">Marcos:</label>
-                    <select class="form-control" id="filter-marco">
-                        <option value="">Todos</option>
-                        {% for marco in marcos %}
-                        <option value="{{ marco }}">{{ marco }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-    
-                <div class="form-group">
-                    <label for="filter-fecha-inicio">Fecha Inicio:</label>
-                    <input type="date" class="form-control" id="filter-fecha-inicio">
-                </div>
-    
-                <div class="form-group">
-                    <label for="filter-fecha-fin">Fecha Fin:</label>
-                    <input type="date" class="form-control" id="filter-fecha-fin">
-                </div>
-    
-                <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
-                <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
-            </form>
-        </div>
-    
-        <div class="container">
-            <div class="chart-section">
-                <h4></h4>
-                <div id="incidentChart"></div>
+    <div class="filter-container">
+        <img src="{% static 'media/logogris.svg' %}" alt="Logo" class="filter-logo">
+        <h4 class="filter-title">Filtros</h4>
+        <form id="filter-form">
+            <div class="form-group">
+                <label for="filter-tipo">Tipos de Problemas:</label>
+                <select class="form-control" id="filter-tipo">
+                    <option value="">Todos</option>
+                    {% for tipo in tipos %}
+                    <option value="{{ tipo }}">{{ tipo }}</option>
+                    {% endfor %}
+                </select>
             </div>
-            <div class="chart-section">
-                <h4></h4>
-                <div id="trabajadoresChart"></div>
+
+            <div class="form-group">
+                <label for="filter-trabajador">Trabajador:</label>
+                <select class="form-control" id="filter-trabajador">
+                    <option value="">Todos</option>
+                    {% for trabajador in trabajadores %}
+                    <option value="{{ trabajador.rut }}">{{ trabajador.nombre }} {{ trabajador.apellido_p }} {{ trabajador.apellido_m }}</option>
+                    {% endfor %}
+                </select>
             </div>
+                
+            <div class="form-group">
+                <label for="filter-marco">Marcos:</label>
+                <select class="form-control" id="filter-marco">
+                    <option value="">Todos</option>
+                    {% for marco in marcos %}
+                    <option value="{{ marco }}">{{ marco }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+
+            <div class="form-group">
+                <label for="filter-fecha-inicio">Fecha Inicio:</label>
+                <input type="date" class="form-control" id="filter-fecha-inicio">
+            </div>
+
+            <div class="form-group">
+                <label for="filter-fecha-fin">Fecha Fin:</label>
+                <input type="date" class="form-control" id="filter-fecha-fin">
+            </div>
+
+            <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
+            <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <div class="chart-section">
+            <h4></h4>
+            <div id="incidentChart"></div>
         </div>
-        
-        <div class="container mt-5">
-            <h4>Datos de Reportes</h4>
-            <table id="dataGrid" class="display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tipo de Problema</th>
-                        <th>Trabajador</th>
-                        <th>Fecha</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Aquí se llenarán los datos dinámicamente -->
-                </tbody>
-            </table>
+        <div class="chart-section">
+            <h4></h4>
+            <div id="trabajadoresChart"></div>
         </div>
-    
+    </div>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
@@ -302,96 +272,20 @@
             });
         }
     
-            
         $(document).ready(function() {
             // Inicialización de los gráficos 
             $.ajax({
                 url: "{% url 'filtrar_reportes' %}",
                 method: "GET",
                 success: function(data) {
-                    console.log(data); // Verifica la estructura de los datos
-                    updateIncidentChart(data);  // Inicializar el gráfico de incidentes
-                    updateBarChart(data);        // Inicializar el gráfico de barras
-
-                    // Inicializar el DataTable después de cargar los datos
-                    $('#dataGrid').DataTable({
-                        // Configuración del AJAX
-                        ajax: {
-                            url: "{% url 'filtrar_reportes' %}",  // Asegúrate de que esta URL devuelva los datos en formato JSON
-                            dataSrc: '',  // Modifica esto según la estructura de tus datos
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                // Manejo de errores
-                                console.error('Error en la carga de datos:', textStatus, errorThrown);
-                                alert('No se pudieron cargar los datos. Intente de nuevo más tarde.');
-                            }
-                        },
-                        // Definición de las columnas
-                        columns: [
-                            { data: 'id', title: 'ID' },  // Cambia esto según tus datos
-                            { data: 'tipo_problema', title: 'Tipo de Problema' },  // Cambia esto según tus datos
-                            { data: 'trabajador', title: 'Trabajador' },  // Cambia esto según tus datos
-                            { data: 'fecha', title: 'Fecha' },  // Cambia esto según tus datos
-                            { data: 'descripcion', title: 'Descripción' }  // Cambia esto según tus datos
-                        ],
-                        // Configuración de la paginación y longitud de página
-                        paging: true,
-                        pageLength: 10,
-                        lengthMenu: [10, 25, 50, 100],
-                        // Configuración de la tabla
-                        responsive: true,
-                        autoWidth: false,
-                        // Opciones de exportación
-                        dom: 'Bfrtip',
-                        buttons: [
-                            {
-                                extend: 'copy',
-                                text: 'Copiar',
-                                titleAttr: 'Copiar datos',
-                                className: 'btn btn-primary'
-                            },
-                            {
-                                extend: 'csv',
-                                text: 'Exportar a CSV',
-                                titleAttr: 'Exportar a CSV',
-                                className: 'btn btn-success'
-                            },
-                            {
-                                extend: 'excel',
-                                text: 'Exportar a Excel',
-                                titleAttr: 'Exportar a Excel',
-                                className: 'btn btn-info'
-                            },
-                            {
-                                extend: 'pdf',
-                                text: 'Exportar a PDF',
-                                titleAttr: 'Exportar a PDF',
-                                className: 'btn btn-danger'
-                            },
-                            {
-                                extend: 'print',
-                                text: 'Imprimir',
-                                titleAttr: 'Imprimir',
-                                className: 'btn btn-warning'
-                            }
-                        ],
-                        // Personalización de la apariencia de la tabla
-                        language: {
-                            url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json'  // Cargar archivo de idioma en español
-                        },
-                        // Ordenación
-                        order: [[0, 'asc']],  // Ordenar por la primera columna (ID)
-                        // Funciones adicionales para mejorar la experiencia del usuario
-                        initComplete: function(settings, json) {
-                            console.log('DataTable inicializado con éxito.');
-                        }
-                    });
+                    updateIncidentChart(data);
+                    updateBarChart(data);
                 },
                 error: function(xhr, status, error) {
-                    console.error("Error al cargar datos iniciales: ", error);
+                    console.error("Error al cargar los gráficos: ", error);
                 }
             });
         });
-</script>
-
+    </script>
 </body>
 </html>

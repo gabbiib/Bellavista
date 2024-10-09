@@ -84,62 +84,65 @@
         a button:hover {
             background-color: #c0392b;
         }
+
+        #noChangesWarning {
+            display: none;
+            color: red; /* Cambia esto según el tipo de mensaje */
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div class="main-container">
         <h1>Editar Información</h1>
-
-        <form method="POST" action="/editData/">
+    
+        <form id="editForm" method="POST" action="/editData/">
             {% csrf_token %}
             <label for="nameSelect">Selecciona el usuario:</label>
             <select id="nameSelect" name="fullName" required>
-                <!-- Las opciones se llenarán dinámicamente con JavaScript -->
             </select>
-            
+    
             <div class="input-group">
-                <label for="editId">RUT:</label>
-                <input type="text" id="editId" name="newId" required placeholder="Ej: 21026807" maxlength="8">
                 <input type="hidden" id="originalId" name="originalId">
+                <label for="editId">RUT:</label>
+                <input type="text" id="editId" name="rut" required placeholder="Ej: 21026807" maxlength="9">
                 
-                <label for="editName">Nombre:</label>
-                <input type="text" id="editName" name="newName" required>
                 <input type="hidden" id="originalName" name="originalName">
+                <label for="editName">Nombre:</label>
+                <input type="text" id="editName" name="nombre" required>
             </div>
-            
+    
             <div class="input-group">
-                <label for="editLastName">Apellido Paterno:</label>
-                <input type="text" id="editLastName" name="newLastName" required>
                 <input type="hidden" id="originalLastName" name="originalLastName">
-                
-                <label for="editMotherLastName">Apellido Materno:</label>
-                <input type="text" id="editMotherLastName" name="newMotherLastName" required>
+                <label for="editLastName">Apellido Paterno:</label>
+                <input type="text" id="editLastName" name="apellido_p" required>
+    
                 <input type="hidden" id="originalMotherLastName" name="originalMotherLastName">
+                <label for="editMotherLastName">Apellido Materno:</label>
+                <input type="text" id="editMotherLastName" name="apellido_m" required>
             </div>
-
+    
             <div class="input-group">
-                <label for="editDate">Fecha de Nacimiento:</label>
-                <input type="date" id="editDate" name="newDate" required>
                 <input type="hidden" id="originalDate" name="originalDate">
-                
-                <label for="editRole">Código de Rol:</label>
-                <input type="text" id="editRole" name="newRole" required>
-                <input type="hidden" id="originalRole" name="originalRole">
+                <label for="editDate">Fecha de Nacimiento:</label>
+                <input type="date" id="editDate" name="fecha_n" required>
             </div>
-
+    
             <div class="input-group">
-                <label for="editEmail">Correo:</label>
-                <input type="email" id="editEmail" name="newEmail" required>
                 <input type="hidden" id="originalEmail" name="originalEmail">
+                <label for="editEmail">Correo:</label>
+                <input type="email" id="editEmail" name="correo" required>
+    
+                <input type="hidden" id="originalTelefono" name="originalTelefono">
+                <label for="editTelefono">Teléfono:</label>
+                <input type="text" id="editTelefono" name="telefono" required>
             </div>
-            
+    
             <button type="submit" id="saveChanges" disabled>Guardar Cambios</button>
-            <div id="noChangesWarning" style="display: none; color: red; text-align: center;">
-                No se han realizado cambios. Por favor, modifica algún campo para guardar.
-            </div>
-        </form>        
-
+            <div id="noChangesWarning" style="display: none;">No se han realizado cambios. Por favor, modifica algún campo para guardar.</div>
+        </form>
+           
         <a href="{% url 'index' %}"><button>Volver a la Página Principal</button></a>
     </div>
 
@@ -151,9 +154,10 @@
             document.getElementById('editLastName').value = '';
             document.getElementById('editMotherLastName').value = '';
             document.getElementById('editDate').value = '';
-            document.getElementById('editRole').value = '';
             document.getElementById('editEmail').value = '';
+            document.getElementById('editTelefono').value = '';
             document.getElementById('saveChanges').disabled = true;
+            document.getElementById('noChangesWarning').style.display = 'none'; // Ocultar el mensaje de advertencia
         }
     
         // Cargar nombres desde la base de datos
@@ -193,54 +197,63 @@
                 const userData = await response.json();
                 
                 // Rellenar los campos del formulario con los datos del usuario
-                document.getElementById('editId').value = userData.id_trabajador;
-                document.getElementById('originalId').value = userData.id_trabajador;
-                document.getElementById('editName').value = userData.Nombre;
-                document.getElementById('originalName').value = userData.Nombre;
-                document.getElementById('editLastName').value = userData.Apellido_P;
-                document.getElementById('originalLastName').value = userData.Apellido_P;
-                document.getElementById('editMotherLastName').value = userData.Apellido_M;
-                document.getElementById('originalMotherLastName').value = userData.Apellido_M;
-                document.getElementById('editDate').value = userData.Fecha_N;
-                document.getElementById('originalDate').value = userData.Fecha_N;
-                document.getElementById('editRole').value = userData.cod_rol;
-                document.getElementById('originalRole').value = userData.cod_rol;
+                document.getElementById('editId').value = userData.rut;
+                document.getElementById('originalId').value = userData.rut;
+                document.getElementById('editName').value = userData.nombre;
+                document.getElementById('originalName').value = userData.nombre;
+                document.getElementById('editLastName').value = userData.apellido_p;
+                document.getElementById('originalLastName').value = userData.apellido_p;
+                document.getElementById('editMotherLastName').value = userData.apellido_m;
+                document.getElementById('originalMotherLastName').value = userData.apellido_m;
+                document.getElementById('editDate').value = userData.fecha_n;
+                document.getElementById('originalDate').value = userData.fecha_n;
                 document.getElementById('editEmail').value = userData.correo;
                 document.getElementById('originalEmail').value = userData.correo;
+                document.getElementById('editTelefono').value = userData.telefono;
+                document.getElementById('originalTelefono').value = userData.telefono;
                 document.getElementById('saveChanges').disabled = false; // Habilitar botón de guardar cambios
             } catch (error) {
                 console.error('Error cargando datos del usuario:', error);
             }
         }
     
-        // Evento cuando cambia la selección del nombre
-        document.getElementById('nameSelect').addEventListener('change', (e) => {
-            const fullName = e.target.value;
-            if (fullName) {
-                loadUserData(fullName);
+        // Evento para cambiar el usuario seleccionado
+        document.getElementById('nameSelect').addEventListener('change', function() {
+            const selectedFullName = this.value;
+            if (selectedFullName) {
+                loadUserData(selectedFullName);
             } else {
-                clearForm(); // Limpiar el formulario si no hay selección
+                clearForm(); // Limpiar formulario si no hay selección
             }
         });
     
-        // Validar cambios en el formulario
-        const form = document.querySelector('form');
-        const saveButton = document.getElementById('saveChanges');
-        const noChangesWarning = document.getElementById('noChangesWarning');
-    
-        form.addEventListener('input', () => {
-            // Compara los valores actuales con los valores originales
-            const hasChanges = Array.from(form.elements).some(input => 
-                input.type !== 'hidden' && input.value !== input.previousElementSibling.value
-            );
-            
-            // Habilitar o deshabilitar el botón según si hay cambios
-            save
-            saveButton.disabled = !hasChanges;
-            noChangesWarning.style.display = hasChanges ? 'none' : 'block';
+        // Manejar el envío del formulario
+        document.getElementById('editForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                // Verificar si se han realizado cambios
+                if (result.error) {
+                    // Si no se realizaron cambios, mostrar advertencia
+                    document.getElementById('noChangesWarning').style.display = 'block';
+                } else {
+                    clearForm(); 
+                    window.location.href = "{% url 'success_edit' %}";
+                    loadNames();
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario:', error);
+            }
         });
     
-        // Inicializar cargando los nombres
+        // Inicializar
         loadNames();
     </script>
 
