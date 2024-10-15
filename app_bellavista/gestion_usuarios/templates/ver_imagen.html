@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Ver Imagen - Canal Bellavista</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #F3F5F7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .image-container {
+      text-align: center;
+      max-width: 90%;
+      overflow: hidden; 
+    }
+
+    img {
+      max-width: 100%; 
+      max-height: 400px;
+      height: auto; 
+      width: auto; 
+    }
+
+    .volver-btn {
+      background-color: #2D6A8E;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 20px;
+      display: inline-block;
+    }
+
+    .volver-btn:hover {
+      background-color: #245870;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="image-container">
+    <img src="{{ reporte.foto_url.url }}" alt="Imagen del reporte" class="img-fluid">
+    <br>
+    <a href="javascript:history.back()" class="volver-btn">Volver atrás</a>
+  </div>
+
+</body>
+</html>

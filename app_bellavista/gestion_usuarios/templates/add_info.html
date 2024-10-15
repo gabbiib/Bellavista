@@ -108,19 +108,19 @@
         <form id="dataForm" method="POST" action="{% url 'perform_add' %}">
             {% csrf_token %}
             <label for="id_trabajador">RUT:</label>
-            <input type="text" id="id_trabajador" name="id_trabajador" maxlength="8" required placeholder="Ej: 21026807">
+            <input type="text" id="id_trabajador" name="rut" maxlength="8" required placeholder="Ej: 21026807">
 
             <label for="name">Nombre:</label>
-            <input type="text" id="name" name="Nombre" required>
+            <input type="text" id="name" name="nombre" required>
 
             <label for="apellidoP">Apellido Paterno:</label>
-            <input type="text" id="apellidoP" name="Apellido_P" required>
+            <input type="text" id="apellidoP" name="apellido_p" required>
 
             <label for="apellidoM">Apellido Materno:</label>
-            <input type="text" id="apellidoM" name="Apellido_M" required>
+            <input type="text" id="apellidoM" name="apellido_m" required>
 
             <label for="fechaN">Fecha de Nacimiento:</label>
-            <input type="date" id="fechaN" name="Fecha_N" required>
+            <input type="date" id="fechaN" name="fecha_n" required>
 
             <label for="cod_rol">Código de Rol:</label>
             <select id="cod_rol" name="cod_rol" required>
@@ -132,6 +132,9 @@
             <label for="correo">Correo:</label>
             <input type="email" id="correo" name="correo" required>
 
+            <label for="telefono">Telefono:</label>
+            <input type="telefono" id="telefono" name="telefono" required>
+
             <!-- Contenedor para la contraseña y el botón -->
             <label for="password">Contraseña:</label>
             <div class="password-container">
@@ -141,7 +144,7 @@
             <button type="submit">Enviar</button>
         </form>
 
-        <a href="{% url 'index' %}"><button>Volver a la Página Principal</button></a>
+        <a href="{% url 'inicio_admin' %}"><button>Volver a la Página Principal</button></a>
     </div>
 
 </body>

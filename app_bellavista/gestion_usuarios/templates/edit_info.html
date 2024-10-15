@@ -101,6 +101,7 @@
             {% csrf_token %}
             <label for="nameSelect">Selecciona el usuario:</label>
             <select id="nameSelect" name="fullName" required>
+                <!-- Opciones se cargarán aquí -->
             </select>
     
             <div class="input-group">
@@ -143,7 +144,7 @@
             <div id="noChangesWarning" style="display: none;">No se han realizado cambios. Por favor, modifica algún campo para guardar.</div>
         </form>
            
-        <a href="{% url 'index' %}"><button>Volver a la Página Principal</button></a>
+        <a href="{% url 'inicio_admin' %}"><button>Volver a la Página Principal</button></a>
     </div>
 
     <script>
@@ -166,11 +167,7 @@
                 const response = await fetch('/getNames');
                 const names = await response.json();
                 const select = document.getElementById('nameSelect');
-    
-                // Limpiar el select antes de añadir nuevas opciones
                 select.innerHTML = '';
-    
-                // Agregar una opción vacía al principio
                 const defaultOption = document.createElement('option');
                 defaultOption.value = '';
                 defaultOption.textContent = 'Selecciona un usuario';
@@ -178,7 +175,6 @@
                 defaultOption.selected = true;
                 select.appendChild(defaultOption);
     
-                // Rellenar el select con los nombres completos
                 names.forEach(name => {
                     const option = document.createElement('option');
                     option.value = name; // Valor del option es el fullName
@@ -241,7 +237,6 @@
 
                 // Verificar si se han realizado cambios
                 if (result.error) {
-                    // Si no se realizaron cambios, mostrar advertencia
                     document.getElementById('noChangesWarning').style.display = 'block';
                 } else {
                     clearForm(); 

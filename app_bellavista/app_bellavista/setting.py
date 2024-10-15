@@ -128,4 +128,57 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
+# settings.py
+LOGOUT_REDIRECT_URL = '/login/'  
+
+
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración de sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Usa sesiones basadas en base de datos
+
+LOGIN_URL = '/accounts/login/'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
+SESSION_COOKIE_SECURE = False  # Cambia a True si estás en producción con HTTPS
+CSRF_COOKIE_SECURE = False    # Cambia a True si estás en producción con HTTPS
+
+AUTH_USER_MODEL = 'appcanal.Usuarios'
+
+
+SESSION_COOKIE_AGE = 1209600  # Duración en segundos (2 semanas)
+
+#import os
+#from dotenv import load_dotenv  # Importa la función para cargar .env
+
+# Cargar las variables del archivo .env
+#load_dotenv()
+
+# Ahora puedes acceder a las variables con os.getenv
+#SECRET_KEY = os.getenv('SECRET_KEY')
+#EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+#EMAIL_HOST = os.getenv('EMAIL_HOST')
+#EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))  # Pasa a entero si es necesario
+#EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+#EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
+#EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+#EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+#DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+#ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
+
+#TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+#TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+#TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

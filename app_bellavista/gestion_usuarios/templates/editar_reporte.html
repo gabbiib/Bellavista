@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Canal Bellavista - Editar Reporte</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #F3F5F7;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2D6A8E;
+      padding: 10px 20px;
+      color: white;
+    }
+
+    .header img {
+      max-width: 100px;
+    }
+
+    .header .logout-btn {
+      background-color: white;
+      color: #2D6A8E;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      width: 150px;
+      text-align: center;
+    }
+
+    .header .logout-btn:hover {
+      background-color: #F3F5F7;
+      color: #2D6A8E;
+    }
+
+    .edit-report-container {
+      padding: 80px;
+      flex-grow: 1;
+    }
+
+    .edit-report-header {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #2D6A8E;
+      text-align: center;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      text-align: left; /* Alinea el texto hacia la izquierda */
+      vertical-align: middle; /* Alinea verticalmente el texto */
+    }
+
+    textarea {
+      height: 100px; /* Altura específica para los textareas */
+      resize: vertical; /* Permite cambiar solo la altura */
+    }
+
+    input[type="text"], textarea {
+      line-height: 1.5; /* Asegura que el texto esté bien alineado verticalmente */
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2D6A8E;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* Alinea todos los inputs y textareas al mismo inicio */
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .btn-primary {
+      background-color: #2D6A8E;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #245870;
+    }
+
+    .btn-secondary {
+      background-color: #F3F5F7;
+      color: #2D6A8E;
+    }
+
+    .btn-secondary:hover {
+      background-color: #E0E4E7;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
+    <a href="{% url 'ver_reportes' %}" class="logout-btn">Volver a Reportes</a>
+  </div>
+
+  <div class="edit-report-container">
+    <h1 class="edit-report-header">Editar Reporte: {{ reporte.id }}</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        {{ form.descripcion }}
+      </div>
+
+      <div class="form-group">
+        <label for="marco">Marco:</label>
+        {{ form.marco }}
+      </div>
+
+      <div class="form-group">
+        <label for="medida_marco">Medida marco:</label>
+        {{ form.medida_marco }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      <a href="{% url 'ver_reportes' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</body>
+</html>

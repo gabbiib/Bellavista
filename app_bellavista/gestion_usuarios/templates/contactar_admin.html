@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Contactar al Administrador</title>
+</head>
+<body>
+    <div class="container">
+        <h3><strong>Contactar al Administrador</strong></h3>
+        <p class="mb-4">Escribe tu mensaje para que el administrador pueda ayudarte.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Enviar Correo al Administrador</button>
+        </form>
+        <a href="{% url 'login' %}" class="forgot-pass">Volver al inicio de sesión</a>
+    </div>
+</body>
+</html>

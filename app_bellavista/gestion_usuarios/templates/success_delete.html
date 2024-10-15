@@ -47,7 +47,8 @@
 <body>
     <div class="container">
         <p class="message">Registro eliminado exitosamente.</p>
-        <a href="/"><button>Volver a la Página Principal</button></a>
+        <a href="{% url 'inicio_admin' %}"><button>Volver a la Página Principal</button></a>
+        <a href="{% url 'delete_page' %}"><button>Continuar Eliminando</button></a>
     </div>
 </body>
 </html>

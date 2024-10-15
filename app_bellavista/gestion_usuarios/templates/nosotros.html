@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia - Canal Bellavista</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: transparent;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 2;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            margin-right: 35px;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 19px;
+        }
+
+        .logo {
+            width: 120px;
+        }
+
+        header {
+            background: url('{% static 'images/canal.jpeg' %}') no-repeat center center/cover;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 48px;
+            color: white;
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            padding: 50px;
+            background-color: #f4f4f4;
+            flex-grow: 1;
+        }
+
+        .info-section .left {
+            font-size: 36px; 
+            font-weight: bold;
+            text-align: right;
+            color: #2D6A8E; 
+            width: 40%;
+        }
+
+        .info-section .right {
+            font-size: 19px;
+            line-height: 1.9; 
+            text-align: justify; 
+            width: 40%; 
+            margin-left: auto;
+            margin-right: calc(10% - 20px);
+        }
+
+        footer {
+            background-color: #ffffff;
+            color: #333;
+            text-align: center;
+            padding: 20px 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        footer img {
+            max-width: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .info-section {
+                flex-direction: column;
+                padding: 30px;
+            }
+
+            .info-section .left, .info-section .right {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            header h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            header h1 {
+                font-size: 28px;
+            }
+
+            .logo {
+                max-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista" class="logo">
+        <ul>
+            <li><a href="{% url 'inicio' %}">Inicio</a></li>
+            <li><a href="{% url 'nosotros' %}">Nosotros</a></li>
+            <li><a href="{% url 'contacto' %}">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>Acerca de Nosotros</h1>
+    </header>
+
+    <section class="info-section">
+        <div class="left">
+            Asociación desde 1845
+        </div>
+        <div class="right">
+            Este canal fue construido en el siglo XIX inicialmente para regar las terrazas más altas de la ribera sur del río Elqui correspondientes a los antiguos fundos Vista Bella (Km. 25.198), Monardes la Quebrada de Monardes, prolongándose durante la primera y segunda década de este siglo hasta el Km. 58.267 como canal matriz (Marco: Cerrillos-Retiro), cambiando su dirección oriente-poniente a norte sur al rodear la ladera del Cerro-Grande, frente a la ciudad de La Serena.
+            <br><br>
+            Desde 1845 desde su conformación, la Asociación de Canalistas genera una importante producción de hortalizas representando un 63% de los cultivos, constituyendo esta zona un importante proveedor de este tipo de productos para la capital del país. Por otra parte, el restante 37% de la producción corresponde a especies frutales, principalmente chirimoyos y cítricos. Tenemos la responsabilidad de mantener más de 6.000 has operativas pese a esta gran sequía que nos afecta por más de una década.
+            <br><br>
+            A principios del siglo XX los regantes del canal no superaban una treintena de usuarios, en la actualidad tenemos casi 1.500 usuarios donde más del 70% son pequeños regantes, esencialmente producto de la reforma agraria.
+        </div>
+    </section>
+
+    <footer>
+        <img src="{% static 'images/logo.png' %}" alt="Logo Canal Bellavista Footer">
+        <p>© 2024 Canal Bellavista. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

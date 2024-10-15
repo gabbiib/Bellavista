@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Canal Bellavista - Reportes de Problemas</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #F3F5F7;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2D6A8E;
+      padding: 10px 20px;
+      color: white;
+    }
+
+    .header img {
+      max-width: 100px;
+    }
+
+    .header .logout-btn, .header .edit-profile-btn {
+      background-color: white;
+      color: #2D6A8E;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      width: 150px;
+      text-align: center;
+    }
+
+    .header .logout-btn:hover {
+      background-color: #F3F5F7;
+      color: #2D6A8E;
+    }
+
+    .tareas-reportes-container {
+      padding: 80px;
+      flex-grow: 1;
+    }
+
+    .tareas-reportes-header {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #2D6A8E;
+      text-align: center;
+    }
+
+    .tareas-reportes-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 18px;
+    }
+
+    .tareas-reportes-th, .tareas-reportes-td {
+      padding: 15px;
+      border: 1px solid #ddd;
+    }
+
+    .tareas-reportes-th {
+      background-color: #f4f4f4;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .tareas-reportes-button-wrapper {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .tareas-reportes-button {
+      display: inline-block;
+      background-color: #2D6A8E;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .tareas-reportes-button:hover {
+      background-color: #245870;
+    }
+
+    .edit-icon {
+      width: 20px; 
+      height: auto; 
+    }
+    .sort-container {
+      display: flex;
+      align-items: center; 
+      justify-content: space-between; 
+    }
+
+    .sort-arrows {
+      display: flex;
+      flex-direction: column;
+      margin-left: 5px; 
+    }
+
+    .sort-arrows a {
+      font-size: 12px;
+      line-height: 1;
+      color: #2D6A8E;
+      text-decoration: none;
+      margin-left: 2px; 
+    }
+
+    .sort-arrows a:hover {
+      color: #1E4A6B;
+    }
+
+    .tareas-reportes-table a {
+      color: #2D6A8E; 
+      text-decoration: none; 
+    }
+
+    .tareas-reportes-table a:hover {
+      color: #1E4A6B; 
+      text-decoration: underline; 
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
+    <div>
+      <a href="{% url 'inicio_admin' %}" class="logout-btn">Volver atrás</a>
+      <form action="{% url 'logout' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">Cerrar Sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="tareas-reportes-container">
+    <h1 class="tareas-reportes-header">Reportes de Problemas</h1>
+    {% if messages %}
+    <div class="alert alert-success">
+      {% for message in messages %}
+        <p>{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <table class="tareas-reportes-table">
+      <thead>
+        <tr>
+          <th class="tareas-reportes-th">ID</th>
+          <th class="tareas-reportes-th">Descripción</th>
+          <th class="tareas-reportes-th">Marco</th>
+          <th class="tareas-reportes-th">Medida del Marco</th>
+          <th class="tareas-reportes-th">Usuario que Reportó</th>
+          <th class="tareas-reportes-th">
+            <div class="sort-container">
+              <span>Fecha del Reporte</span>
+              <div class="sort-arrows">
+                <a href="?ordenar=asc" title="Ordenar ascendente">&#9650;</a>
+                <a href="?ordenar=desc" title="Ordenar descendente">&#9660;</a>
+              </div>
+            </div>
+          <th class="tareas-reportes-th">Ver Imagen</th>
+          <th class="tareas-reportes-th">Ubicación</th> 
+          <th class="tareas-reportes-th">Editar reporte</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reporte in reportes %}
+          <tr>
+            <td>{{ reporte.id }}</td>
+            <td>{{ reporte.descripcion }}</td>
+            <td>{{ reporte.marco }}</td>
+            <td>{{ reporte.medida_marco }}</td>
+            <td>{{ reporte.rut_usuario.nombre }} {{ reporte.rut_usuario.apellido_p }} {{ reporte.rut_usuario.apellido_m }}</td>
+            <td>{{ reporte.fecha_reporte|date:"d-m-Y H:i" }}</td>
+            <td>
+              {% if reporte.foto_url %}
+                <a href="{% url 'ver_imagen' reporte.id %}">Ver</a>
+              {% else %}
+                No disponible
+              {% endif %}
+            </td>            
+            <td>
+              {% if reporte.latitud and reporte.longitud %}
+                <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver mapa</a>
+              {% else %}
+                No hay ubicación disponible
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'editar_reporte' reporte.id %}"style="display: block; text-align: center;">
+                <img src="{% static 'images/edit.png' %}" alt="Editar" class="edit-icon">
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8">No hay reportes disponibles.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

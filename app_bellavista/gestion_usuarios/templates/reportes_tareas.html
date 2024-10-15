@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Reportes de Tareas</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #F3F5F7;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1 {
+            color: #2D6A8E;
+        }
+        .btn-primary {
+            background-color: #2D6A8E;
+            border-color: #2D6A8E;
+        }
+        .btn-primary:hover {
+            background-color: #245870;
+            border-color: #245870;
+        }
+        .separator-line {
+            border-top: 3px solid #2D6A8E;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #2D6A8E;
+            color: white;
+        }
+        td {
+            background-color: #fff;
+        }
+        .chart-container {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Reportes de Tareas</h1>
+
+    <!-- Filtros -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Filtrar por Fecha</th>
+                <th>Filtrar por Trabajador</th>
+                <th>Seleccionar Tipo de Gráfico</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="month" id="filterDate" class="form-control">
+                </td>
+                <td>
+                    <select id="filterWorker" class="form-control">
+                        <option value="">Todos</option>
+                        {% for trabajador in trabajadores %}
+                        <option value="{{ trabajador.rut }}" {% if asignacion.trabajador.rut == trabajador.rut %}selected{% endif %}>{{ trabajador.full_name }}</option> <!-- Usar el nombre completo del trabajador -->
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select id="chartType" class="form-control">
+                        <option value="tareas-prioridad">Tareas por Prioridad</option>
+                        <option value="asignaciones-estado">Asignaciones por Estado</option>
+                        <option value="tareas-asignadas">Tareas Asignadas vs No Asignadas</option>
+                        <option value="avance-trabajador">Avance por Trabajador</option>
+                        <option value="tiempo-finalizacion">Tiempo Promedio de Finalización</option>
+                        <option value="tareas-mes">Tareas por Mes</option>
+                    </select>
+                </td>
+                <td>
+                    <button id="generateReport" class="btn btn-primary">Generar Reporte</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Separador -->
+    <hr class="separator-line">
+
+    <!-- Contenedor para los gráficos -->
+    <div id="chartContainer" class="chart-container"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+<script>
+    function generateChart(chartType, workerId, filterDate) {
+        $.ajax({
+            url: "{% url 'get_report_data' %}",
+            data: {
+                chartType: chartType,
+                workerId: workerId,
+                filterDate: filterDate
+            },
+            success: function(responseData) {
+                let chartOptions = {};
+
+                switch(chartType) {
+                    case 'tareas-prioridad':
+                        chartOptions = {
+                            chart: { type: 'column' },
+                            title: { text: 'Tareas por Prioridad' },
+                            xAxis: { categories: ['Alta', 'Media', 'Baja'] },
+                            yAxis: { title: { text: 'Número de Tareas' } },
+                            series: [{ name: 'Tareas', data: responseData }]
+                        };
+                        break;
+
+                    case 'asignaciones-estado':
+                        chartOptions = {
+                            chart: { type: 'pie' },
+                            title: { text: 'Asignaciones por Estado' },
+                            series: [{ name: 'Asignaciones', data: responseData }]
+                        };
+                        break;
+
+                    case 'tareas-asignadas':
+                        chartOptions = {
+                            chart: { type: 'bar' },
+                            title: { text: 'Tareas Asignadas vs No Asignadas' },
+                            xAxis: { categories: ['Asignadas', 'No Asignadas'] },
+                            yAxis: { title: { text: 'Número de Tareas' } },
+                            series: [{ name: 'Tareas', data: responseData }]
+                        };
+                        break;
+
+                    case 'avance-trabajador':
+                        chartOptions = {
+                            chart: { type: 'column' },
+                            title: { text: 'Avance por Trabajador' },
+                            xAxis: { categories: responseData.map(item => item.name) },
+                            yAxis: { title: { text: 'Tareas Completadas' } },
+                            series: [{ name: 'Tareas Completadas', data: responseData.map(item => item.y) }]
+                        };
+                        break;
+
+                    case 'tiempo-finalizacion':
+                        chartOptions = {
+                            chart: { type: 'line' },
+                            title: { text: 'Tiempo Promedio de Finalización (en días)' },
+                            xAxis: { categories: responseData.map(item => item.name) },
+                            yAxis: { title: { text: 'Tiempo en días' } },
+                            series: [{ name: 'Tiempo Promedio', data: responseData.map(item => item.y) }]
+                        };
+                        break;
+
+                    case 'tareas-mes':
+                        chartOptions = {
+                            chart: { type: 'column' },
+                            title: { text: 'Tareas por Mes' },
+                            xAxis: { categories: responseData.map(item => item.name) },
+                            yAxis: { title: { text: 'Número de Tareas' } },
+                            series: [{ name: 'Tareas', data: responseData.map(item => item.y) }]
+                        };
+                        break;
+                }
+
+                Highcharts.chart('chartContainer', chartOptions);
+            }
+        });
+    }
+
+    document.getElementById('generateReport').addEventListener('click', function() {
+        const chartType = document.getElementById('chartType').value;
+        const workerId = document.getElementById('filterWorker').value;
+        const filterDate = document.getElementById('filterDate').value;
+        generateChart(chartType, workerId, filterDate);
+    });
+</script>
+
+</body>
+</html>
