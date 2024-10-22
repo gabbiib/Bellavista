@@ -1,0 +1,113 @@
+{% extends "./base_gestion_datos.html" %}
+
+{% block title %} Gestión de Usuarios {% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-dismissible alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong class="text-dark">{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <h2>Gestión de Usuario</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="/data/registrarUsuario/" method="POST">{% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" id="txtRut" name="txtRut" class="form-control" placeholder="RUT"
+                            maxlength="9" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="txtNombre" name="txtNombre" class="form-control" placeholder="Nombre"
+                            maxlength="20" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="txtApellido_P" name="txtApellido_P" class="form-control" placeholder="Apellido Paterno"
+                            maxlength="20" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="txtApellido_M" name="txtApellido_M" class="form-control" placeholder="Apellido Materno"
+                            maxlength="20" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="txtFecha_n" name="txtFecha_n" class="form-control" placeholder="Fecha de Nacimiento"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="txtRol">Código de Rol:</label>
+                        <select id="txtRol" name="txtRol" class="form-control" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="1">1 - Administrador</option>
+                            <option value="2">2 - Usuario</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="email" id="numCorreo" name="numCorreo" class="form-control" placeholder="Correo Electrónico"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="numTelefono" name="numTelefono" class="form-control" placeholder="Teléfono"
+                            pattern="[0-9]{9}" maxlength="9"required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="numPassword" name="numPassword" class="form-control" placeholder="Contraseña"
+                            minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8">
+        <h1>Listado de Usuarios</h1>
+        <div class="table-responsive py-2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>RUT</th>
+                        <th>Nombre</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Rol</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th colspan="2">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ u.rut }}</td>
+                        <td>{{ u.nombre }}</td>
+                        <td>{{ u.apellido_p }}</td>
+                        <td>{{ u.apellido_m }}</td>
+                        <td>
+                            {% if u.rol.id_rol == 1 %}
+                                Administrador
+                            {% elif u.rol.id_rol == 2 %}
+                                Usuario
+                            {% else %}
+                                Desconocido
+                            {% endif %}
+                        </td>                                              
+                        <td>{{ u.correo }}</td>
+                        <td>{{ u.telefono }}</td>
+                        <td><a href="/data/edicionUsuario/{{ u.rut }}" class="btn btn-info">Editar</a></td>
+                        <td><a href="/data/eliminarUsuario/{{ u.rut }}" class="btn btn-danger btnEliminacion">Eliminar</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

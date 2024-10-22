@@ -214,7 +214,7 @@
             }
 
             $.ajax({
-                url: "{% url 'filtrar_reportes' %}",
+                url: "{% url 'gestion_usuarios:filtrar_reportes' %}",
                 method: "GET",
                 data: {
                     trabajador: trabajador,
@@ -299,7 +299,7 @@
         $(document).ready(function() {
             // Inicialización de los gráficos 
             $.ajax({
-                url: "{% url 'filtrar_reportes' %}",
+                url: "{% url 'gestion_usuarios:filtrar_reportes' %}",
                 method: "GET",
                 success: function(data) {
                     updateIncidentChart(data);

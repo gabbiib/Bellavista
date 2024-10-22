@@ -217,7 +217,7 @@
 <div class="header">
     <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
         
-    <form action="{% url 'inicio_admin' %}" method="post" style="display:inline;">
+    <form action="{% url 'gestion_usuarios:inicio_admin' %}" method="post" style="display:inline;">
       {% csrf_token %}
       <button type="submit" class="logout-btn">Volver Atrás</button>
     </form>
@@ -239,7 +239,7 @@
             <hr class="blue-separator">
         </div>
     
-        <form id="filterForm" method="GET" action="{% url 'filtrar_tareas_ajax' %}">
+        <form id="filterForm" method="GET" action="{% url 'gestion_usuarios:filtrar_tareas_ajax' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="filterList">Filtrar por:</label>
@@ -311,7 +311,7 @@
             <h2>Crear nueva tarea</h2>
             <hr class="blue-separator">
         </div>
-        <form id="newTaskForm" method="POST" action="{% url 'crear_tarea_ajax' %}">
+        <form id="newTaskForm" method="POST" action="{% url 'gestion_usuarios:crear_tarea_ajax' %}">
             {% csrf_token %}
 
             <div class="form-group">
@@ -352,7 +352,7 @@
                 <td>{{ tarea.descripcion }}</td>
                 <td>{{ tarea.prioridad }}</td>
                 <td>
-                    <form method="POST" id="formAsignar{{ tarea.id }}" class="assign-task-form" data-task-id="{{ tarea.id }}" data-url="{% url 'asignar_tarea_ajax' %}">
+                    <form method="POST" id="formAsignar{{ tarea.id }}" class="assign-task-form" data-task-id="{{ tarea.id }}" data-url="{% url 'gestion_usuarios:asignar_tarea_ajax' %}">
                         {% csrf_token %}
                         <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
                         <div class="form-group">
@@ -367,7 +367,7 @@
                     </form>                    
                 </td>
                 <td>
-                    <form method="POST" id="formEliminarTarea{{ tarea.id }}" class="delete-task-form" data-tarea-id="{{ tarea.id }}" data-url="{% url 'eliminar_tarea_ajax' %}">
+                    <form method="POST" id="formEliminarTarea{{ tarea.id }}" class="delete-task-form" data-tarea-id="{{ tarea.id }}" data-url="{% url 'gestion_usuarios:eliminar_tarea_ajax' %}">
                         {% csrf_token %}
                         <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
                         <button type="submit" class="btn btn-icon">
@@ -382,7 +382,7 @@
             <!-- Fila del formulario de edición, inicialmente oculta -->
             <tr id="editForm{{ tarea.id }}" class="edit-form-row" style="display: none;">
                 <td colspan="6">
-                    <form id="editTarea{{ tarea.id }}" class="edit-tarea-form" data-assignment-id="{{ tarea.id }}" data-url="{% url 'editar_tarea_ajax' %}">
+                    <form id="editTarea{{ tarea.id }}" class="edit-tarea-form" data-assignment-id="{{ tarea.id }}" data-url="{% url 'gestion_usuarios:editar_tarea_ajax' %}">
                         {% csrf_token %}
                         <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
                         <div class="form-group">
@@ -435,7 +435,7 @@
                 <td>{{ asignacion.estado }}</td>
                 <td>
                 <div class="action-buttons asignadas"> 
-                    <form method="POST" id="formEliminarAsignacion{{ asignacion.id }}" class="delete-assignment-form" data-assignment-id="{{ asignacion.id }}" data-url="{% url 'eliminar_asignacion_ajax' %}">
+                    <form method="POST" id="formEliminarAsignacion{{ asignacion.id }}" class="delete-assignment-form" data-assignment-id="{{ asignacion.id }}" data-url="{% url 'gestion_usuarios:eliminar_asignacion_ajax' %}">
                         {% csrf_token %}
                         <input type="hidden" name="asignacion_id" value="{{ asignacion.id }}">
                         <button type="submit" class="btn btn-icon">
@@ -452,7 +452,7 @@
         <tr id="editRow{{ asignacion.id }}" class="edit-form-row" style="display: none;">
             <td colspan="7">
                 <div class="edit-form">
-                    <form method="POST" id="editFormAsignacion{{ asignacion.id }}" class="edit-assignment-form" data-assignment-id="{{ asignacion.id }}" data-url="{% url 'editar_asignacion_ajax' %}">
+                    <form method="POST" id="editFormAsignacion{{ asignacion.id }}" class="edit-assignment-form" data-assignment-id="{{ asignacion.id }}" data-url="{% url 'gestion_usuarios:editar_asignacion_ajax' %}">
                         {% csrf_token %}
                         <input type="hidden" name="asignacion_id" value="{{ asignacion.id }}">
                         <div class="form-group">
@@ -492,9 +492,9 @@
     var staticUrl = "{% static 'img/' %}";
 </script>
 <script>
-    var asignarTareaUrl = "{% url 'asignar_tarea_ajax' %}";
-    var eliminarAsignacionUrl = "{% url 'eliminar_asignacion_ajax' %}";
-    var editarAsignacionUrl = "{% url 'editar_asignacion_ajax' %}";
+    var asignarTareaUrl = "{% url 'gestion_usuarios:asignar_tarea_ajax' %}";
+    var eliminarAsignacionUrl = "{% url 'gestion_usuarios:eliminar_asignacion_ajax' %}";
+    var editarAsignacionUrl = "{% url 'gestion_usuarios:editar_asignacion_ajax' %}";
 </script>
 <script src="{% static 'js/scripts.js' %}"></script>
 </body>

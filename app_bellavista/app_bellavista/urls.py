@@ -19,6 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Ruta para la interfaz de administración de Django
-    path('', include('gestion_usuarios.urls')),  # Incluye las URLs de la aplicación gestion_usuarios
+    path('usuarios/', include('gestion_usuarios.urls')),
+    path('data/', include('gestion_datos.urls')), 
 ]
 

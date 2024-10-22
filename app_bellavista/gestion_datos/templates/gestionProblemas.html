@@ -1,0 +1,64 @@
+{% extends "./base_gestion_datos.html" %}
+
+{% block title %} Gestión de Problemas {% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-dismissible alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong class="text-dark">{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <h2>Gestión de Problemas</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="/data/registrarProblema/" method="POST">{% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" id="txtProblema" name="txtProblema" class="form-control" placeholder="Nombre"
+                            maxlength="20" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="txtDescripcion" name="txtDescripcion" class="form-control" placeholder="Descripcion"
+                            maxlength="40" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8">
+        <h1>Listado de Problemas</h1>
+        <div class="table-responsive py-2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Problema</th>
+                        <th>Descripción</th>
+                        <th colspan="2">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in problemas %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td>{{ p.descripcion }}</td>
+                        <td><a href="/data/edicionProblema/{{ p.id }}" class="btn btn-info">Editar</a></td>
+                        <td><a href="/data/eliminarProblema/{{ p.id }}" class="btn btn-danger btnEliminacion">Eliminar</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

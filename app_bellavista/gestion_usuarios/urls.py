@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from .views import ver_reportes, editar_reporte 
 
+app_name = 'gestion_usuarios'
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),

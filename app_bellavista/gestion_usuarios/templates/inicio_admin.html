@@ -197,17 +197,17 @@
               <!-- Menú desplegable primero -->
               <div class="dropdown">
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Gestionar Usuarios
+                      Gestionar Datos
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a class="dropdown-item" href="{% url 'add_page' %}">Agregar Usuario</a>
-                      <a class="dropdown-item" href="{% url 'edit_page' %}">Editar Usuario</a>
-                      <a class="dropdown-item" href="{% url 'delete_page' %}">Eliminar Usuario</a>
+                      <a class="dropdown-item" href="{% url 'gestion_datos:gestion_usuarios' %}">Gestion de Usuarios</a>
+                      <a class="dropdown-item" href="{% url 'gestion_datos:gestion_problemas' %}">Gestión de Problemas</a>
+                      <a class="dropdown-item" href="{% url 'gestion_datos:gestion_marcos' %}">Gestión de Marcos</a>
                   </div>
               </div>
-              <a href="{% url 'lista_tareas' %}">Control de Tareas</a>
-              <a href="{% url 'ver_reportes' %}">Historial de Reportes</a>
-              <a href="{% url 'dashboard' %}">Dashboard Problemas</a>
+              <a href="{% url 'gestion_usuarios:lista_tareas' %}">Control de Tareas</a>
+              <a href="{% url 'gestion_usuarios:ver_reportes' %}">Historial de Reportes</a>
+              <a href="{% url 'gestion_usuarios:dashboard' %}">Dashboard Problemas</a>
 
           </div>
   

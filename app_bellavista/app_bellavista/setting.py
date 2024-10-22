@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gestion_usuarios',
+    'gestion_datos',
 ]
 
 MIDDLEWARE = [
@@ -150,7 +151,7 @@ AUTHENTICATION_BACKENDS = [
 SESSION_COOKIE_SECURE = False  # Cambia a True si estás en producción con HTTPS
 CSRF_COOKIE_SECURE = False    # Cambia a True si estás en producción con HTTPS
 
-AUTH_USER_MODEL = 'appcanal.Usuarios'
+AUTH_USER_MODEL = 'app_bellavista.Usuarios'
 
 
 SESSION_COOKIE_AGE = 1209600  # Duración en segundos (2 semanas)
