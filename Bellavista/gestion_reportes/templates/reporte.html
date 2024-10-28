@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Reporte de Problemas - Canal Bellavista</title>
+    <style>
+      body {
+        background-color: #F3F5F7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .content {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+      }
+      .content h3 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #2D6A8E;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-control {
+        border-radius: 5px;
+      }
+      .btn-primary {
+        background-color: #2D6A8E;
+        border-color: #2D6A8E;
+      }
+      .btn-primary:hover {
+        background-color: #245870;
+        border-color: #245870;
+      }
+      .file-input {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        flex-direction: column;
+      }
+      .file-input input[type="file"] {
+        display: none;
+      }
+      .file-input label {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .file-input img {
+        max-width: 100px;
+        margin-bottom: 5px;
+      }
+      .file-input span {
+        font-size: 16px;
+        color: #2D6A8E;
+      }
+      .file-preview {
+        margin-top: 10px;
+        max-width: 100%;
+        max-height: 300px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .file-preview img {
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <h3><strong>Reporte de Problemas</strong></h3>
+      <form action="{% url 'gestion_reportes:reporte' %}" method="post" enctype="multipart/form-data" onsubmit="return getLocation(event)">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="operator">Nombre de Operador</label>
+          <select id="operator" name="nombre_operador" class="form-control" onchange="updateRutField()">
+            <option value="">Seleccionar...</option>
+            {% for trabajador in trabajadores %}
+              <option value="{{ trabajador.rut }}" data-rut="{{ trabajador.rut }}">
+                {{ trabajador.nombre }} {{ trabajador.apellido_p }} {{ trabajador.apellido_m }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>        
+        <input type="hidden" id="rut-usuario" name="rut_usuario">
+
+        <div class="form-group">
+          <label for="marco">Medición de Marco</label>
+          <select id="marco" name="marco" class="form-control">
+            <option value="">Seleccionar marco...</option>
+            <option value="marco1">Nombre del Marco 1</option>
+            <option value="marco2">Nombre del Marco 2</option>
+            <option value="marco3">Nombre del Marco 3</option>
+          </select>
+          <input type="text" id="measure" name="medida" class="form-control mt-2" placeholder="Medida en cm (solo números)">
+        </div>
+        
+        <div class="form-group">
+          <label for="incident-type">Tipo de Incidente</label>
+          <select id="incident-type" name="tipo_incidente" class="form-control">
+            <option value="">Seleccionar tipo...</option>
+            <option value="Derrumbe">Derrumbe</option>
+            <option value="Robo de agua">Robo de agua</option>
+            <option value="Obstrucción del canal">Obstrucción del canal</option>
+            <option value="Filtración">Filtración</option>
+            <option value="Vigilancia de compuerta">Vigilancia de compuerta</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea id="description" name="descripcion" class="form-control" rows="4" placeholder="Descripción del problema"></textarea>
+        </div>
+
+        <div class="file-input">
+          <label for="file-upload">
+            <img src="{% static 'images/camara.png' %}" alt="Camara Icono">
+            <span>Subir Foto</span>
+          </label>
+          <input type="file" id="file-upload" name="foto" accept="image/*" capture="camera">
+          <div class="file-preview" id="file-preview"></div>
+        </div>
+
+        <!-- Campos ocultos para geolocalización -->
+        <input type="hidden" id="latitude" name="latitud">
+        <input type="hidden" id="longitude" name="longitud">
+        
+        <button type="submit" class="btn btn-primary mt-3">Enviar Reporte</button>
+        <button type="button" class="btn btn-primary mt-3" onclick="window.location.href='{% url 'inicio:trabajador' %}'">Volver atrás</button>
+      </form>
+    </div>
+
+    <script>
+      function updateRutField() {
+        const operatorSelect = document.getElementById('operator');
+        const selectedOption = operatorSelect.options[operatorSelect.selectedIndex];
+        const rut = selectedOption.getAttribute('data-rut');
+        document.getElementById('rut-usuario').value = rut;
+      }
+
+      document.getElementById('file-upload').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('file-preview');
+        preview.innerHTML = '';
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            preview.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      function getLocation(event) {
+        event.preventDefault();  // Evita el envío del formulario hasta obtener la ubicación
+        console.log("Solicitando ubicación...");
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocalización no es soportada por este navegador.");
+            return false;
+        }
+        return false; // Asegura que el formulario no se envíe hasta que tengamos la ubicación
+      }
+
+
+      function showPosition(position) {
+        console.log("Ubicación obtenida:", position.coords);
+        document.getElementById("latitude").value = position.coords.latitude;
+        document.getElementById("longitude").value = position.coords.longitude;
+        document.querySelector('form').submit();  // Envía el formulario después de obtener la ubicación
+      }
+
+
+      function showError(error) {
+        console.log("Error al obtener la geolocalización:", error);
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Por favor habilita la ubicación para enviar el reporte.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Información de ubicación no disponible.");
+            break;
+          case error.TIMEOUT:
+            alert("La solicitud de ubicación ha expirado.");
+            break;
+          case error.UNKNOWN_ERROR:
+            alert("Error desconocido.");
+            break;
+        }
+      }
+
+
+    </script>
+  </body>
+</html>

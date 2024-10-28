@@ -1,2 +1,0 @@
-pip install streamlit psycopg2-binary
-pip install matplotlib.pyplot 

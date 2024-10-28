@@ -1,0 +1,66 @@
+{% load static %}
+{% for tarea in tareas %}
+<tr>
+    <td>{{ tarea.nombre }}</td>
+    <td>{{ tarea.descripcion }}</td>
+    <td>{{ tarea.prioridad }}</td>
+    <td>
+        <form method="POST" id="formAsignar{{ tarea.id }}" class="assign-task-form" data-task-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:asignar_tarea_ajax' %}">
+            {% csrf_token %}
+            <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+            <div class="form-group">
+                <select name="trabajador_id" class="form-control" required>
+                    <option value="">Selecciona un trabajador</option>
+                    {% for trabajador in trabajadores %}
+                    <option value="{{ trabajador.rut }}">{{ trabajador.full_name }}</option> <!-- Mostrar el nombre completo del trabajador -->
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Asignar</button>
+        </form>                    
+    </td>
+    <td>
+        <form method="POST" id="formEliminarTarea{{ tarea.id }}" class="delete-task-form" data-tarea-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:eliminar_tarea_ajax' %}">
+            {% csrf_token %}
+            <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+            <button type="submit" class="btn btn-icon">
+                <img src="{% static 'images/delete-icon.png' %}" alt="Eliminar">
+            </button>
+        </form>
+        <button type="button" class="btn btn-icon" onclick="toggleEditForm('{{ tarea.id }}')">
+            <img src="{% static 'images/edit-icon.png' %}" alt="Editar">
+        </button>
+    </td>                
+</tr>
+<!-- Fila del formulario de edición, inicialmente oculta -->
+<tr id="editForm{{ tarea.id }}" class="edit-form-row" style="display: none;">
+    <td colspan="6">
+        <form id="editTarea{{ tarea.id }}" class="edit-tarea-form" data-assignment-id="{{ tarea.id }}" data-url="{% url 'editar_tarea_ajax' %}">
+            {% csrf_token %}
+            <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+            <div class="form-group">
+                <label for="nombre{{ tarea.id }}">Nombre:</label>
+                <input type="text" id="nombre{{ tarea.id }}" name="nombre" value="{{ tarea.nombre }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="descripcion{{ tarea.id }}">Descripción:</label>
+                <input type="text" id="descripcion{{ tarea.id }}" name="descripcion" value="{{ tarea.descripcion }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="prioridad{{ tarea.id }}">Prioridad:</label>
+                <select id="prioridad{{ tarea.id }}" name="prioridad" class="form-control">
+                    <option value="Alta" {% if tarea.prioridad == 'Alta' %}selected{% endif %}>Alta</option>
+                    <option value="Media" {% if tarea.prioridad == 'Media' %}selected{% endif %}>Media</option>
+                    <option value="Baja" {% if tarea.prioridad == 'Baja' %}selected{% endif %}>Baja</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelEdit('{{ tarea.id }}')">Cancelar</button>
+        </form>                
+    </td>            
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6">No hay tareas disponibles.</td>
+</tr>
+{% endfor %}

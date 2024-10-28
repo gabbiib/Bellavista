@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Administrador Canal Bellavista</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #F3F5F7;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 10px 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header img {
+      max-width: 150px;
+    }
+
+    .header .logout-btn {
+      background-color: #2D6A8E;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .header .logout-btn:hover {
+      background-color: #245870;
+      color: white;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      flex-grow: 1;
+    }
+
+    .btn-primary {
+      background-color: #2D6A8E;
+      border-color: #2D6A8E;
+      color: #ffffff;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 20px;
+      font-size: 18px;
+      padding: 15px;
+      text-align: center;
+      border-radius: 5px;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #245870;
+      border-color: #245870;
+    }
+
+    .badge {
+      background-color: #ff4d4f;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
+    
+    <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="logout-btn">Cerrar Sesión</button>
+    </form>
+  </div>
+
+  <div class="content">
+    <h2>Bienvenido, Administrador</h2>
+    <button class="btn btn-primary" onclick="window.location.href='{% url 'inicio:inicioadmin' %}'">Gestión de Usuarios</button>  
+    <button class="btn btn-primary" onclick="window.location.href='{% url 'gestion_reportes:lista_tareas' %}'">Control de Tareas</button>    
+    <button class="btn btn-primary" onclick="window.location.href='{% url 'gestion_reportes:ver_reportes' %}'">Ver Reportes de Problemas</button>
+    <button class="btn btn-primary" onclick="window.location.href='{% url 'dashboards:dashboard' %}'">Ver Dashboards</button>
+  </div>
+</body>
+</html>
