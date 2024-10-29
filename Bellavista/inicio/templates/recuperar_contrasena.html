@@ -89,7 +89,7 @@
         </div>
         {% endif %}
         
-        <form method="post" action="{% url 'gestion_reportes:enviar_enlace' %}">
+        <form method="post" action="{% url 'inicio:enviar_enlace' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="rut">RUT</label>
@@ -100,7 +100,7 @@
             </div>
         </form>
         
-        <form method="post" action="{% url 'gestion_reportes:contactar_admin' %}">
+        <form method="post" action="{% url 'inicio:contactar_admin' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="rut">RUT</label>
@@ -111,7 +111,7 @@
             </div>
         </form>
         
-        <a href="{% url 'gestion_reportes:login' %}" class="forgot-pass">Volver al inicio de sesión</a>
+        <a href="{% url 'inicio:login' %}" class="forgot-pass">Volver al inicio de sesión</a>
     </div>
 </body>
 </html>

@@ -105,7 +105,7 @@ def actualizar_tarea(request, tarea_id):
         nuevo_estado = request.POST.get('estado')
         tarea.estado = nuevo_estado
         tarea.save()  
-        return redirect('trabajador') 
+        return redirect('inicio:trabajador') 
     
     return render(request, 'actualizar_tarea.html', {'tarea': tarea})
 
@@ -117,7 +117,7 @@ def editar_reporte(request, id):
         if form.is_valid():
             form.save() 
             messages.success(request, "El reporte fue actualizado exitosamente.")
-            return redirect('ver_reportes')  
+            return redirect('gestion_reportes:ver_reportes')  
         else:
             print(form.errors)  
 

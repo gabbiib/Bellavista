@@ -15,6 +15,42 @@ from .forms import RecuperarContrasenaForm, ContactarAdminForm
 from django.views.decorators.http import require_POST
 import string
 from django.contrib.auth.views import LogoutView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LogoutView
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.contrib import messages
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.utils.crypto import get_random_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import Http404
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password, check_password
+from twilio.rest import Client
+from django.urls import reverse
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from .forms import RecuperarContrasenaForm, ContactarAdminForm
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.db.models import Q, Count, Value
+from django.views.decorators.http import require_POST
+from django.db.utils import IntegrityError
+from django.db.models.functions import Concat
+from datetime import datetime
+import random
+import string
+from django.db.models import Count, Avg, F
+from django.db.models.functions import TruncMonth
+from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
 
 
 
@@ -82,7 +118,7 @@ def editar_perfil(request):
         else:
             messages.info(request, 'No se realizaron cambios.')
 
-        return redirect('editar_perfil')
+        return redirect('inicio:editar_perfil')
 
     contexto = {'telefono_actual': usuario.telefono}
     return render(request, 'editar_perfil.html', contexto)
@@ -162,6 +198,8 @@ def administrador(request):
 def generar_codigo():
     return get_random_string(length=6, allowed_chars=string.ascii_letters + string.digits)
 
+def recuperar_contrasena(request):
+    return render(request, 'recuperar_contrasena.html')
 
 def enviar_enlace_view(request):
     if request.method == 'POST':
@@ -174,7 +212,7 @@ def enviar_enlace_view(request):
             usuario.save()
             
             enlace_recuperacion = request.build_absolute_uri(
-                reverse('recuperar_contrasena_codigo', args=[codigo_recuperacion])
+                reverse('inicio:recuperar_contrasena_codigo', args=[codigo_recuperacion])
             )
             
             mensaje = f"Hola {usuario.nombre},\n\nAquí está el enlace para recuperar tu contraseña: {enlace_recuperacion}\n\nEste enlace es válido por 1 hora."
@@ -188,11 +226,11 @@ def enviar_enlace_view(request):
             )
 
             messages.success(request, 'Hemos enviado un enlace para recuperar tu contraseña a tu WhatsApp.')
-            return redirect('recuperar_contrasena')  
+            return redirect('inicio:recuperar_contrasena')  
             
         except Usuarios.DoesNotExist:
             messages.error(request, 'El RUT proporcionado no está asociado a ninguna cuenta.')
-            return redirect('recuperar_contrasena')  
+            return redirect('inicio:recuperar_contrasena')  
             
     return render(request, 'recuperar_contrasena.html')
 
@@ -202,12 +240,12 @@ def recuperar_contrasena_codigo(request, codigo):
         try:
             usuario = get_object_or_404(Usuarios, codigo_recuperacion=codigo)
 
-            usuario.contrasena = make_password(nueva_contrasena)
+            usuario.password = make_password(nueva_contrasena)
             usuario.codigo_recuperacion = None  
             usuario.save()
 
             messages.success(request, 'Tu contraseña ha sido actualizada exitosamente.')
-            return redirect('login')
+            return redirect('inicio:login')
         except Usuarios.DoesNotExist:
             messages.error(request, 'Código de recuperación inválido.')
     return render(request, 'recuperar_contrasena_codigo.html')
@@ -233,5 +271,5 @@ def contactar_admin_view(request):
             messages.success(request, 'Hemos enviado un correo al administrador.')
         except Usuarios.DoesNotExist:
             messages.error(request, 'El RUT proporcionado no está asociado a ninguna cuenta.')
-        return redirect('recuperar_contrasena')
+        return redirect('inicio:recuperar_contrasena')
     return render(request, 'recuperar_contrasena.html')
