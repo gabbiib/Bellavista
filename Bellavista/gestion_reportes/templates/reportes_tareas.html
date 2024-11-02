@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
@@ -59,7 +60,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Filtrar por Fecha</th>
+                <th>Fecha de incio</th>
+                <th>Fecha final</th>
                 <th>Filtrar por Trabajador</th>
                 <th>Seleccionar Tipo de Gráfico</th>
                 <th>Acciones</th>
@@ -68,8 +70,11 @@
         <tbody>
             <tr>
                 <td>
-                    <input type="month" id="filterDate" class="form-control">
-                </td>
+                    <input type="date" id="filterStartDate" class="form-control" placeholder="Fecha de inicio">
+                </td>   
+                <td>
+                    <input type="date" id="filterEndDate" class="form-control" placeholder="Fecha de fin">
+                </td>                 
                 <td>
                     <select id="filterWorker" class="form-control">
                         <option value="">Todos</option>
@@ -100,6 +105,27 @@
 
     <!-- Contenedor para los gráficos -->
     <div id="chartContainer" class="chart-container"></div>
+
+    <!-- Separador -->
+    <hr class="separator-line">
+
+    <!-- Contenedor para el DataGrid -->
+    <div id="dataGridContainer" class="table-responsive">
+        <table id="dataGrid" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <!-- Aquí se llenarán los encabezados dinámicamente -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aquí se llenarán los datos dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Separador -->
+    <hr class="separator-line">
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -108,89 +134,169 @@
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 
 <script>
-    function generateChart(chartType, workerId, filterDate) {
-        $.ajax({
-            url: "{% url 'gestion_reportes:get_report_data' %}",
-            data: {
-                chartType: chartType,
-                workerId: workerId,
-                filterDate: filterDate
-            },
-            success: function(responseData) {
-                let chartOptions = {};
 
-                switch(chartType) {
-                    case 'tareas-prioridad':
-                        chartOptions = {
-                            chart: { type: 'column' },
-                            title: { text: 'Tareas por Prioridad' },
-                            xAxis: { categories: ['Alta', 'Media', 'Baja'] },
-                            yAxis: { title: { text: 'Número de Tareas' } },
-                            series: [{ name: 'Tareas', data: responseData }]
-                        };
-                        break;
-
-                    case 'asignaciones-estado':
-                        chartOptions = {
-                            chart: { type: 'pie' },
-                            title: { text: 'Asignaciones por Estado' },
-                            series: [{ name: 'Asignaciones', data: responseData }]
-                        };
-                        break;
-
-                    case 'tareas-asignadas':
-                        chartOptions = {
-                            chart: { type: 'bar' },
-                            title: { text: 'Tareas Asignadas vs No Asignadas' },
-                            xAxis: { categories: ['Asignadas', 'No Asignadas'] },
-                            yAxis: { title: { text: 'Número de Tareas' } },
-                            series: [{ name: 'Tareas', data: responseData }]
-                        };
-                        break;
-
-                    case 'avance-trabajador':
-                        chartOptions = {
-                            chart: { type: 'column' },
-                            title: { text: 'Avance por Trabajador' },
-                            xAxis: { categories: responseData.map(item => item.name) },
-                            yAxis: { title: { text: 'Tareas Completadas' } },
-                            series: [{ name: 'Tareas Completadas', data: responseData.map(item => item.y) }]
-                        };
-                        break;
-
-                    case 'tiempo-finalizacion':
-                        chartOptions = {
-                            chart: { type: 'line' },
-                            title: { text: 'Tiempo Promedio de Finalización (en días)' },
-                            xAxis: { categories: responseData.map(item => item.name) },
-                            yAxis: { title: { text: 'Tiempo en días' } },
-                            series: [{ name: 'Tiempo Promedio', data: responseData.map(item => item.y) }]
-                        };
-                        break;
-
-                    case 'tareas-mes':
-                        chartOptions = {
-                            chart: { type: 'column' },
-                            title: { text: 'Tareas por Mes' },
-                            xAxis: { categories: responseData.map(item => item.name) },
-                            yAxis: { title: { text: 'Número de Tareas' } },
-                            series: [{ name: 'Tareas', data: responseData.map(item => item.y) }]
-                        };
-                        break;
-                }
-
-                Highcharts.chart('chartContainer', chartOptions);
-            }
-        });
+// Configuración de idioma para Highcharts
+Highcharts.setOptions({
+    lang: {
+        months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        shortMonths: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        loading: 'Cargando...',
+        contextButtonTitle: 'Menú contextual',
+        decimalPoint: ',',
+        downloadCSV: 'Descargar CSV',
+        downloadJPEG: 'Descargar imagen JPEG',
+        downloadPDF: 'Descargar documento PDF',
+        downloadPNG: 'Descargar imagen PNG',
+        downloadSVG: 'Descargar imagen SVG',
+        downloadXLS: 'Descargar Excel',
+        exportButtonTitle: 'Exportar',
+        printChart: 'Imprimir gráfico',
+        resetZoom: 'Restablecer zoom',
+        thousandsSep: '.',
+        viewData: 'Ver tabla de datos',
+        noData: 'No hay datos para mostrar'
     }
+});
 
-    document.getElementById('generateReport').addEventListener('click', function() {
-        const chartType = document.getElementById('chartType').value;
-        const workerId = document.getElementById('filterWorker').value;
-        const filterDate = document.getElementById('filterDate').value;
-        generateChart(chartType, workerId, filterDate);
+function generateChart(chartType, workerId, startDate, endDate) {
+    $.ajax({
+        url: "{% url 'gestion_reportes:get_report_data' %}",
+        data: {
+            chartType: chartType,
+            workerId: workerId,
+            startDate: startDate,
+            endDate: endDate
+        },
+        success: function(responseData) {
+            let chartOptions = {};
+            let dataGridHeaders = [];
+            let dataGridBody = '';
+
+            switch(chartType) {
+                case 'tareas-prioridad':
+                    chartOptions = {
+                        chart: { type: 'column' },
+                        title: { text: 'Tareas por Prioridad' },
+                        xAxis: { categories: ['Media', 'Alta', 'Baja'] },
+                        yAxis: { title: { text: 'Número de Tareas' } },
+                        series: [{ name: 'Tareas', data: responseData }]
+                    };
+                    // Configurar DataGrid para este gráfico
+                    dataGridHeaders = ['Prioridad', 'Cantidad'];
+                    responseData.forEach(item => {
+                        dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
+                    });
+                    break;
+
+                case 'asignaciones-estado':
+                    chartOptions = {
+                        chart: { type: 'pie' },
+                        title: { text: 'Asignaciones por Estado' },
+                        series: [{ name: 'Asignaciones', data: responseData }]
+                    };
+                    // Configurar DataGrid
+                    dataGridHeaders = ['Estado', 'Cantidad'];
+                    responseData.forEach(item => {
+                        dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
+                    });
+                    break;
+
+                case 'tareas-asignadas':
+                    chartOptions = {
+                        chart: { type: 'bar' },
+                        title: { text: 'Tareas Asignadas vs No Asignadas' },
+                        xAxis: { categories: ['Asignadas', 'No Asignadas'] },
+                        yAxis: { title: { text: 'Número de Tareas' } },
+                        series: [{ name: 'Tareas', data: responseData }]
+                    };
+                    // Configurar DataGrid
+                    dataGridHeaders = ['Tipo', 'Cantidad'];
+                    responseData.forEach(item => {
+                        dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
+                    });
+                    break;
+
+                case 'avance-trabajador':
+                    chartOptions = {
+                        chart: { type: 'column' },
+                        title: { text: 'Avance por Trabajador' },
+                        xAxis: { categories: responseData.map(item => item.name) },
+                        yAxis: { title: { text: 'Tareas Completadas' } },
+                        series: [{ name: 'Tareas Completadas', data: responseData.map(item => item.y) }]
+                    };
+                    // Configurar DataGrid
+                    dataGridHeaders = ['Trabajador', 'Tareas Completadas'];
+                    responseData.forEach(item => {
+                        dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
+                    });
+                    break;
+
+                case 'tiempo-finalizacion':
+                    chartOptions = {
+                        chart: { type: 'line' },
+                        title: { text: 'Tiempo Promedio de Finalización (en días)' },
+                        xAxis: { categories: responseData.map(item => item.name) },
+                        yAxis: { title: { text: 'Tiempo en días' } },
+                        series: [{ name: 'Tiempo Promedio', data: responseData.map(item => item.y) }]
+                    };
+                    // Configurar DataGrid
+                    dataGridHeaders = ['Mes', 'Tiempo en días'];
+                    responseData.forEach(item => {
+                        dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
+                    });
+                    break;
+
+                case 'tareas-mes':
+                    chartOptions = {
+                        chart: { type: 'column' },
+                        title: { text: 'Tareas por Mes' },
+                        xAxis: { categories: responseData.map(item => item.name) },
+                        yAxis: { title: { text: 'Número de Tareas' } },
+                        series: [{ name: 'Tareas', data: responseData.map(item => item.y) }]
+                    };
+                    // Configurar DataGrid
+                    dataGridHeaders = ['Mes', 'Cantidad'];
+                    responseData.forEach(item => {
+                        dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
+                    });
+                    break;
+            }
+
+            // Renderizar el gráfico
+            Highcharts.chart('chartContainer', chartOptions);
+
+            // Actualizar el DataGrid
+            updateDataGrid(dataGridHeaders, dataGridBody);
+        }
     });
+}
+
+function updateDataGrid(headers, body) {
+    // Limpiar la tabla
+    $('#dataGrid thead tr').html('');
+    $('#dataGrid tbody').html('');
+
+    // Agregar los encabezados
+    headers.forEach(header => {
+        $('#dataGrid thead tr').append(`<th>${header}</th>`);
+    });
+
+    // Agregar el cuerpo de la tabla
+    $('#dataGrid tbody').append(body);
+}
+
+
+document.getElementById('generateReport').addEventListener('click', function() {
+    const chartType = document.getElementById('chartType').value;
+    const workerId = document.getElementById('filterWorker').value;
+    const startDate = document.getElementById('filterStartDate').value;
+    const endDate = document.getElementById('filterEndDate').value;
+    generateChart(chartType, workerId, startDate, endDate);
+});
+
 </script>
 
 </body>
+
 </html>

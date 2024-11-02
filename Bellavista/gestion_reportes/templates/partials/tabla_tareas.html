@@ -35,7 +35,7 @@
 <!-- Fila del formulario de edición, inicialmente oculta -->
 <tr id="editForm{{ tarea.id }}" class="edit-form-row" style="display: none;">
     <td colspan="6">
-        <form id="editTarea{{ tarea.id }}" class="edit-tarea-form" data-assignment-id="{{ tarea.id }}" data-url="{% url 'editar_tarea_ajax' %}">
+        <form id="editTarea{{ tarea.id }}" class="edit-tarea-form" data-assignment-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:editar_tarea_ajax' %}">
             {% csrf_token %}
             <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
             <div class="form-group">

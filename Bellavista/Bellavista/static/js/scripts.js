@@ -353,7 +353,7 @@ $(document).ready(function() {
 
 function recargarTablaAsignaciones() {
     $.ajax({
-        url: '/gestion_reportes/obtener-tabla-asignaciones/',
+        url: obtenerTablaAsignacionesUrl,
         type: 'GET',
         success: function(data) {
             $('#assignmentTable tbody').html(data.html);
@@ -366,7 +366,7 @@ function recargarTablaAsignaciones() {
 
 function recargarTablaTareas() {
     $.ajax({
-        url: '/gestion_reportes/obtener-tabla-tareas/',
+        url: obtenerTablaTareasUrl,
         type: 'GET',
         success: function(data) {
             $('#taskTable tbody').html(data.html);
@@ -378,11 +378,13 @@ function recargarTablaTareas() {
 }
 
 
+
+
 $(document).ready(function() {
     // Cargar reportes de problemas al abrir el formulario de creación de tarea
     $('#createTaskBtn').on('click', function() {
         $.ajax({
-            url: '/gestion_reportes/obtener-reportes-problemas-disponibles/',
+            url: obtenerReportesUrl,
             type: 'GET',
             success: function(data) {
                 // console.log(data);  // Verifica si los datos están llegando
@@ -490,7 +492,7 @@ $(document).on('submit', '#filterForm', function(e) {
         // Filtra solo la lista de tareas
         $.ajax({
             type: 'GET',
-            url: url,
+            url: url, 
             data: requestData,
             success: function(response) {
                 $('#taskTable tbody').html(response.html_tareas);
@@ -534,18 +536,20 @@ $('#clearFilters').on('click', function() {
     // Recargar ambas tablas sin filtros
     $.ajax({
         type: 'GET',
-        url: '/gestion_reportes/obtener-tabla-tareas/',  
+        url: obtenerTablaTareasUrl,  
         success: function(data) {
             $('#taskTable tbody').html(data.html);  // Recargar la tabla de tareas
         }
     });
+    
     $.ajax({
         type: 'GET',
-        url: '/gsstion_reportes/obtener-tabla-asignaciones/', 
+        url: obtenerTablaAsignacionesUrl, 
         success: function(data) {
             $('#assignmentTable tbody').html(data.html);  
         }
     });
+    
 });
 
 

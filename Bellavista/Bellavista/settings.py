@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-9e-89o7ml=cfodeampd#kh1*3fhc&8xjsnqa$g%e7qmrkd65vp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'canalbellavista.herokuapp.com']
 
 
 
@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
 ]
 
 ROOT_URLCONF = 'Bellavista.urls'
@@ -133,6 +134,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'Bellavista', 'static'),
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -175,7 +180,7 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))  # Pasa a entero si es necesario
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587)) 
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
@@ -189,29 +194,4 @@ TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
 # Tipo de clave primaria predeterminada para nuevos modelos
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-#----------------------------
-#import json
-#from pathlib import Path
-
-#config_path = Path(__file__).resolve().parent / 'config.json'
-#with open(config_path) as config_file:
-#    config = json.load(config_file)
-
-#SECRET_KEY = config['SECRET_KEY']
-#EMAIL_BACKEND = config['EMAIL_BACKEND']
-#EMAIL_HOST = config['EMAIL_HOST']
-#EMAIL_PORT = config['EMAIL_PORT']
-#EMAIL_USE_TLS = config['EMAIL_USE_TLS']
-#EMAIL_USE_SSL = config['EMAIL_USE_SSL']
-#EMAIL_HOST_USER = config['EMAIL_HOST_USER']
-#EMAIL_HOST_PASSWORD = config['EMAIL_HOST_PASSWORD']
-#DEFAULT_FROM_EMAIL = config['DEFAULT_FROM_EMAIL']
-#ADMIN_EMAIL = config['ADMIN_EMAIL']
-
-#TWILIO_ACCOUNT_SID = config['TWILIO_ACCOUNT_SID']
-#TWILIO_AUTH_TOKEN = config['TWILIO_AUTH_TOKEN']
-#TWILIO_PHONE_NUMBER = config['TWILIO_PHONE_NUMBER']
-
-#DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

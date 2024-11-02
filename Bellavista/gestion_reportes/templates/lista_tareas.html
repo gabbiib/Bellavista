@@ -462,12 +462,17 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    var staticUrl = "{% static 'img/' %}";
+    var staticUrl = "{% static 'images/' %}";
 </script>
 <script>
     var asignarTareaUrl = "{% url 'gestion_reportes:asignar_tarea_ajax' %}";
     var eliminarAsignacionUrl = "{% url 'gestion_reportes:eliminar_asignacion_ajax' %}";
     var editarAsignacionUrl = "{% url 'gestion_reportes:editar_asignacion_ajax' %}";
+</script>
+<script>
+    var obtenerTablaAsignacionesUrl = "{% url 'gestion_reportes:obtener_tabla_asignaciones' %}";
+    var obtenerTablaTareasUrl = "{% url 'gestion_reportes:obtener_tabla_tareas' %}";
+    var obtenerReportesUrl = '{% url "gestion_reportes:obtener_reportes_problemas_disponibles" %}';
 </script>
 <script src="{% static 'js/scripts.js' %}"></script>
 </body>
