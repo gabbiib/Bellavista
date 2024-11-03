@@ -29,5 +29,7 @@ urlpatterns = [
     path('filtrar_tareas/', views.filtrar_tareas_ajax, name='filtrar_tareas_ajax'),
     path('crear_tarea/', views.crear_tarea_ajax, name='crear_tarea_ajax'),
     path('obtener-reportes-problemas-disponibles/', views.obtener_reportes_problemas_disponibles, name='obtener_reportes_problemas_disponibles'),
+    path('obtener_tareas_predeterminadas/', views.obtener_tareas_predeterminadas, name='obtener_tareas_predeterminadas'),
+    path('obtener_tareas_predeterminadas2/', views.obtener_tareas_predeterminadas2, name='obtener_tareas_predeterminadas2'),
     #path('crearTarea',views.crearTareaView.as_view(),name='CrearTareaN')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

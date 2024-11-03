@@ -285,6 +285,17 @@
                     <option value="">Seleccione un reporte</option>
                     <!-- Los reportes disponibles se cargarán aquí mediante AJAX -->
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="tareaPredeterminadaSelect">Seleccionar Tarea Predeterminada:</label>
+                <select id="tareaPredeterminadaSelect" class="form-control">
+                    <option value="">Seleccione una tarea</option>
+                    {% for tarea in tareas_predeterminadas %}
+                    <option value="{{ tarea.id }}" data-nombre="{{ tarea.nombre }}" data-descripcion="{{ tarea.descripcion }}" data-prioridad="{{ tarea.prioridad }}">
+                        {{ tarea.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>            
             <div class="form-group">
                 <label for="newTaskNombre">Nombre:</label>
@@ -303,6 +314,7 @@
                 </select>
             </div>
             <button type="submit" id="createTaskBtn" class="btn btn-primary btn-block">Crear Tarea</button>
+            <button type="button" id="createDefaultTaskBtn" class="btn btn-secondary btn-block">Crear Tarea Predeterminada</button>
             <button type="button" class="btn btn-danger btn-block" onclick="toggleNewTaskForm()">Cancelar</button>
         </form>
     </div>
@@ -455,6 +467,68 @@
         {% endfor %}
     </tbody>
     </table>
+    <h1>Tareas Predeterminadas</h1>
+    <table id="defaultTaskTable" class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Prioridad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tarea in tareas_predeterminadas %}
+            <tr>
+                <td>{{ tarea.nombre }}</td>
+                <td>{{ tarea.descripcion }}</td>
+                <td>{{ tarea.prioridad }}</td>
+                <td>
+                    <form method="POST" id="formEliminarTarea{{ tarea.id }}" class="delete-task-form" data-tarea-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:eliminar_tarea_ajax' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+                        <button type="submit" class="btn btn-icon">
+                            <img src="{% static 'images/delete-icon.png' %}" alt="Eliminar">
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-icon" onclick="toggleEditForm('{{ tarea.id }}')">
+                        <img src="{% static 'images/edit-icon.png' %}" alt="Editar">
+                    </button>
+                </td>
+            </tr>
+            <!-- Fila del formulario de edición, inicialmente oculta -->
+            <tr id="editForm{{ tarea.id }}" class="edit-form-row" style="display: none;">
+                <td colspan="4">
+                    <form id="editTarea{{ tarea.id }}" class="edit-tarea-form2" data-tarea-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:editar_tarea_ajax' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="nombre{{ tarea.id }}">Nombre:</label>
+                            <input type="text" id="nombre{{ tarea.id }}" name="nombre" value="{{ tarea.nombre }}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcion{{ tarea.id }}">Descripción:</label>
+                            <input type="text" id="descripcion{{ tarea.id }}" name="descripcion" value="{{ tarea.descripcion }}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="prioridad{{ tarea.id }}">Prioridad:</label>
+                            <select id="prioridad{{ tarea.id }}" name="prioridad" class="form-control">
+                                <option value="Alta" {% if tarea.prioridad == 'Alta' %}selected{% endif %}>Alta</option>
+                                <option value="Media" {% if tarea.prioridad == 'Media' %}selected{% endif %}>Media</option>
+                                <option value="Baja" {% if tarea.prioridad == 'Baja' %}selected{% endif %}>Baja</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelEdit('{{ tarea.id }}')">Cancelar</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No hay tareas predeterminadas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -468,12 +542,17 @@
     var asignarTareaUrl = "{% url 'gestion_reportes:asignar_tarea_ajax' %}";
     var eliminarAsignacionUrl = "{% url 'gestion_reportes:eliminar_asignacion_ajax' %}";
     var editarAsignacionUrl = "{% url 'gestion_reportes:editar_asignacion_ajax' %}";
+    var editarTareaUrl = "{% url 'gestion_reportes:editar_tarea_ajax' %}";
 </script>
 <script>
     var obtenerTablaAsignacionesUrl = "{% url 'gestion_reportes:obtener_tabla_asignaciones' %}";
     var obtenerTablaTareasUrl = "{% url 'gestion_reportes:obtener_tabla_tareas' %}";
     var obtenerReportesUrl = '{% url "gestion_reportes:obtener_reportes_problemas_disponibles" %}';
+    var CrearTareaUrl = "{% url 'gestion_reportes:crear_tarea_ajax' %}";
+    var obtenerListaTareasURL = "{% url 'gestion_reportes:obtener_tareas_predeterminadas' %}";
+    var obtenerListaTareasURL2 = "{% url 'gestion_reportes:obtener_tareas_predeterminadas2' %}";
 </script>
 <script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>
+

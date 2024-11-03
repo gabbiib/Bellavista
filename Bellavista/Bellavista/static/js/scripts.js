@@ -47,7 +47,6 @@ function toggleFilterForm() {
     if (createTaskForm.style.display !== 'none') {
         createTaskForm.style.display = 'none';
     }
-
     // Mostrar u ocultar el formulario de filtros
     form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
 }
@@ -271,6 +270,7 @@ $(document).ready(function() {
                 alert(response.message);
                 form.closest('tr').remove();  // Remover la fila correspondiente a la tarea
                 recargarTablaTareas();
+                recargarListaTareasPredeterminadas();
             },
             error: function(xhr, status, error) {
                 alert('Error al eliminar la tarea.');
@@ -290,7 +290,7 @@ $(document).ready(function() {
     
         $.ajax({
             type: 'POST',
-            url: url,
+            url: editarTareaUrl,
             data: {
                 'tarea_id': tareaId,
                 'nombre': nombre,
@@ -347,9 +347,38 @@ $(document).ready(function() {
         });
     });    
     
-
-
 });
+
+$(document).on('submit', '.edit-tarea-form2', function(e) {
+    e.preventDefault();
+    var form = $(this);
+    var tareaId = form.data('tarea-id');
+    var nombre = form.find('input[name="nombre"]').val();
+    var descripcion = form.find('input[name="descripcion"]').val();
+    var prioridad = form.find('select[name="prioridad"]').val();
+    var url = form.data('url');
+
+    $.ajax({
+        type: 'POST',
+        url: editarTareaUrl,
+        data: {
+            'tarea_id': tareaId,
+            'nombre': nombre,
+            'descripcion': descripcion,
+            'prioridad': prioridad,
+        },
+        success: function(response) {
+            alert(response.message);
+            recargarTablaTareasPredeterminadas2();
+        },
+        error: function(xhr, status, error) {
+            alert('Error al editar la tarea.');
+            console.error(xhr.responseText);
+        }
+    });
+});    
+
+
 
 function recargarTablaAsignaciones() {
     $.ajax({
@@ -377,7 +406,18 @@ function recargarTablaTareas() {
     });
 }
 
-
+function recargarTablaTareasPredeterminadas2() {
+    $.ajax({
+        url: obtenerListaTareasURL2,  // Ajusta esta URL según sea necesario
+        type: 'GET',
+        success: function(data) {
+            $('#defaultTaskTable tbody').html(data.html);  // Actualiza la tabla con las tareas predeterminadas
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al recargar la tabla de tareas predeterminadas:', error);
+        }
+    });
+}
 
 
 $(document).ready(function() {
@@ -387,6 +427,7 @@ $(document).ready(function() {
             url: obtenerReportesUrl,
             type: 'GET',
             success: function(data) {
+                recargarListaTareasPredeterminadas();
                 // console.log(data);  // Verifica si los datos están llegando
                 var reporteSelect = $('#reporteProblemaSelect');
                 reporteSelect.empty(); // Limpiar las opciones actuales
@@ -452,6 +493,8 @@ $(document).ready(function() {
                 $('#newTaskForm')[0].reset(); // Limpiar todos los campos del formulario
                 toggleNewTaskForm();  // Cerrar el formulario de creación de tarea
                 recargarTablaTareas();
+                recargarListaTareasPredeterminadas();
+                recargarTablaTareasPredeterminadas2();
             },
             error: function(xhr, status, error) {
                 alert('Error al crear la tarea.');
@@ -461,6 +504,81 @@ $(document).ready(function() {
     });
 });
 
+function recargarListaTareasPredeterminadas() {
+    $.ajax({
+        url: obtenerListaTareasURL, // Ajusta esta URL según tu configuración
+        type: 'GET',
+        success: function(data) {
+            var select = $('#tareaPredeterminadaSelect');
+            select.empty();
+            select.append('<option value="">Seleccione una tarea</option>');
+            data.tareas.forEach(function(tarea) {
+                select.append(`<option value="${tarea.id}" data-nombre="${tarea.nombre}" data-descripcion="${tarea.descripcion}" data-prioridad="${tarea.prioridad}">${tarea.nombre}</option>`);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al recargar la lista de tareas predeterminadas:', error);
+        }
+    });
+}
+
+$(document).ready(function() {
+    $('#createDefaultTaskBtn').on('click', function(e) {
+        e.preventDefault();
+        var nombre = $('#newTaskNombre').val();
+        var descripcion = $('#newTaskDescripcion').val();
+        var prioridad = $('#newTaskPrioridad').val();
+
+        if (!nombre || !prioridad) {
+            alert('Por favor, completa todos los campos obligatorios.');
+            return;
+        }
+
+        // Enviar la solicitud AJAX para crear una tarea predeterminada
+        $.ajax({
+            type: 'POST',
+            url: CrearTareaUrl,  // Ajusta esta URL según sea necesario
+            data: {
+                'nombre': nombre,
+                'descripcion': descripcion,
+                'prioridad': prioridad,
+                'es_predeterminado': true,  // Marcamos como predeterminada
+            },
+            success: function(response) {
+                alert(response.message);
+                $('#taskTable tbody').html(response.html);  // Recargar la tabla de tareas
+                $('#newTaskForm')[0].reset();  // Limpiar los campos del formulario
+                toggleNewTaskForm();  // Cerrar el formulario de creación
+                recargarListaTareasPredeterminadas();
+                recargarTablaTareasPredeterminadas2();
+            },
+            error: function(xhr, status, error) {
+                alert('Error al crear la tarea predeterminada.');
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#tareaPredeterminadaSelect').on('change', function() {
+        var selectedOption = $(this).find('option:selected');
+        var nombre = selectedOption.data('nombre');
+        var descripcion = selectedOption.data('descripcion');
+        var prioridad = selectedOption.data('prioridad');
+
+        if (nombre) {
+            $('#newTaskNombre').val(nombre);
+            $('#newTaskDescripcion').val(descripcion);
+            $('#newTaskPrioridad').val(prioridad);
+        } else {
+            // Limpiar los campos si no se selecciona una tarea
+            $('#newTaskNombre').val('');
+            $('#newTaskDescripcion').val('');
+            $('#newTaskPrioridad').val('Alta');  // Por defecto Alta, ajustar según sea necesario
+        }
+    });
+});
 
 
 // Función para aplicar filtros con AJAX

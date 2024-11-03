@@ -98,6 +98,106 @@ def ver_imagen(request, reporte_id):
     reporte = get_object_or_404(Reportes_Problemas, id=reporte_id)
     return render(request, 'ver_imagen.html', {'reporte': reporte})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import  Tareas, Reportes_Problemas, Asignacion
+from gestion_datos.models import Usuarios
+from django.contrib import messages
+from django.conf import settings
+from django.template.loader import render_to_string
+from .forms import ReporteForm
+from django.http import JsonResponse
+from django.db.models import Q, Count
+from django.db.models import Count, Avg, F
+from django.db.models.functions import TruncMonth
+from django.utils.dateparse import parse_date
+from django.template.loader import render_to_string
+from twilio.rest import Client
+from django.utils import timezone
+from django.views.generic import CreateView
+
+#class crearTareaView(CreateView):
+#    model=Tareas
+#    template_name=lista_tareas.html
+#    success_url="/"
+#    fields='__all__'
+
+
+
+#anto
+def reporte(request):
+    return render(request, 'reporte.html')
+
+def reporte_exito(request):
+    return render(request, 'reporte_exito.html')
+
+def reporte_view(request):
+    trabajadores = Usuarios.objects.filter(rol__id_rol=2)
+
+    if request.method == 'POST':
+        rut_usuario = request.POST.get('rut_usuario')
+        tipo_incidente = request.POST.get('tipo_incidente')
+        descripcion = request.POST.get('descripcion')
+        marco = request.POST.get('marco')
+        medida_marco = request.POST.get('medida')
+        foto_url = request.FILES.get('foto')
+        latitud = request.POST.get('latitud')
+        longitud = request.POST.get('longitud')
+
+        try:
+            usuario = Usuarios.objects.get(rut=rut_usuario)
+            
+            nuevo_reporte = Reportes_Problemas(
+                rut_usuario=usuario,
+                tipo_incidente=tipo_incidente,
+                descripcion=descripcion,
+                marco=marco,
+                medida_marco=medida_marco,
+                foto_url=foto_url,
+                fecha_reporte=timezone.now(),
+                latitud=latitud,
+                longitud=longitud
+            )
+            nuevo_reporte.save()
+
+            administradores = Usuarios.objects.filter(rol__id_rol=1)
+
+            mensaje = (
+                f'El usuario {usuario.nombre} {usuario.apellido_p} {usuario.apellido_m} '
+                f'ha reportado un problema.\nDescripción: {descripcion}\nMarco: {marco}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d %H:%M:%S")}'
+            )
+
+            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            for admin in administradores:
+                client.messages.create(
+                    body=mensaje,
+                    from_='whatsapp:' + settings.TWILIO_PHONE_NUMBER,
+                    to='whatsapp:' + admin.telefono
+                )
+
+            return redirect('reporte_exito') 
+
+        except Usuarios.DoesNotExist:
+            return render(request, 'reporte.html', {'trabajadores': trabajadores, 'error': 'Usuario no encontrado.'})
+
+    return render(request, 'reporte.html', {'trabajadores': trabajadores})
+
+def ver_reportes(request):
+    ordenar = request.GET.get('ordenar', 'asc')
+    
+    if ordenar == 'asc':
+        reportes = Reportes_Problemas.objects.all().order_by('fecha_reporte')
+    else:
+        reportes = Reportes_Problemas.objects.all().order_by('-fecha_reporte')
+    
+    context = {
+        'reportes': reportes
+    }
+    return render(request, 'ver_reportes.html', context)
+
+def ver_imagen(request, reporte_id):
+    reporte = get_object_or_404(Reportes_Problemas, id=reporte_id)
+    return render(request, 'ver_imagen.html', {'reporte': reporte})
+
 def actualizar_tarea(request, tarea_id):
     tarea = Asignacion.objects.get(tarea_id=tarea_id)
     
@@ -105,7 +205,7 @@ def actualizar_tarea(request, tarea_id):
         nuevo_estado = request.POST.get('estado')
         tarea.estado = nuevo_estado
         tarea.save()  
-        return redirect('inicio:trabajador') 
+        return redirect('trabajador') 
     
     return render(request, 'actualizar_tarea.html', {'tarea': tarea})
 
@@ -117,7 +217,7 @@ def editar_reporte(request, id):
         if form.is_valid():
             form.save() 
             messages.success(request, "El reporte fue actualizado exitosamente.")
-            return redirect('gestion_reportes:ver_reportes')  
+            return redirect('ver_reportes')  
         else:
             print(form.errors)  
 
@@ -139,12 +239,14 @@ from django.template.loader import render_to_string
 
 def lista_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
-    tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids)  # Excluir tareas asignadas
+    tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
+    tareas_predeterminadas = Tareas.objects.filter(es_predeterminado=True)
     trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')  # Solo trabajadores
     asignaciones = Asignacion.objects.all()
 
     return render(request, 'lista_tareas.html', {
         'tareas': tareas,
+        'tareas_predeterminadas': tareas_predeterminadas,
         'trabajadores': trabajadores,
         'asignaciones': asignaciones,
     })
@@ -304,12 +406,26 @@ def editar_tarea_ajax(request):
             return JsonResponse({'error': 'La tarea no existe.'}, status=404)
     return JsonResponse({'error': 'Solicitud no válida.'}, status=400)
 
+def obtener_tareas_predeterminadas(request):
+    tareas = Tareas.objects.filter(es_predeterminado=True)
+    tareas_data = [
+        {
+            'id': tarea.id,
+            'nombre': tarea.nombre,
+            'descripcion': tarea.descripcion,
+            'prioridad': tarea.prioridad
+        }
+        for tarea in tareas
+    ]
+    return JsonResponse({'tareas': tareas_data})
+
 def crear_tarea_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion')
         prioridad = request.POST.get('prioridad')
         id_reporte = request.POST.get('id_reporte')  # Obtener el ID del reporte si existe
+        es_predeterminado = request.POST.get('es_predeterminado') == 'true'
 
         if not nombre or not prioridad:
             return JsonResponse({'error': 'Faltan datos obligatorios.'}, status=400)
@@ -323,12 +439,13 @@ def crear_tarea_ajax(request):
                 nombre=nombre,
                 descripcion=descripcion,
                 prioridad=prioridad,
-                id_reporte=reporte  # Asociar el reporte si existe
+                id_reporte=reporte,  # Asociar el reporte si existe
+                es_predeterminado=es_predeterminado
             )
 
             # Recargar la lista de tareas
             tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
-            tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids)
+            tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
             html = render_to_string('partials/tabla_tareas.html', {'tareas': tareas})
 
             return JsonResponse({'message': 'Tarea creada correctamente.', 'html': html})
@@ -348,7 +465,7 @@ def filtrar_tareas_ajax(request):
 
         # Filtrar tareas no asignadas
         tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
-        tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids)
+        tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
                 
         print("hide_completed:", hide_completed)
         print("filter_state:", filter_state)
@@ -399,12 +516,17 @@ def obtener_tabla_asignaciones(request):
 
 def obtener_tabla_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
-    tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids)  # Excluir tareas asignadas
+    tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
     trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')  # Asegurarse de que los trabajadores estén en el contexto
     html = render_to_string('partials/tabla_tareas.html', {
         'tareas': tareas,
         'trabajadores': trabajadores,
     })
+    return JsonResponse({'html': html})
+
+def obtener_tareas_predeterminadas2(request):
+    tareas = Tareas.objects.filter(es_predeterminado=True)
+    html = render_to_string('partials/tabla_tareas_predeterminadas.html', {'tareas_predeterminadas': tareas})
     return JsonResponse({'html': html})
 
 def reportes_tareas(request):
