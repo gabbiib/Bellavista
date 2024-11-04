@@ -26,8 +26,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'canalbellavista.herokuapp.com','canalbellavista-7781607eb0d1.herokuapp.com']
-
+ALLOWED_HOSTS = ["*"]
+#'localhost', '127.0.0.1', 'canalbellavista.herokuapp.com','canalbellavista-7781607eb0d1.herokuapp.com'
 
 
 # Application definition
@@ -131,7 +131,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'Bellavista', 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_TMP = os.path.join(BASE_DIR, 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+os.makedirs(STATIC_TMP, xist_ok=True)
+os.makedirs(STATIC_ROOT, exist_ok=True)
 
 
 
