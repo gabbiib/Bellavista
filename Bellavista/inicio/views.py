@@ -221,8 +221,8 @@ def enviar_enlace_view(request):
             
             client.messages.create(
                 body=mensaje,
-                from_='whatsapp:' + settings.TWILIO_PHONE_NUMBER,  
-                to='whatsapp:' + usuario.telefono  
+                from_= settings.TWILIO_PHONE_NUMBER,  
+                to= usuario.telefono  
             )
 
             messages.success(request, 'Hemos enviado un enlace para recuperar tu contraseña a tu WhatsApp.')

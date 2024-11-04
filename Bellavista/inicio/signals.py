@@ -18,6 +18,6 @@ def enviar_notificacion_tarea(sender, instance, created, **kwargs):
         client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
         client.messages.create(
             body=mensaje,
-            from_='whatsapp:' + settings.TWILIO_PHONE_NUMBER,
-            to='whatsapp:' + usuario.telefono
+            from_= settings.TWILIO_PHONE_NUMBER,
+            to= usuario.telefono
         )
