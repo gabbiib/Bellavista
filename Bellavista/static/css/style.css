@@ -1,0 +1,15 @@
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+    }
+    .content {
+        padding: 10px;
+    }
+    .chart-container {
+        width: 66.67%;  /* Cambiado a 2/3 del tamaño original */
+        height: 400px;  /* Altura se mantiene igual */
+    }
+    
+}
+

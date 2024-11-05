@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware', 
 ]
 
-ROOT_URLCONF = 'Bellavista.urls'
+ROOT_URLCONF = 'Bellavista.Bellavista.urls'
 
 TEMPLATES = [
     {
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Bellavista.wsgi.application'
+WSGI_APPLICATION = 'Bellavista.Bellavista.wsgi.application'
 
 
 # Database
