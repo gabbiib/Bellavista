@@ -1,1 +1,1 @@
-web: gunicorn bellavista.bellavista.wsgi:application --log-file -
+web: gunicorn Bellavista.Bellavista.wsgi:application --log-file -
