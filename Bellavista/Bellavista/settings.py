@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['canalbellavista.herokuapp.com', 'canalbellavista-7781607eb0d1.herokuapp.com']
+ALLOWED_HOSTS = ['canalbellavista.herokuapp.com', 'canalbellavista-7781607eb0d1.herokuapp.com', '127.0.0.1']
 #'localhost', '127.0.0.1', 'canalbellavista.herokuapp.com'
 
 
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Bellavista.Bellavista.wsgi.application'
+WSGI_APPLICATION = 'Bellavista.wsgi.application'
 
 
 # Database

@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from .models import Usuarios, Rol, Problemas, Marcos
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.contrib import messages
+from django.shortcuts import redirect
 
 
 def gestion_usuario(request):
@@ -11,21 +14,17 @@ def edicionUsuario(request, rut):
     usuario = Usuarios.objects.get(rut=rut)
     
     if request.method == 'POST':
-        # Aquí se pueden recoger y actualizar los datos del usuario
+
         usuario.nombre = request.POST['txtNombre']
         usuario.apellido_p = request.POST['txtApellido_P']
         usuario.apellido_m = request.POST['txtApellido_M']
         usuario.fecha_n = request.POST['txtFecha_n']
         usuario.correo = request.POST['numCorreo']
         usuario.telefono = request.POST['numTelefono']
-        usuario.save()  # Guardar cambios en la base de datos
-        return redirect('/data/gestion_usuario/')  # Cambia esto por la ruta que quieras
-
+        usuario.save() 
+        return redirect('/data/gestion_usuario/') 
+    
     return render(request, "edicionUsuario.html", {"usuario": usuario})
-
-from django.contrib.auth.hashers import make_password
-from django.contrib import messages
-from django.shortcuts import redirect
 
 def registrarUsuario(request):
     if request.method == "POST":
@@ -38,7 +37,7 @@ def registrarUsuario(request):
         telefono = request.POST['numTelefono']
         password = request.POST['numPassword']
         
-        # Obtener el rol a partir del valor recibido en el formulario
+       
         rol_id = request.POST['txtRol']
         try:
             rol_instance = Rol.objects.get(id_rol=rol_id) 
@@ -46,7 +45,7 @@ def registrarUsuario(request):
             messages.error(request, 'Error: El rol seleccionado no existe.')
             return redirect('/data/gestion_usuario/')
 
-        # Crear el usuario con la contraseña hasheada
+  
         usuario = Usuarios.objects.create(
             rut=rut,
             nombre=nombre,
@@ -56,7 +55,7 @@ def registrarUsuario(request):
             rol=rol_instance,
             correo=correo,
             telefono=telefono,
-            password=make_password(password)  # Hashear la contraseña
+            password=make_password(password) 
         )
 
         messages.success(request, '¡Usuario registrado!')

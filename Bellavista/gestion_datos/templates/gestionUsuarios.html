@@ -19,7 +19,11 @@
                 <form action="/data/registrarUsuario/" method="POST">{% csrf_token %}
                     <div class="form-group">
                         <input type="text" id="txtRut" name="txtRut" class="form-control" placeholder="RUT"
-                            maxlength="9" required>
+                            maxlength="9" pattern="^[0-9]{7,8}[0-9kK]$" title="Debe ingresar un RUT sin puntos ni guión" required
+                            oninput="this.value = this.value.replace(/[^\dKk]/g, '')">
+                        <small class="form-text text-muted">
+                            Formato sin puntos ni guión.
+                        </small>
                     </div>
                     <div class="form-group">
                         <input type="text" id="txtNombre" name="txtNombre" class="form-control" placeholder="Nombre"
@@ -52,12 +56,15 @@
                     </div>
                     <div class="form-group">
                         <input type="tel" id="numTelefono" name="numTelefono" class="form-control" placeholder="Teléfono"
-                            pattern="[0-9]{9}" maxlength="9"required>
+                            pattern="[0-9]{9}" maxlength="9" required>
                     </div>
                     <div class="form-group">
                         <input type="password" id="numPassword" name="numPassword" class="form-control" placeholder="Contraseña"
-                            minlength="8" required>
-                    </div>
+                               minlength="8" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&amp;*()_+={}\[\]|;:'&quot;,&lt;&gt;./?])(?=.*[A-Z]).{8,}$" required>
+                        <small class="form-text text-muted">
+                            La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.
+                        </small>
+                    </div>                                     
                     <div class="form-group">
                         <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
                     </div>
@@ -101,9 +108,59 @@
                         </td>                                              
                         <td>{{ u.correo }}</td>
                         <td>{{ u.telefono }}</td>
-                        <td><a href="/data/edicionUsuario/{{ u.rut }}" class="btn btn-info">Editar</a></td>
-                        <td><a href="/data/eliminarUsuario/{{ u.rut }}" class="btn btn-danger btnEliminacion">Eliminar</a></td>
+                        <td>
+                            <!-- Botones Editar y Eliminar en línea -->
+                            <div class="d-flex justify-content-start">
+                                <!-- Botón Editar -->
+                                <button class="btn btn-info mr-2" data-toggle="modal" data-target="#editUserModal{{ u.rut }}">Editar</button>
+                                <!-- Botón Eliminar -->
+                                <a href="/data/eliminarUsuario/{{ u.rut }}" class="btn btn-danger">Eliminar</a>
+                            </div>
+                        </td>
                     </tr>
+
+                    <!-- Modal for editing user -->
+                    <div class="modal fade" id="editUserModal{{ u.rut }}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel{{ u.rut }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editUserModalLabel{{ u.rut }}">Edición de Usuario</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/data/edicionUsuario/{{ u.rut }}/" method="POST">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <input type="text" id="txtRut" name="txtRut" value="{{ u.rut }}" class="form-control" placeholder="RUT" maxlength="9" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" id="txtNombre" name="txtNombre" value="{{ u.nombre }}" class="form-control" placeholder="Nombre" maxlength="50" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" id="txtApellido_P" name="txtApellido_P" value="{{ u.apellido_p }}" class="form-control" placeholder="Apellido Paterno" maxlength="50" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" id="txtApellido_M" name="txtApellido_M" value="{{ u.apellido_m }}" class="form-control" placeholder="Apellido Materno" maxlength="50" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="date" id="txtFecha_n" name="txtFecha_n" value="{{ u.fecha_n }}" class="form-control" placeholder="Fecha de Nacimiento" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="email" id="numCorreo" name="numCorreo" value="{{ u.correo }}" class="form-control" placeholder="Correo Electrónico" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="tel" id="numTelefono" name="numTelefono" value="{{ u.telefono }}" class="form-control" placeholder="Teléfono" maxlength="15" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                 </tbody>
             </table>

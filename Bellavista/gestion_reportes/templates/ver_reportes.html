@@ -141,8 +141,8 @@
   <div class="header">
     <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
     <div>
-      <a href="{% url 'gestion_usuarios:inicio_admin' %}" class="logout-btn">Volver atrás</a>
-      <form action="{% url 'gestion_usuarios:logout' %}" method="post" style="display:inline;">
+      <a href="{% url 'inicio:inicio_admin' %}" class="logout-btn">Volver atrás</a>
+      <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
         {% csrf_token %}
         <button type="submit" class="logout-btn">Cerrar Sesión</button>
       </form>
@@ -203,7 +203,7 @@
               {% endif %}
             </td>
             <td>
-              <a href="{% url 'gestion_usuarios:editar_reporte' reporte.id %}"style="display: block; text-align: center;">
+              <a href="{% url 'gestion_reportes:editar_reporte' reporte.id %}"style="display: block; text-align: center;">
                 <img src="{% static 'images/edit.png' %}" alt="Editar" class="edit-icon">
               </a>
             </td>

@@ -18,12 +18,12 @@
             <div class="card-body">
                 <form action="/data/registrarMarco/" method="POST">{% csrf_token %}
                     <div class="form-group">
-                        <input type="text" id="txtMarco" name="txtMarco" class="form-control" placeholder="Nombre"
-                            maxlength="20" required>
+                        <input type="text" id="txtMarco" name="txtMarco" class="form-control" placeholder="Nombre del Marco"
+                            maxlength="50" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" id="txtDescripcion" name="txtDescripcion" class="form-control" placeholder="Descripcion"
-                            maxlength="40" required>
+                        <input type="text" id="txtDescripcion" name="txtDescripcion" class="form-control" placeholder="Descripción"
+                            maxlength="100" required>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
@@ -33,14 +33,13 @@
         </div>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8">
-        <h1>Listado de Marcoss</h1>
+        <h1>Listado de Marcos</h1>
         <div class="table-responsive py-2">
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>ID</th>
-                        <th>Marco</th>
+                        <th>Nombre</th>
                         <th>Descripción</th>
                         <th colspan="2">Opciones</th>
                     </tr>
@@ -49,12 +48,46 @@
                     {% for m in marcos %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ m.id }}</td>
                         <td>{{ m.nombre }}</td>
                         <td>{{ m.descripcion }}</td>
-                        <td><a href="/data/edicionMarco/{{ m.id }}" class="btn btn-info">Editar</a></td>
-                        <td><a href="/data/eliminarMarco/{{ m.id }}" class="btn btn-danger btnEliminacion">Eliminar</a></td>
+                        <td>
+                            <!-- Botones en una fila -->
+                            <div class="d-flex justify-content-start">
+                                <!-- Botón de Editar -->
+                                <button class="btn btn-info mr-2" data-toggle="modal" data-target="#editMarcoModal{{ m.id }}">Editar</button>
+                                <!-- Botón de Eliminar -->
+                                <a href="/data/eliminarMarco/{{ m.id }}" class="btn btn-danger btnEliminacion">Eliminar</a>
+                            </div>
+                        </td>
                     </tr>
+
+                    <!-- Modal for editing marco -->
+                    <div class="modal fade" id="editMarcoModal{{ m.id }}" tabindex="-1" role="dialog" aria-labelledby="editMarcoModalLabel{{ m.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editMarcoModalLabel{{ m.id }}">Edición de Marco</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/data/edicionMarco/{{ m.id }}/" method="POST">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <input type="text" id="txtMarco" name="txtMarco" value="{{ m.nombre }}" class="form-control" placeholder="Nombre del Marco" maxlength="50" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" id="txtDescripcion" name="txtDescripcion" value="{{ m.descripcion }}" class="form-control" placeholder="Descripción" maxlength="100" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                 </tbody>
             </table>
