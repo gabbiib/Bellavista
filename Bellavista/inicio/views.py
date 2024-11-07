@@ -1,56 +1,36 @@
-from django.shortcuts import render
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
-from gestion_reportes.models import Asignacion
-from gestion_datos.models import Usuarios
-from django.core.mail import send_mail
-from django.contrib import messages
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.utils.crypto import get_random_string
-from django.contrib.auth.hashers import make_password, check_password
-from twilio.rest import Client
-from django.urls import reverse
-from .forms import RecuperarContrasenaForm, ContactarAdminForm
-from django.views.decorators.http import require_POST
-import string
-from django.contrib.auth.views import LogoutView
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.views import LogoutView
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.contrib import messages
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.utils.crypto import get_random_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.sites.shortcuts import get_current_site
-from django.http import Http404
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.models import User
-from django.contrib.auth.hashers import make_password, check_password
-from twilio.rest import Client
-from django.urls import reverse
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from .forms import RecuperarContrasenaForm, ContactarAdminForm
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.db.models import Q, Count, Value
-from django.views.decorators.http import require_POST
-from django.db.utils import IntegrityError
-from django.db.models.functions import Concat
-from datetime import datetime
 import random
 import string
-from django.db.models import Count, Avg, F
-from django.db.models.functions import TruncMonth
-from django.utils.dateparse import parse_date
-from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LogoutView
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.mail import send_mail, EmailMessage
+from django.db import IntegrityError
+from django.db.models import Q, Count, Avg, F, Value
+from django.db.models.functions import Concat, TruncMonth
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.crypto import get_random_string
+from django.utils.dateparse import parse_date
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from gestion_datos.models import Usuarios
+from gestion_reportes.models import Asignacion
+from .forms import RecuperarContrasenaForm, ContactarAdminForm
+from twilio.rest import Client
 
 
 

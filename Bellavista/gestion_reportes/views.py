@@ -1,19 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import  Tareas, Reportes_Problemas, Asignacion
-from gestion_datos.models import Usuarios
-from django.contrib import messages
 from django.conf import settings
-from django.template.loader import render_to_string
-from .forms import ReporteForm
+from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Count
-from django.db.models import Count, Avg, F
-from django.db.models.functions import TruncMonth
-from django.utils.dateparse import parse_date
-from django.template.loader import render_to_string
-from twilio.rest import Client
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.views.generic import CreateView
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from django.db.models import Q, Count, Avg, F
+from django.db.models.functions import TruncMonth
+
+from .models import Tareas, Reportes_Problemas, Asignacion
+from gestion_datos.models import Usuarios, Problemas, Marcos
+from .forms import ReporteForm
+
+from twilio.rest import Client
+
+
 
 #class crearTareaView(CreateView):
 #    model=Tareas
@@ -97,23 +100,6 @@ def ver_reportes(request):
 def ver_imagen(request, reporte_id):
     reporte = get_object_or_404(Reportes_Problemas, id=reporte_id)
     return render(request, 'ver_imagen.html', {'reporte': reporte})
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import  Tareas, Reportes_Problemas, Asignacion
-from gestion_datos.models import Usuarios
-from django.contrib import messages
-from django.conf import settings
-from django.template.loader import render_to_string
-from .forms import ReporteForm
-from django.http import JsonResponse
-from django.db.models import Q, Count
-from django.db.models import Count, Avg, F
-from django.db.models.functions import TruncMonth
-from django.utils.dateparse import parse_date
-from django.template.loader import render_to_string
-from twilio.rest import Client
-from django.utils import timezone
-from django.views.generic import CreateView
 
 #class crearTareaView(CreateView):
 #    model=Tareas
@@ -227,15 +213,6 @@ def editar_reporte(request, id):
     return render(request, 'editar_reporte.html', {'form': form, 'reporte': reporte})
 
 ###benja
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Usuarios, Asignacion, Reportes_Problemas
-from django.db.models import Q
-from django.http import JsonResponse
-from django.db.models import Count, Avg, F
-from django.db.models.functions import TruncMonth
-from django.utils.dateparse import parse_date
-from django.views.decorators.csrf import csrf_exempt
-from django.template.loader import render_to_string
 
 def lista_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
