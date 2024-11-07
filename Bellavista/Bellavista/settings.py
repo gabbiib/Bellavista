@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Bellavista.Bellavista.wsgi.application'
+WSGI_APPLICATION = 'Bellavista.wsgi.application'
 
 
 # Database
