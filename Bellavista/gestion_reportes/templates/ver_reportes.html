@@ -17,6 +17,8 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: center; /* Centrado vertical */
+      align-items: center; /* Centrado horizontal */
     }
 
     .header {
@@ -49,16 +51,22 @@
       color: #2D6A8E;
     }
 
-    .tareas-reportes-container {
-      padding: 80px;
-      flex-grow: 1;
+    /* Estilo para el cuadro centrado */
+    .report-container {
+      width: 80%;
+      max-width: 1000px;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
     }
 
-    .tareas-reportes-header {
-      margin-bottom: 20px;
+    .report-container h1 {
       font-size: 24px;
       color: #2D6A8E;
       text-align: center;
+      margin-bottom: 30px;
     }
 
     .tareas-reportes-table {
@@ -101,6 +109,7 @@
       width: 20px; 
       height: auto; 
     }
+
     .sort-container {
       display: flex;
       align-items: center; 
@@ -138,19 +147,50 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
-    <div>
-      <a href="{% url 'inicio:inicio_admin' %}" class="logout-btn">Volver atrás</a>
-      <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="logout-btn">Cerrar Sesión</button>
-      </form>
+  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2e69a9;">
+    <a class="navbar-brand" href="#">
+        <img src="{% static 'images/logogris.svg' %}" alt="Logo" style="height: 50px;">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="gestionDatosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Gestión de Datos
+                </a>
+                <div class="dropdown-menu" aria-labelledby="gestionDatosDropdown">
+                    <a class="dropdown-item" href="{% url 'gestion_datos:gestion_usuario' %}">Gestión de Usuarios</a>
+                    <a class="dropdown-item" href="{% url 'gestion_datos:gestion_problema' %}">Gestión de Problemas</a>
+                    <a class="dropdown-item" href="{% url 'gestion_datos:gestion_marco' %}">Gestión de Marcos</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'gestion_reportes:lista_tareas' %}">Control de Tareas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'gestion_reportes:ver_reportes' %}">Historial de Reportes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'dashboards:dashboard' %}">Dashboard Problemas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'inicio:inicio_admin' %}">Inicio</a>
+            </li>
+            <li class="nav-item">
+                <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger logout-btn">Cerrar Sesión</button>
+                </form>
+            </li>
+        </ul>
     </div>
-  </div>
+</nav>
 
-  <div class="tareas-reportes-container">
-    <h1 class="tareas-reportes-header">Reportes de Problemas</h1>
+  <div class="report-container">
+    <h1>Reportes de Problemas</h1>
     {% if messages %}
     <div class="alert alert-success">
       {% for message in messages %}
@@ -158,6 +198,8 @@
       {% endfor %}
     </div>
     {% endif %}
+
+    <!-- Tabla de reportes -->
     <table class="tareas-reportes-table">
       <thead>
         <tr>
@@ -174,6 +216,7 @@
                 <a href="?ordenar=desc" title="Ordenar descendente">&#9660;</a>
               </div>
             </div>
+          </th>
           <th class="tareas-reportes-th">Ver Imagen</th>
           <th class="tareas-reportes-th">Ubicación</th> 
           <th class="tareas-reportes-th">Editar reporte</th>
@@ -190,31 +233,37 @@
             <td>{{ reporte.fecha_reporte|date:"d-m-Y H:i" }}</td>
             <td>
               {% if reporte.foto_url %}
-                <a href="{% url 'ver_imagen' reporte.id %}">Ver</a>
+                <a href="{% static reporte.foto_url %}" target="_blank">
+                  Ver imagen
+                </a>
               {% else %}
                 No disponible
               {% endif %}
-            </td>            
-            <td>
-              {% if reporte.latitud and reporte.longitud %}
-                <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver mapa</a>
-              {% else %}
-                No hay ubicación disponible
-              {% endif %}
             </td>
             <td>
-              <a href="{% url 'gestion_reportes:editar_reporte' reporte.id %}"style="display: block; text-align: center;">
-                <img src="{% static 'images/edit.png' %}" alt="Editar" class="edit-icon">
+              {% if reporte.latitud and reporte.longitud %}
+                  <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver ubicación</a>
+                {% else %}
+                  No disponible
+                {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'gestion_reportes:editar_reporte' reporte.id %}">
+                <img src="{% static 'images/edit_icon.svg' %}" alt="Editar" class="edit-icon">
               </a>
             </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="8">No hay reportes disponibles.</td>
+            <td colspan="9">No hay reportes disponibles.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

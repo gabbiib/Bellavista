@@ -159,7 +159,7 @@ def login_view(request):
                     if usuario.rol.id_rol == 2:
                         return redirect('inicio:trabajador')  
                     elif usuario.rol.id_rol == 1:
-                        return redirect('inicio:administrador')  
+                        return redirect('inicio:inicio_admin')  
                     else:
                         return render(request, 'registration/login.html', {'error': 'Rol de usuario no reconocido.'})
                 else:

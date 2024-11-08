@@ -9,14 +9,22 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <title>Reporte de Problemas - Canal Bellavista</title>
     <style>
+     
       body {
-        background-color: #F3F5F7;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-      }
+      font-family: 'Roboto', sans-serif;
+      background-color: #F3F5F7;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background-image: url('/static/images/topography.png');
+      background-repeat: repeat;
+      background-position: top left;
+      background-size: auto;
+    }
       .content {
         background: white;
         padding: 30px;
@@ -84,6 +92,7 @@
     </style>
   </head>
   <body>
+    
     <div class="content">
       <h3><strong>Reporte de Problemas</strong></h3>
       <form action="{% url 'gestion_reportes:reporte' %}" method="post" enctype="multipart/form-data" onsubmit="return getLocation(event)">
@@ -100,14 +109,13 @@
           </select>
         </div>        
         <input type="hidden" id="rut-usuario" name="rut_usuario">
-
         <div class="form-group">
           <label for="marco">Medición de Marco</label>
           <select id="marco" name="marco" class="form-control">
             <option value="">Seleccionar marco...</option>
-            <option value="marco1">Nombre del Marco 1</option>
-            <option value="marco2">Nombre del Marco 2</option>
-            <option value="marco3">Nombre del Marco 3</option>
+            {% for marco in marcos %}
+              <option value="{{ marco.id }}">{{ marco.nombre }}</option>
+            {% endfor %}
           </select>
           <input type="text" id="measure" name="medida" class="form-control mt-2" placeholder="Medida en cm (solo números)">
         </div>
@@ -116,14 +124,12 @@
           <label for="incident-type">Tipo de Incidente</label>
           <select id="incident-type" name="tipo_incidente" class="form-control">
             <option value="">Seleccionar tipo...</option>
-            <option value="Derrumbe">Derrumbe</option>
-            <option value="Robo de agua">Robo de agua</option>
-            <option value="Obstrucción del canal">Obstrucción del canal</option>
-            <option value="Filtración">Filtración</option>
-            <option value="Vigilancia de compuerta">Vigilancia de compuerta</option>
+            {% for tipo in tipos_incidente %}
+              <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+            {% endfor %}
           </select>
         </div>
-
+        
         <div class="form-group">
           <label for="description">Descripción</label>
           <textarea id="description" name="descripcion" class="form-control" rows="4" placeholder="Descripción del problema"></textarea>

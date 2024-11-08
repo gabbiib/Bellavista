@@ -115,9 +115,10 @@ def reporte(request):
 
 def reporte_exito(request):
     return render(request, 'reporte_exito.html')
-
 def reporte_view(request):
     trabajadores = Usuarios.objects.filter(rol__id_rol=2)
+    marcos = Marcos.objects.all()  # Obtenemos todos los marcos
+    tipos_incidente = Problemas.objects.all()  # Obtenemos todos los tipos de incidente
 
     if request.method == 'POST':
         rut_usuario = request.POST.get('rut_usuario')
@@ -163,10 +164,18 @@ def reporte_view(request):
             return redirect('reporte_exito') 
 
         except Usuarios.DoesNotExist:
-            return render(request, 'reporte.html', {'trabajadores': trabajadores, 'error': 'Usuario no encontrado.'})
+            return render(request, 'reporte.html', {
+                'trabajadores': trabajadores,
+                'marcos': marcos,
+                'tipos_incidente': tipos_incidente,
+                'error': 'Usuario no encontrado.'
+            })
 
-    return render(request, 'reporte.html', {'trabajadores': trabajadores})
-
+    return render(request, 'reporte.html', {
+        'trabajadores': trabajadores,
+        'marcos': marcos,
+        'tipos_incidente': tipos_incidente
+    })
 def ver_reportes(request):
     ordenar = request.GET.get('ordenar', 'asc')
     
