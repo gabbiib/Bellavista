@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Usuarios, Rol, Problemas, Marcos
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -10,22 +10,6 @@ def gestion_usuario(request):
     UsuariosListados = Usuarios.objects.all()
     return render(request, "gestionUsuarios.html", {"usuarios": UsuariosListados})
 
-def edicionUsuario(request, rut):
-    usuario = Usuarios.objects.get(rut=rut)
-    
-    if request.method == 'POST':
-
-        usuario.nombre = request.POST['txtNombre']
-        usuario.apellido_p = request.POST['txtApellido_P']
-        usuario.apellido_m = request.POST['txtApellido_M']
-        usuario.fecha_n = request.POST['txtFecha_n']
-        usuario.correo = request.POST['numCorreo']
-        usuario.telefono = request.POST['numTelefono']
-        usuario.save() 
-        return redirect('/data/gestion_usuario/') 
-    
-    return render(request, "edicionUsuario.html", {"usuario": usuario})
-
 def registrarUsuario(request):
     if request.method == "POST":
         rut = request.POST['txtRut']
@@ -34,7 +18,7 @@ def registrarUsuario(request):
         apellido_m = request.POST['txtApellido_M']
         fecha_n = request.POST['txtFecha_n']
         correo = request.POST['numCorreo']
-        telefono = request.POST['numTelefono']
+        telefono = '+569' + request.POST['numTelefono']
         password = request.POST['numPassword']
         
        
@@ -62,15 +46,59 @@ def registrarUsuario(request):
         return redirect('/data/gestion_usuario/')
     else:
         return redirect('/data/gestion_usuario/')
-
-def eliminarUsuario(request, rut):
+    
+def edicionUsuario(request, rut):
     usuario = Usuarios.objects.get(rut=rut)
+    
+    if request.method == 'POST':
+        cambios = False  # Flag para verificar si se realizaron cambios
+        
+        # Verificar si al menos uno de los campos ha cambiado
+        if (request.POST['txtNombre'] != usuario.nombre or
+            request.POST['txtApellido_P'] != usuario.apellido_p or
+            request.POST['txtApellido_M'] != usuario.apellido_m or
+            request.POST['txtFecha_n'] != str(usuario.fecha_n) or
+            request.POST['numCorreo'] != usuario.correo or
+            request.POST['numTelefono'] != usuario.telefono):
+            cambios = True
+        
+        # Verificar si la contraseña ha cambiado
+        nueva_contraseña = request.POST.get('numPassword', '').strip()
+        if nueva_contraseña:  # Si se ingresa una nueva contraseña
+            cambios = True  # Se considera un cambio en los datos
+            usuario.password = make_password(nueva_contraseña)
+
+        # Si no hubo cambios en los datos, mostrar mensaje de error
+        if not cambios:
+            messages.error(request, 'Debe realizar cambios en alguno de los campos para guardar.')
+            return redirect(f'/data/gestion_usuario/')
+        
+        # Si hay cambios, actualizar los datos
+        usuario.nombre = request.POST['txtNombre']
+        usuario.apellido_p = request.POST['txtApellido_P']
+        usuario.apellido_m = request.POST['txtApellido_M']
+        usuario.fecha_n = request.POST['txtFecha_n']
+        usuario.correo = request.POST['numCorreo']
+        
+        # Verificar y agregar el prefijo +569 al número de teléfono si es necesario
+        telefono = request.POST['numTelefono']
+        if not telefono.startswith('+569'):
+            telefono = '+569' + telefono
+        usuario.telefono = telefono
+        
+        # Guardar el usuario con los cambios
+        usuario.save()
+        
+        messages.success(request, 'Usuario actualizado correctamente.')
+        return redirect('/data/gestion_usuario/')
+    
+    return render(request, "gestionUsuarios.html")
+                  
+def eliminarUsuario(request, rut):
+    usuario = get_object_or_404(Usuarios, rut=rut)
     usuario.delete()
-
-    messages.success(request, '¡Usuario eliminado!')
-
+    messages.success(request, '¡Usuario eliminado exitosamente!')
     return redirect('/data/gestion_usuario/')
-
 ##-----------------------PROBLEMAS-----------------------------
 
 def gestion_problema(request):

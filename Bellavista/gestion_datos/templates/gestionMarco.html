@@ -34,7 +34,8 @@
     </div>
     <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8">
         <h1>Listado de Marcos</h1>
-        <div class="table-responsive py-2">
+        <!-- Contenedor scrollable para la tabla -->
+        <div class="table-responsive py-2" style="max-height: 600px; overflow-y: auto;">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -56,12 +57,12 @@
                                 <!-- Botón de Editar -->
                                 <button class="btn btn-info mr-2" data-toggle="modal" data-target="#editMarcoModal{{ m.id }}">Editar</button>
                                 <!-- Botón de Eliminar -->
-                                <a href="/data/eliminarMarco/{{ m.id }}" class="btn btn-danger btnEliminacion">Eliminar</a>
+                                <a href="/data/eliminarMarco/{{ m.id }}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar a {{ m.nombre }}?')">Eliminar</a>
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Modal for editing marco -->
+    
+                    <!-- Modal para editar marco -->
                     <div class="modal fade" id="editMarcoModal{{ m.id }}" tabindex="-1" role="dialog" aria-labelledby="editMarcoModalLabel{{ m.id }}" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -93,5 +94,5 @@
             </table>
         </div>
     </div>
-</div>
+    
 {% endblock %}

@@ -7,12 +7,15 @@
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
         {% if messages %}
         {% for message in messages %}
-        <div class="alert alert-dismissible alert-success">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <strong class="text-dark">{{ message }}</strong>
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>{{ message }}</strong>
         </div>
         {% endfor %}
         {% endif %}
+
         <h2>Gestión de Usuario</h2>
         <div class="card">
             <div class="card-body">
@@ -55,9 +58,15 @@
                             required>
                     </div>
                     <div class="form-group">
-                        <input type="tel" id="numTelefono" name="numTelefono" class="form-control" placeholder="Teléfono"
-                            pattern="[0-9]{9}" maxlength="9" required>
+                        <label for="numTelefono">Teléfono</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">+569</span>
+                            </div>
+                            <input type="text" id="numTelefono" name="numTelefono" class="form-control" placeholder="12345678" maxlength="8" required pattern="[0-9]{8}" title="Debe ingresar un número de 8 dígitos sin el prefijo +569">
+                        </div>
                     </div>
+                    
                     <div class="form-group">
                         <input type="password" id="numPassword" name="numPassword" class="form-control" placeholder="Contraseña"
                                minlength="8" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&amp;*()_+={}\[\]|;:'&quot;,&lt;&gt;./?])(?=.*[A-Z]).{8,}$" required>
@@ -74,7 +83,7 @@
     </div>
     <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8">
         <h1>Listado de Usuarios</h1>
-        <div class="table-responsive py-2">
+        <div class="table-responsive py-2" style="max-height: 600px; overflow-y: auto;">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -109,16 +118,13 @@
                         <td>{{ u.correo }}</td>
                         <td>{{ u.telefono }}</td>
                         <td>
-                            <!-- Botones Editar y Eliminar en línea -->
                             <div class="d-flex justify-content-start">
-                                <!-- Botón Editar -->
-                                <button class="btn btn-info mr-2" data-toggle="modal" data-target="#editUserModal{{ u.rut }}">Editar</button>
-                                <!-- Botón Eliminar -->
-                                <a href="/data/eliminarUsuario/{{ u.rut }}" class="btn btn-danger">Eliminar</a>
+                                <button class="btn btn-info mr-2" data-toggle="modal" data-target="#editUserModal{{ u.rut }}">Editar</button>                   
+                                <a href="/data/eliminarUsuario/{{ u.rut }}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar a {{ u.nombre }} {{ u.apellido_p }}?')">Eliminar</a>
                             </div>
                         </td>
                     </tr>
-
+    
                     <!-- Modal for editing user -->
                     <div class="modal fade" id="editUserModal{{ u.rut }}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel{{ u.rut }}" aria-hidden="true">
                         <div class="modal-dialog" role="document">
@@ -145,17 +151,31 @@
                                             <input type="text" id="txtApellido_M" name="txtApellido_M" value="{{ u.apellido_m }}" class="form-control" placeholder="Apellido Materno" maxlength="50" required>
                                         </div>
                                         <div class="form-group">
-                                            <input type="date" id="txtFecha_n" name="txtFecha_n" value="{{ u.fecha_n }}" class="form-control" placeholder="Fecha de Nacimiento" required>
-                                        </div>
+                                            <label for="txtFecha_n">Fecha de Nacimiento</label>
+                                            <input type="date" id="txtFecha_n" name="txtFecha_n" value="{{ u.fecha_n|date:'Y-m-d' }}" class="form-control" required>
+                                        </div>                                                                             
                                         <div class="form-group">
                                             <input type="email" id="numCorreo" name="numCorreo" value="{{ u.correo }}" class="form-control" placeholder="Correo Electrónico" required>
                                         </div>
                                         <div class="form-group">
-                                            <input type="tel" id="numTelefono" name="numTelefono" value="{{ u.telefono }}" class="form-control" placeholder="Teléfono" maxlength="15" required>
+                                            <label for="numTelefono">Teléfono</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">+569</span>
+                                                </div>
+                                                <input type="text" id="numTelefono" name="numTelefono" value="{{ u.telefono|slice:'4:' }}" class="form-control" placeholder="12345678" maxlength="8" required pattern="[0-9]{8}" title="Debe ingresar un número de 8 dígitos sin el prefijo +569">
+                                            </div>
                                         </div>
+                                        <input type="password" id="numPassword" name="numPassword" class="form-control" placeholder="Nueva Contraseña (opcional)"
+                                                minlength="8" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&amp;*()_+={}\[\]|;:'&quot;,&lt;&gt;./?])(?=.*[A-Z]).{8,}$">
+                                            <small class="form-text text-muted">
+                                                La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.
+                                            </small>
+        
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
                                         </div>
+                                                                                  
                                     </form>
                                 </div>
                             </div>
@@ -166,5 +186,6 @@
             </table>
         </div>
     </div>
-</div>
-{% endblock %}
+    </div>
+    {% endblock %}
+    

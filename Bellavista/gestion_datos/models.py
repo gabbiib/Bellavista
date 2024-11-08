@@ -78,6 +78,13 @@ class Marcos(models.Model):
     nombre = models.CharField(max_length=40)
     descripcion = models.TextField(max_length=100)
 
+    def __str__(self):
+        return self.nombre  # Mostrar solo el nombre del marco
+    
+    class Meta:
+        verbose_name = 'Marco'
+        verbose_name_plural = 'Marcos'
+
 class Historial_De_Cambios(models.Model):
     rut = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     tipo_cambio = models.CharField(max_length=100)

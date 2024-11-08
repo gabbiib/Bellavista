@@ -98,7 +98,7 @@
 
     /* Aumento de tamaño para la columna 'Usuario que Reportó' */
     .tareas-reportes-td.usuario-reporto {
-      min-width: 200px; /* Asegura que la columna tenga un tamaño mínimo */
+      min-width: 500x; /* Asegura que la columna tenga un tamaño mínimo */
     }
 
     .tareas-reportes-button-wrapper {
@@ -171,7 +171,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
+        <ul class="navbar-nav ml-auto">  <!-- Agregamos ml-auto para mover los elementos a la derecha -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle text-white" href="#" id="gestionDatosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Gestión de Datos
@@ -188,8 +188,14 @@
             <li class="nav-item">
                 <a class="nav-link text-white" href="{% url 'gestion_reportes:ver_reportes' %}">Historial de Reportes</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="{% url 'dashboards:dashboard' %}">Dashboard Problemas</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="dashboardsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Dashboards
+                </a>
+                <div class="dropdown-menu" aria-labelledby="gestionDatosDropdown">
+                    <a class="dropdown-item" href="{% url 'dashboards:dashboard' %}">Dashboard Problemas</a>
+                    <a class="dropdown-item" href="{% url 'dashboards:reportes' %}">Dashboard Asignaciones</a>
+                </div>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="{% url 'inicio:inicio_admin' %}">Inicio</a>
@@ -202,7 +208,7 @@
             </li>
         </ul>
     </div>
-  </nav>
+</nav>
 
   <div class="report-container">
     <h1>Reportes de Problemas</h1>
@@ -261,7 +267,7 @@
             </td>
             <td class="tareas-reportes-td">
               <a href="{% url 'gestion_reportes:editar_reporte' reporte.id %}">
-                <img src="{% static 'images/edit_icon.svg' %}" alt="Editar" class="edit-icon">
+                <img src="{% static 'images/edit-icon.png' %}" alt="Editar" class="edit-icon">
               </a>
             </td>
           </tr>

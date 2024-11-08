@@ -188,52 +188,64 @@
     </style>
   </head>
   <body>
-      <div class="hero">
-          <div class="overlay"></div>
-          
-          <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista" class="logo">
-          
-          <div class="nav-links">
-              <!-- Menú desplegable primero -->
-              <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Gestionar Datos
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a class="dropdown-item" href="{% url 'gestion_datos:gestion_usuario' %}">Gestion de Usuarios</a>
-                      <a class="dropdown-item" href="{% url 'gestion_datos:gestion_problema' %}">Gestión de Problemas</a>
-                      <a class="dropdown-item" href="{% url 'gestion_datos:gestion_marco' %}">Gestión de Marcos</a>
-                  </div>
-              </div>
-              <a href="{% url 'gestion_reportes:lista_tareas' %}">Control de Tareas</a>
-              <a href="{% url 'gestion_reportes:ver_reportes' %}">Historial de Reportes</a>
-              <a href="{% url 'dashboards:dashboard' %}">Dashboard Problemas</a>
-              <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger logout-btn">Cerrar Sesión</button>
-              </form>
+    <div class="hero">
+      <div class="overlay"></div>
+
+      <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista" class="logo">
+
+      <div class="nav-links">
+        <!-- Menú desplegable de Gestionar Datos -->
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Gestionar Datos
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <a class="dropdown-item" href="{% url 'gestion_datos:gestion_usuario' %}">Gestión de Usuarios</a>
+            <a class="dropdown-item" href="{% url 'gestion_datos:gestion_problema' %}">Gestión de Problemas</a>
+            <a class="dropdown-item" href="{% url 'gestion_datos:gestion_marco' %}">Gestión de Marcos</a>
           </div>
-  
-          <div class="content">
-              <h1>Bienvenido Administrador</h1>
-              <p>En esta plataforma puedes gestionar tareas, usuarios y más.</p>
+        </div>
+        <a href="{% url 'gestion_reportes:lista_tareas' %}">Control de Tareas</a>
+        <a href="{% url 'gestion_reportes:ver_reportes' %}">Historial de Reportes</a>
+
+        <!-- Menú desplegable de Dashboards -->
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dashboards
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+            <a class="dropdown-item" href="{% url 'dashboards:dashboard' %}">Dashboard Problemas</a>
+            <a class="dropdown-item" href="{% url 'dashboards:reportes' %}">Dashboard Asignaciones</a>
           </div>
+        </div>
+
+        <!-- Botón de cierre de sesión -->
+        <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger logout-btn">Cerrar Sesión</button>
+        </form>
       </div>
-      
-      <footer class="footer">
-          <div class="logo-footer">
-              <img src="{% static 'images/logo.png' %}" alt="Logo Canal Bellavista Footer">
-          </div>
-          <div class="footer-info">
-              <p>Teléfono: +(56) 512213773</p>
-              <p>Email: contacto@canalbellavista.cl</p>
-              <p>Dirección: Cordovez 490, Of. 203. La Serena, Chile</p>
-          </div>
-          <p>© 2024 Canal Bellavista. Todos los derechos reservados.</p>
-      </footer>
-  
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  </body>
-  </html>
+
+      <div class="content">
+        <h1>Bienvenido Administrador</h1>
+        <p>En esta plataforma puedes gestionar tareas, usuarios y más.</p>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="logo-footer">
+        <img src="{% static 'images/logo.png' %}" alt="Logo Canal Bellavista Footer">
+    </div>
+    <div class="footer-info">
+        <p>Teléfono: +(56) 512213773</p>
+        <p>Email: contacto@canalbellavista.cl</p>
+        <p>Dirección: Cordovez 490, Of. 203. La Serena, Chile</p>
+    </div>
+    <p>© 2024 Canal Bellavista. Todos los derechos reservados.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
