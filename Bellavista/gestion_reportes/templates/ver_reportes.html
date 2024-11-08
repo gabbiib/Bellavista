@@ -14,11 +14,10 @@
       background-color: #F3F5F7;
       margin: 0;
       padding: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center; /* Centrado vertical */
-      align-items: center; /* Centrado horizontal */
+      background-image: url('/static/images/topography.png');
+      background-repeat: repeat;
+      background-position: top left;
+      background-size: auto;
     }
 
     .header {
@@ -51,15 +50,17 @@
       color: #2D6A8E;
     }
 
-    /* Estilo para el cuadro centrado */
     .report-container {
       width: 80%;
-      max-width: 1000px;
+      max-width: 1300px;
       background-color: white;
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border: 1px solid #ddd;
+      margin: 20px auto;
+      max-height: 600px;
+      overflow-y: auto;
     }
 
     .report-container h1 {
@@ -78,12 +79,26 @@
     .tareas-reportes-th, .tareas-reportes-td {
       padding: 15px;
       border: 1px solid #ddd;
+      text-align: left;
     }
 
     .tareas-reportes-th {
       background-color: #f4f4f4;
-      text-align: left;
       font-weight: bold;
+      color: #2D6A8E;
+    }
+
+    .tareas-reportes-td {
+      background-color: #fff;
+    }
+
+    .tareas-reportes-td:hover {
+      background-color: #f7f7f7;
+    }
+
+    /* Aumento de tamaño para la columna 'Usuario que Reportó' */
+    .tareas-reportes-td.usuario-reporto {
+      min-width: 200px; /* Asegura que la columna tenga un tamaño mínimo */
     }
 
     .tareas-reportes-button-wrapper {
@@ -187,7 +202,7 @@
             </li>
         </ul>
     </div>
-</nav>
+  </nav>
 
   <div class="report-container">
     <h1>Reportes de Problemas</h1>
@@ -199,7 +214,6 @@
     </div>
     {% endif %}
 
-    <!-- Tabla de reportes -->
     <table class="tareas-reportes-table">
       <thead>
         <tr>
@@ -207,7 +221,7 @@
           <th class="tareas-reportes-th">Descripción</th>
           <th class="tareas-reportes-th">Marco</th>
           <th class="tareas-reportes-th">Medida del Marco</th>
-          <th class="tareas-reportes-th">Usuario que Reportó</th>
+          <th class="tareas-reportes-th usuario-reporto">Usuario que Reportó</th>
           <th class="tareas-reportes-th">
             <div class="sort-container">
               <span>Fecha del Reporte</span>
@@ -219,35 +233,33 @@
           </th>
           <th class="tareas-reportes-th">Ver Imagen</th>
           <th class="tareas-reportes-th">Ubicación</th> 
-          <th class="tareas-reportes-th">Editar reporte</th>
+          <th class="tareas-reportes-th">Editar</th>
         </tr>
       </thead>
       <tbody>
         {% for reporte in reportes %}
           <tr>
-            <td>{{ reporte.id }}</td>
-            <td>{{ reporte.descripcion }}</td>
-            <td>{{ reporte.marco }}</td>
-            <td>{{ reporte.medida_marco }}</td>
-            <td>{{ reporte.rut_usuario.nombre }} {{ reporte.rut_usuario.apellido_p }} {{ reporte.rut_usuario.apellido_m }}</td>
-            <td>{{ reporte.fecha_reporte|date:"d-m-Y H:i" }}</td>
-            <td>
+            <td class="tareas-reportes-td">{{ reporte.id }}</td>
+            <td class="tareas-reportes-td">{{ reporte.descripcion }}</td>
+            <td class="tareas-reportes-td">{{ reporte.marco }}</td>
+            <td class="tareas-reportes-td">{{ reporte.medida_marco }}</td>
+            <td class="tareas-reportes-td usuario-reporto">{{ reporte.rut_usuario }}</td>
+            <td class="tareas-reportes-td">{{ reporte.fecha_reporte }}</td>
+            <td class="tareas-reportes-td">
               {% if reporte.foto_url %}
-                <a href="{% static reporte.foto_url %}" target="_blank">
-                  Ver imagen
-                </a>
+                <a href="{% static reporte.foto_url %}" target="_blank">Ver imagen</a>
               {% else %}
                 No disponible
               {% endif %}
             </td>
-            <td>
+            <td class="tareas-reportes-td">
               {% if reporte.latitud and reporte.longitud %}
-                  <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver ubicación</a>
-                {% else %}
-                  No disponible
-                {% endif %}
+                <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver ubicación</a>
+              {% else %}
+                No disponible
+              {% endif %}
             </td>
-            <td>
+            <td class="tareas-reportes-td">
               <a href="{% url 'gestion_reportes:editar_reporte' reporte.id %}">
                 <img src="{% static 'images/edit_icon.svg' %}" alt="Editar" class="edit-icon">
               </a>
@@ -255,7 +267,7 @@
           </tr>
         {% empty %}
           <tr>
-            <td colspan="9">No hay reportes disponibles.</td>
+            <td colspan="9" class="tareas-reportes-td">No hay reportes disponibles.</td>
           </tr>
         {% endfor %}
       </tbody>
