@@ -205,22 +205,26 @@ def actualizar_tarea(request, tarea_id):
     return render(request, 'actualizar_tarea.html', {'tarea': tarea})
 
 def editar_reporte(request, id):
+    # Obtenemos el reporte que queremos editar
     reporte = get_object_or_404(Reportes_Problemas, id=id)
 
     if request.method == 'POST':
+        # Creamos el formulario y lo llenamos con los datos enviados por el POST
         form = ReporteForm(request.POST, instance=reporte)
         if form.is_valid():
-            form.save() 
+            # Guardamos el formulario si es válido
+            form.save()
             messages.success(request, "El reporte fue actualizado exitosamente.")
-            return redirect('ver_reportes')  
+            return redirect('ver_reportes')
         else:
-            print(form.errors)  
-
+            # Si el formulario tiene errores, los imprimimos para depurar
+            print(form.errors)
     else:
-        form = ReporteForm(instance=reporte)  
-    
-    return render(request, 'editar_reporte.html', {'form': form, 'reporte': reporte})
+        # Si es un GET, prellenamos el formulario con los datos del reporte
+        form = ReporteForm(instance=reporte)
 
+    # Retornamos la vista con el formulario y el reporte
+    return render(request, 'editar_reporte.html', {'form': form, 'reporte': reporte})
 ###benja
 
 def lista_tareas(request):
