@@ -220,7 +220,7 @@ def enviar_enlace_view(request):
                 to= usuario.telefono  
             )
 
-            messages.success(request, 'Hemos enviado un enlace para recuperar tu contraseña a tu WhatsApp.')
+            messages.success(request, 'Hemos enviado un enlace para recuperar tu contraseña a tu teléfono.')
             return redirect('inicio:recuperar_contrasena')  
             
         except Usuarios.DoesNotExist:
