@@ -30,11 +30,16 @@
       background-color: #2D6A8E;
       padding: 10px 20px;
       color: white;
-      display: flex;
+      flex-wrap: wrap;
     }
 
     .header img {
       max-width: 100px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
     }
 
     .header .logout-btn, .header .edit-profile-btn {
@@ -45,10 +50,10 @@
       border-radius: 5px;
       text-decoration: none;
       font-size: 16px;
-      width: 150px; /* Asegura el mismo ancho */
-      text-align: center; /* Centra el texto */
+      text-align: center;
       justify-content: center;
-      align-items: center;
+      display: inline-block;
+      width: 150px;
     }
 
     .header .logout-btn:hover, .header .edit-profile-btn:hover {
@@ -57,8 +62,9 @@
     }
 
     .tareas-reportes-container {
-      padding: 80px;
+      padding: 20px;
       flex-grow: 1;
+      width: 100%;
     }
 
     .tareas-reportes-header {
@@ -68,16 +74,20 @@
       text-align: center;
     }
 
+    .table-responsive {
+      overflow-x: auto;
+    }
+
     .tareas-reportes-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 18px;
-      margin-left: 0%;
+      font-size: 16px;
     }
 
     .tareas-reportes-th, .tareas-reportes-td {
-      padding: 15px;
+      padding: 10px;
       border: 1px solid #ddd;
+      white-space: nowrap; /* Evita que el texto se ajuste en varias líneas */
     }
 
     .tareas-reportes-th {
@@ -104,13 +114,29 @@
     .tareas-reportes-button:hover {
       background-color: #245870;
     }
+
+    @media (max-width: 768px) {
+      .header img {
+        margin-bottom: 10px; /* Dejar un pequeño espacio entre la imagen y los botones */
+      }
+
+      .header-buttons {
+        justify-content: center;
+        width: 100%; /* Los botones ocupan todo el ancho del contenedor */
+      }
+
+      .header .logout-btn, .header .edit-profile-btn {
+        width: auto; /* Elimina la limitación de ancho en dispositivos pequeños */
+        padding: 10px 20px; /* Asegura que los botones se vean uniformes */
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Header con logo y botones de cerrar sesión y editar perfil -->
   <div class="header">
     <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
-    <div>
+    <div class="header-buttons">
       <a href="{% url 'inicio:editar_perfil' %}" class="edit-profile-btn">Editar Perfil</a>
       <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
         {% csrf_token %}
@@ -123,7 +149,8 @@
   <div class="tareas-reportes-container">
     <h1 class="tareas-reportes-header">Tareas Asignadas y Reporte de Problemas</h1>
 
-    <div class="tareas-reportes-task-list">
+    <!-- Tabla de tareas con scroll horizontal para pantallas pequeñas -->
+    <div class="table-responsive">
       <table class="tareas-reportes-table">
         <thead>
           <tr>
@@ -131,8 +158,8 @@
             <th class="tareas-reportes-th">Descripción</th>
             <th class="tareas-reportes-th">Prioridad</th>
             <th class="tareas-reportes-th">Fecha de Asignación</th>
-            <th class="tareas-reportes-th">Estado</th> 
-            <th class="tareas-reportes-th">Acción</th> 
+            <th class="tareas-reportes-th">Estado</th>
+            <th class="tareas-reportes-th">Acción</th>
           </tr>
         </thead>
         <tbody class="tareas-reportes-tbody">
@@ -143,7 +170,7 @@
               <td>{{ tarea.prioridad }}</td>
               <td>{{ tarea.fecha_asignacion }}</td>
               <td>
-                <form action="{% url 'gestion_reportes:actualizar_tarea' tarea.id %}" method="post">
+                <form action="{% url 'inicio:actualizar_tarea' tarea.id %}" method="post">
                   {% csrf_token %}
                   <select name="estado" class="form-control" aria-label="Cambiar estado de la tarea">
                     <option value="en_espera" {% if tarea.estado == 'en_espera' %}selected{% endif %}>En Espera</option>
@@ -158,11 +185,10 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="5">No tienes tareas asignadas.</td>
+              <td colspan="6">No tienes tareas asignadas.</td>
             </tr>
           {% endfor %}
         </tbody>
-        
       </table>
     </div>
 

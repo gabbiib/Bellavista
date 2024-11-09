@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.db.models import Count
 from django.http import JsonResponse
-from gestion_reportes.models import Reportes_Problemas
+from gestion_reportes.models import Reportes_Problemas, Tareas, Asignacion
 from gestion_datos.models import Usuarios
-from gestion_reportes.models import Tareas, Asignacion
 from django.db.models.functions import TruncMonth
 from django.db.models import Q
 from django.db.models import Count, Avg, F
@@ -128,7 +127,7 @@ def inicio_admin(request):
 
 ###Benja
 def reportes(request):
-    trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
     return render(request, 'reportes.html', {'trabajadores': trabajadores})
 
 

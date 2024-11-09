@@ -28,12 +28,72 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from gestion_datos.models import Usuarios
-from gestion_reportes.models import Asignacion
+from gestion_datos.models import Usuarios, Problemas, Marcos
+from gestion_reportes.models import Asignacion, Reportes_Problemas
 from .forms import RecuperarContrasenaForm, ContactarAdminForm
 from twilio.rest import Client
 
+def reporte_view(request):
+    trabajadores = Usuarios.objects.filter(rol__id_rol=2)
+    marcos = Marcos.objects.all()  # Obtenemos todos los marcos
+    tipos_incidente = Problemas.objects.all()  # Obtenemos todos los tipos de incidente
 
+    if request.method == 'POST':
+        rut_usuario = request.POST.get('rut_usuario')
+        tipo_incidente = request.POST.get('tipo_incidente')
+        descripcion = request.POST.get('descripcion')
+        marco = request.POST.get('marco')
+        medida_marco = request.POST.get('medida')
+        foto_url = request.FILES.get('foto')
+        latitud = request.POST.get('latitud')
+        longitud = request.POST.get('longitud')
+
+        try:
+            usuario = Usuarios.objects.get(rut=rut_usuario)
+            
+            nuevo_reporte = Reportes_Problemas(
+                rut_usuario=usuario,
+                tipo_incidente=tipo_incidente,
+                descripcion=descripcion,
+                marco=marco,
+                medida_marco=medida_marco,
+                foto_url=foto_url,
+                fecha_reporte=timezone.now(),
+                latitud=latitud,
+                longitud=longitud
+            )
+            nuevo_reporte.save()
+
+            administradores = Usuarios.objects.filter(rol__id_rol=1)
+
+            mensaje = (
+                f'El usuario {usuario.nombre} {usuario.apellido_p} {usuario.apellido_m} '
+                f'ha reportado un problema.\nDescripción: {descripcion}\nMarco: {marco}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d %H:%M:%S")}'
+            )
+
+            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            for admin in administradores:
+                client.messages.create(
+                    body=mensaje,
+                    from_='whatsapp:' + settings.TWILIO_PHONE_NUMBER,
+                    to='whatsapp:' + admin.telefono
+                )
+
+            return redirect('reporte_exito') 
+
+        except Usuarios.DoesNotExist:
+            return render(request, 'reporte.html', {
+                'trabajadores': trabajadores,
+                'marcos': marcos,
+                'tipos_incidente': tipos_incidente,
+                'error': 'Usuario no encontrado.'
+            })
+
+    return render(request, 'reporte.html', {
+        'trabajadores': trabajadores,
+        'marcos': marcos,
+        'tipos_incidente': tipos_incidente
+    })
 
 def inicio_admin(request):
     return render(request, 'inicio_admin.html')
@@ -44,6 +104,17 @@ def logout_view(request):
 
 def inicio(request):
     return render(request, 'inicio.html')
+
+def actualizar_tarea(request, tarea_id):
+    tarea = Asignacion.objects.get(tarea_id=tarea_id)
+    
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        tarea.estado = nuevo_estado
+        tarea.save()  
+        return redirect('trabajador') 
+    
+    return render(request, 'actualizar_tarea.html', {'tarea': tarea})
 
 @login_required
 def trabajador(request):

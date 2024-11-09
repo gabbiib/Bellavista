@@ -24,4 +24,5 @@ urlpatterns = [
     path('recuperar_contrasena/contactar_admin/', views.contactar_admin_view, name='contactar_admin'),
     path('recuperar_contrasena/', views.enviar_enlace_view, name='recuperar_contrasena'),
     path('recuperar-contrasena/<str:codigo>/', views.recuperar_contrasena_codigo, name='recuperar_contrasena_codigo'),
+    path('actualizar_tarea/<int:tarea_id>/', views.actualizar_tarea, name='actualizar_tarea'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
