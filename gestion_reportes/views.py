@@ -73,8 +73,8 @@ def reporte_view(request):
             for admin in administradores:
                 client.messages.create(
                     body=mensaje,
-                    from_='whatsapp:' + settings.TWILIO_PHONE_NUMBER,
-                    to='whatsapp:' + admin.telefono
+                    from_= settings.TWILIO_PHONE_NUMBER,
+                    to= admin.telefono
                 )
 
             return redirect('reporte_exito') 
