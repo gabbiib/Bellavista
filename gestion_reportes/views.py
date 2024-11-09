@@ -73,7 +73,7 @@ def reporte_view(request):
             for admin in administradores:
                 client.messages.create(
                     body=mensaje,
-                    from_= '+18594487625',
+                    from_= TWILIO_PHONE_NUMBER,
                     to= admin.telefono
                 )
 
