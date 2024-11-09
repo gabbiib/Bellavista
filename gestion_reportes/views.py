@@ -13,7 +13,7 @@ from django.db.models.functions import TruncMonth
 from .models import Tareas, Reportes_Problemas, Asignacion
 from gestion_datos.models import Usuarios, Problemas, Marcos
 from .forms import ReporteForm
-
+import os
 from twilio.rest import Client
 
 
@@ -73,8 +73,8 @@ def reporte_view(request):
             for admin in administradores:
                 client.messages.create(
                     body=mensaje,
-                    from_='whatsapp:' + settings.TWILIO_PHONE_NUMBER,
-                    to='whatsapp:' + admin.telefono
+                    from_= '+18594487625',
+                    to= admin.telefono
                 )
 
             return redirect('reporte_exito') 

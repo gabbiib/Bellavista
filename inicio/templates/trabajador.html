@@ -154,7 +154,6 @@
       <table class="tareas-reportes-table">
         <thead>
           <tr>
-            <th class="tareas-reportes-th">ID</th>
             <th class="tareas-reportes-th">Descripción</th>
             <th class="tareas-reportes-th">Prioridad</th>
             <th class="tareas-reportes-th">Fecha de Asignación</th>
@@ -165,7 +164,6 @@
         <tbody class="tareas-reportes-tbody">
           {% for tarea in tareas_asignadas %}
             <tr>
-              <td>{{ tarea.id }}</td>
               <td>{{ tarea.descripcion }}</td>
               <td>{{ tarea.prioridad }}</td>
               <td>{{ tarea.fecha_asignacion }}</td>
