@@ -231,7 +231,7 @@ def lista_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
     tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
     tareas_predeterminadas = Tareas.objects.filter(es_predeterminado=True)
-    trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')  # Solo trabajadores
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')  # Solo trabajadores
     asignaciones = Asignacion.objects.all()
 
     return render(request, 'lista_tareas.html', {
