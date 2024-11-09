@@ -253,7 +253,7 @@
             <td class="tareas-reportes-td">{{ reporte.fecha_reporte }}</td>
             <td class="tareas-reportes-td">
               {% if reporte.foto_url %}
-                <a href="{% static reporte.foto_url %}" target="_blank">Ver imagen</a>
+                <a href="{{ reporte.foto_url.url }}" target="_blank">Ver imagen</a>
               {% else %}
                 No disponible
               {% endif %}
