@@ -1,6 +1,7 @@
 import random
 import string
 from datetime import datetime
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -68,10 +69,10 @@ def trabajador(request):
 
     return render(request, 'trabajador.html', context)
 
+
 @login_required
 def editar_perfil(request):
     usuario = Usuarios.objects.get(rut=request.user.rut)
-
     telefono_cambiado = False
     contrasena_cambiada = False
 
@@ -79,20 +80,35 @@ def editar_perfil(request):
         nuevo_telefono = request.POST.get('telefono')
         nueva_contrasena = request.POST.get('contrasena')
 
-        if nuevo_telefono and nuevo_telefono != usuario.telefono:
-            usuario.telefono = f'+569{nuevo_telefono}'
-            telefono_cambiado = True
+        # Validar el nuevo teléfono: debe tener 8 dígitos numéricos
+        if nuevo_telefono and nuevo_telefono.isdigit() and len(nuevo_telefono) == 8:
+            if nuevo_telefono != usuario.telefono[-8:]:  # Comparar solo los últimos 8 dígitos
+                usuario.telefono = f'+569{nuevo_telefono}'
+                telefono_cambiado = True
+        elif nuevo_telefono:
+            messages.error(request, 'El teléfono debe contener exactamente 8 dígitos.')
 
-        if nueva_contrasena:
-            usuario.contrasena = make_password(nueva_contrasena)
+        # Validación de la nueva contraseña con regex
+        password_regex = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]|;:'\",<.>/?])(?=.*[A-Z]).{8,}$")
+        if nueva_contrasena and password_regex.match(nueva_contrasena):
+            usuario.set_password(nueva_contrasena)  # Cambia la contraseña usando set_password
             contrasena_cambiada = True
+        elif nueva_contrasena:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.')
 
-        usuario.save()
+        # Guardar solo si hubo algún cambio válido
+        if telefono_cambiado or contrasena_cambiada:
+            usuario.save()
 
+            # Mantener la sesión si la contraseña ha cambiado
+            if contrasena_cambiada:
+                update_session_auth_hash(request, usuario)
+
+        # Mensajes de éxito o información
         if telefono_cambiado and contrasena_cambiada:
-            messages.success(request, 'Tu telefono y contraseña han sido actualizados.')
+            messages.success(request, 'Tu teléfono y contraseña han sido actualizados.')
         elif telefono_cambiado:
-            messages.success(request, 'Tu telefono ha sido actualizado.')
+            messages.success(request, 'Tu teléfono ha sido actualizado.')
         elif contrasena_cambiada:
             messages.success(request, 'Tu contraseña ha sido actualizada.')
         else:
@@ -102,7 +118,6 @@ def editar_perfil(request):
 
     contexto = {'telefono_actual': usuario.telefono}
     return render(request, 'editar_perfil.html', contexto)
-
 
 def recuperar_contrasena(request):
     return render(request, 'recuperar_contrasena.html')
