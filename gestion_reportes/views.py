@@ -73,7 +73,7 @@ def reporte_view(request):
             for admin in administradores:
                 client.messages.create(
                     body=mensaje,
-                    from_= settings.TWILIO_PHONE_NUMBER,
+                    from_= '+1 859 448 7625',
                     to= admin.telefono
                 )
 
