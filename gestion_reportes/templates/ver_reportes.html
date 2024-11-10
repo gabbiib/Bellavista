@@ -284,14 +284,17 @@
       </tbody>
     </table>
   </div>
-  <script>
+ <script>
     function confirmarEliminar(reporteId, element) {
       if (!confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
         return;  // Detener si el usuario cancela
       }
-  
+
+      // Genera la URL con el template tag de Django y reemplaza el marcador
+      const urlEliminar = "{% url 'gestion_reportes:eliminar_reporte' 0 %}".replace('0', reporteId);
+
       // Enviar la solicitud para eliminar el reporte usando fetch
-      fetch(`/gestion_reportes:eliminar-reporte/${reporteId}/`, {
+      fetch(urlEliminar, {
         method: 'POST',
         headers: {
           'X-CSRFToken': '{{ csrf_token }}',  // Necesario para CSRF en Django
@@ -312,7 +315,7 @@
         alert('Hubo un error al eliminar el reporte.');
       });
     }
-  </script>
+</script>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
