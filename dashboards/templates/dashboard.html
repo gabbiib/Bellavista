@@ -183,7 +183,6 @@
     <h1></h1>
     
     <div class="filter-container">
-        <img src="{% static 'images/logogris.svg' %}" alt="Logo" class="filter-logo">
         <h4 class="filter-title">Filtros</h4>
         <form id="filter-form">
             <div class="form-group">
@@ -229,9 +228,6 @@
 
             <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
             <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
-
-            <button type="button" class="btn custom-button custom-button-primary" onclick="window.location.href='/inicio_admin/'">Volver a Inicio</button>
-
         </form>
     </div>
 
@@ -358,5 +354,6 @@
             });
         });
     </script>
+    
 </body>
 </html>
