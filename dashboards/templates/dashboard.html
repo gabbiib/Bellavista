@@ -348,27 +348,41 @@
         }
 
         function updateLineChart(data) {
-            Highcharts.chart('lineChart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Tendencia de Incidentes en el Tiempo'
-                },
-                xAxis: {
-                    categories: data.fechas_reporte,  // Suponiendo que tienes fechas de reporte en el JSON
-                        title: {
-                            text: 'Fecha'
-                        }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Número de Incidentes'
-                    }
-                },
-                series: data.tendencia_series // Array con series de datos, suponiendo que tienes estos datos del backend
-            });
-        }
+    Highcharts.chart('lineChart', {
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: 'Tendencia de Problemas en el Tiempo'
+        },
+        xAxis: {
+            categories: data.fechas_reporte,  // Asegúrate de que este campo exista en los datos
+            title: {
+                text: 'Fecha'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Cantidad de Problemas'
+            }
+        },
+        tooltip: {
+            shared: true,
+            crosshairs: true
+        },
+        plotOptions: {
+            line: {
+                marker: {
+                    enabled: false
+                }
+            }
+        },
+        series: [{
+            name: 'Cantidad de Problemas',
+            data: data.series_problemas  // Asegúrate de que este campo exista en los datos proporcionados por la función `applyFilters`
+        }]
+    });
+}
 
     
         $(document).ready(function() {
@@ -379,6 +393,7 @@
                 success: function(data) {
                     updateIncidentChart(data);
                     updateBarChart(data);
+                    updateLineChart(data);
                 },
                 error: function(xhr, status, error) {
                     console.error("Error al cargar los gráficos: ", error);
