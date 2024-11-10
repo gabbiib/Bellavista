@@ -9,6 +9,7 @@ from django.db.models import Count, Avg, F
 import json
 from datetime import datetime
 
+
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()
@@ -16,7 +17,7 @@ def dashboard(request):
     # Obtener todos los trabajadores
     trabajadores_list = Usuarios.objects.all()
 
-    # Filtrar incidentes por tipo y obtener sus nombres
+    # Filtrar incidentes por tipo y obtener sus nombres e IDs
     tipo_incidentes = incidentes.values('tipo_incidente').annotate(count=Count('id'))
     tipos = []
     counts = []
@@ -24,24 +25,22 @@ def dashboard(request):
     for tipo in tipo_incidentes:
         try:
             problema = Problemas.objects.get(id=tipo['tipo_incidente'])
-            tipos.append(problema.nombre)
+            tipos.append({'id': problema.id, 'nombre': problema.nombre})
             counts.append(tipo['count'])
         except Problemas.DoesNotExist:
-            # Maneja el caso donde el tipo de incidente no existe
-            tipos.append('Desconocido')
+            tipos.append({'id': None, 'nombre': 'Desconocido'})
             counts.append(tipo['count'])
 
-    # Obtener marcos únicos desde el modelo reportes_problemas y sus nombres
+    # Obtener marcos únicos desde el modelo reportes_problemas y sus nombres e IDs
     marcos_ids = incidentes.values_list('marco', flat=True).distinct()
     marcos = []
 
     for marco_id in marcos_ids:
         try:
             marco = Marcos.objects.get(id=marco_id)
-            marcos.append(marco.nombre)
+            marcos.append({'id': marco.id, 'nombre': marco.nombre})
         except Marcos.DoesNotExist:
-            # Maneja el caso donde el marco no existe
-            marcos.append('Desconocido')
+            marcos.append({'id': None, 'nombre': 'Desconocido'})
 
     # Calcular el promedio de incidentes por mes
     num_meses = incidentes.dates('fecha_reporte', 'month').count()
@@ -84,10 +83,10 @@ def dashboard(request):
         for tipo in tipo_incidentes:
             try:
                 problema = Problemas.objects.get(id=tipo['tipo_incidente'])
-                tipos.append(problema.nombre)
+                tipos.append({'id': problema.id, 'nombre': problema.nombre})
                 counts.append(tipo['count'])
             except Problemas.DoesNotExist:
-                tipos.append('Desconocido')
+                tipos.append({'id': None, 'nombre': 'Desconocido'})
                 counts.append(tipo['count'])
 
         # Calcular el porcentaje para los incidentes filtrados
@@ -97,8 +96,6 @@ def dashboard(request):
         return JsonResponse({'tipos': tipos, 'counts': counts, 'porcentajes': porcentajes})
 
     return render(request, 'dashboard.html', context)
-
-
 def filtrar_reportes(request):
     # Obtener los filtros del request
     trabajador = request.GET.get('trabajador')

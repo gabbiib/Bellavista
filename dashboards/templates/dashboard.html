@@ -213,11 +213,11 @@
                 <select class="form-control" id="filter-tipo">
                     <option value="">Todos</option>
                     {% for tipo in tipos %}
-                    <option value="{{ tipo }}">{{ tipo }}</option>
+                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
-
+    
             <div class="form-group">
                 <label for="filter-trabajador">Trabajador:</label>
                 <select class="form-control" id="filter-trabajador">
@@ -227,31 +227,32 @@
                     {% endfor %}
                 </select>
             </div>
-                
+    
             <div class="form-group">
                 <label for="filter-marco">Marcos:</label>
                 <select class="form-control" id="filter-marco">
                     <option value="">Todos</option>
                     {% for marco in marcos %}
-                    <option value="{{ marco }}">{{ marco }}</option>
+                    <option value="{{ marco.id }}">{{ marco.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
-
+    
             <div class="form-group">
                 <label for="filter-fecha-inicio">Fecha Inicio:</label>
                 <input type="date" class="form-control" id="filter-fecha-inicio">
             </div>
-
+    
             <div class="form-group">
                 <label for="filter-fecha-fin">Fecha Fin:</label>
                 <input type="date" class="form-control" id="filter-fecha-fin">
             </div>
-
+    
             <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
             <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
         </form>
     </div>
+    
     <div class="kpi-section">
         <div class="kpi-item">
             <h4 style="font-size: 19px; font-weight: bold;">Promedio Mensual</h4>
