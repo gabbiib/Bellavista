@@ -115,10 +115,12 @@ def filtrar_reportes(request):
         reportes = reportes.filter(rut_usuario__rut=trabajador)
 
     if marco:
-        reportes = reportes.filter(marco=marco)
+        # Filtrar por el ID de la clave foránea
+        reportes = reportes.filter(marco_id=marco)
 
     if tipo_incidente:
-        reportes = reportes.filter(tipo_incidente=tipo_incidente)
+        # Filtrar por el ID de la clave foránea
+        reportes = reportes.filter(tipo_incidente_id=tipo_incidente)
 
     # Manejar el caso en el que no se proporcionen fechas
     if fecha_inicio and fecha_fin:
@@ -198,6 +200,7 @@ def filtrar_reportes(request):
         'promedio_semanal': kpi_data['promedio_semanal'],
         'promedio_diario': kpi_data['promedio_diario']
     })
+
 
 
 
