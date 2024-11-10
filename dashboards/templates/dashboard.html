@@ -128,10 +128,11 @@
             margin-top: 10px;
         }
 
+
     </style>
 </head>
 <body>
-   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2D6A8E;">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2D6A8E;">
         <a class="navbar-brand" href="#">
             <img src="{% static 'images/logogris.svg' %}" alt="Logo" style="height: 50px;">
         </a>
@@ -178,11 +179,11 @@
             </ul>
         </div>
     </nav>
-    
 
     <h1></h1>
     
     <div class="filter-container">
+        <img src="{% static 'images/logogris.svg' %}" alt="Logo" class="filter-logo">
         <h4 class="filter-title">Filtros</h4>
         <form id="filter-form">
             <div class="form-group">
@@ -228,8 +229,8 @@
 
             <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
             <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
-            <button type="button" id="filterButton" style="margin-top: 15px;" onclick="window.location.href='/inicio_admin/'">Volver Atrás</button>
 
+            <button type="button" class="btn custom-button custom-button-primary" onclick="window.location.href='/inicio_admin/'">Volver a Inicio</button>
 
         </form>
     </div>
@@ -242,10 +243,6 @@
         <div class="chart-section">
             <h4></h4>
             <div id="trabajadoresChart"></div>
-        </div>
-        <div class="chart-section">
-            <h4>T</h4> 
-            <div id="lineChart"></div> 
         </div>
     </div>
     
@@ -277,7 +274,6 @@
                 success: function (data) {
                     updateIncidentChart(data);
                     updateBarChart(data);
-                    updateLineChart(data); 
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al aplicar filtros: ", error);
@@ -346,44 +342,6 @@
                 series: data.trabajadores_series 
             });
         }
-
-        function updateLineChart(data) {
-    Highcharts.chart('lineChart', {
-        chart: {
-            type: 'line'
-        },
-        title: {
-            text: 'Tendencia de Problemas en el Tiempo'
-        },
-        xAxis: {
-            categories: data.fechas_reporte,  // Asegúrate de que este campo exista en los datos
-            title: {
-                text: 'Fecha'
-            }
-        },
-        yAxis: {
-            title: {
-                text: 'Cantidad de Problemas'
-            }
-        },
-        tooltip: {
-            shared: true,
-            crosshairs: true
-        },
-        plotOptions: {
-            line: {
-                marker: {
-                    enabled: false
-                }
-            }
-        },
-        series: [{
-            name: 'Cantidad de Problemas',
-            data: data.series_problemas  // Asegúrate de que este campo exista en los datos proporcionados por la función `applyFilters`
-        }]
-    });
-}
-
     
         $(document).ready(function() {
  
@@ -393,7 +351,6 @@
                 success: function(data) {
                     updateIncidentChart(data);
                     updateBarChart(data);
-                    updateLineChart(data);
                 },
                 error: function(xhr, status, error) {
                     console.error("Error al cargar los gráficos: ", error);
@@ -401,8 +358,5 @@
             });
         });
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-</html> 
+</html>

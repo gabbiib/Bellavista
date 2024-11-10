@@ -8,10 +8,12 @@ from django.db.models import Q
 from django.db.models import Count, Avg, F
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+
+
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()
-    
+
     # Obtener todos los trabajadores
     trabajadores_list = Usuarios.objects.all()
 
@@ -22,16 +24,9 @@ def dashboard(request):
 
     # Obtener marcos únicos desde el modelo reportes_problemas
     marcos = incidentes.values_list('marco', flat=True).distinct()
-    
-    # Obtener los valores de medida_marco para construir una serie de datos
-    medida_marco_series = incidentes.values('fecha_reporte', 'medida_marco').order_by('fecha_reporte')
-
-    # Formatear medida_marco_series para el gráfico
-    fechas = [item['fecha_reporte'].strftime('%Y-%m') for item in medida_marco_series]
-    medidas = [item['medida_marco'] for item in medida_marco_series]
 
     # Calcular el promedio de incidentes por mes
-    num_meses = incidentes.dates('fecha_reporte', 'month').count()
+    num_meses = incidentes.dates('fecha_reporte', 'month').count()  # Cambia 'fecha_reporte' por el campo que usas para las fechas
     total_reportes = incidentes.count()
     promedio_reportes_por_mes = total_reportes / num_meses if num_meses > 0 else 0
 
@@ -40,9 +35,7 @@ def dashboard(request):
         'counts': counts,
         'marcos': marcos,
         'trabajadores': trabajadores_list,
-        'promedio_reportes_por_mes': promedio_reportes_por_mes,
-        'fechas': fechas,
-        'medidas': medidas
+        'promedio_reportes_por_mes': promedio_reportes_por_mes,  # KPI añadido
     }
 
     # Verificar si la solicitud es AJAX
@@ -133,19 +126,6 @@ def filtrar_reportes(request):
 
 def inicio_admin(request):
     return render(request, 'inicio_admin.html')
-
-##-------------------------Medida Marco -----------------------
-
-
-def grafico_medidas(request):
-    # Obtener los datos del modelo
-    datos = Reportes_Problemas.objects.values('fecha_reporte', 'medida_marco').order_by('fecha_reporte')
-    # Formatear los datos para Highcharts
-    data = {
-        "fechas": [dato['fecha_reporte'].strftime('%Y-%m-%d %H:%M:%S') for dato in datos],
-        "medidas": [float(dato['medida_marco']) for dato in datos]
-    }
-    return render(request, 'grafico.html', {'data': json.dumps(data, cls=DjangoJSONEncoder)})
 
 ###Benja
 def reportes(request):
