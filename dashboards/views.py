@@ -11,6 +11,7 @@ from datetime import datetime
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 
+logger = logging.getLogger(__name__)
 
 def dashboard(request):
     # Obtener los datos de reportes
@@ -69,7 +70,7 @@ def dashboard(request):
         fecha_fin = request.GET.get('fecha_fin')
 
         if tipo_seleccionado:
-            incidentes = incidentes.filter(tipo_incidente_id=tipo_seleccionado)
+            incidentes = incidentes.filter(tipo_incidente=tipo_seleccionado)
 
         if marco_seleccionado and marco_seleccionado != 'Todos':
             incidentes = incidentes.filter(marco=marco_seleccionado)
@@ -101,7 +102,7 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
-    logger = logging.getLogger(__name__)
+    
 def filtrar_reportes(request):
     try:
         # Obtener los filtros del request
