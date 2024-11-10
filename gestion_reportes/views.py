@@ -195,7 +195,7 @@ def obtener_reportes_problemas_disponibles(request):
     reportes_data = [
         {
             'id': reporte.id,
-            'tipo_incidente': reporte.tipo_incidente,
+            #'tipo_incidente': reporte.tipo_incidente,
             'fecha_reporte': reporte.fecha_reporte.strftime('%Y-%m-%d'),
             'descripcion': reporte.descripcion
         }
