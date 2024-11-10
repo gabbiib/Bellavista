@@ -213,10 +213,11 @@
                 <select class="form-control" id="filter-tipo">
                     <option value="">Todos</option>
                     {% for tipo in tipos %}
-                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                    <option value="{{ tipo }}">{{ tipo }}</option>
                     {% endfor %}
                 </select>
             </div>
+            
     
             <div class="form-group">
                 <label for="filter-trabajador">Trabajador:</label>
@@ -233,10 +234,11 @@
                 <select class="form-control" id="filter-marco">
                     <option value="">Todos</option>
                     {% for marco in marcos %}
-                    <option value="{{ marco.id }}">{{ marco.nombre }}</option>
+                    <option value="{{ marco }}">{{ marco }}</option>
                     {% endfor %}
                 </select>
             </div>
+            
     
             <div class="form-group">
                 <label for="filter-fecha-inicio">Fecha Inicio:</label>
