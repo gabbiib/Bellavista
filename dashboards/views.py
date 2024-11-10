@@ -123,7 +123,13 @@ def filtrar_reportes(request):
             reportes = reportes.filter(marco_id=marco)
 
         if tipo_incidente:
-            reportes = reportes.filter(tipo_incidente_id=tipo_incidente)
+            try:
+                # Buscar el ID del tipo de incidente por su nombre
+                tipo_incidente_obj = Problemas.objects.get(nombre=tipo_incidente)
+                reportes = reportes.filter(tipo_incidente_id=tipo_incidente_obj.id)
+            except ObjectDoesNotExist:
+                # Maneja el caso en que el tipo de incidente no exista
+                return JsonResponse({'error': 'Tipo de incidente no encontrado'}, status=400)
 
         # Manejar el caso en el que no se proporcionen fechas
         if fecha_inicio and fecha_fin:
@@ -204,8 +210,6 @@ def filtrar_reportes(request):
     except Exception as e:
         logger.error(f"Error al filtrar reportes: {e}")
         return JsonResponse({'error': 'Error interno del servidor'}, status=500)
-
-
 
 
 def obtener_promedio_problemas(request):
