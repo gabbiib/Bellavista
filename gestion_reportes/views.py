@@ -97,6 +97,15 @@ def ver_reportes(request):
     }
     return render(request, 'ver_reportes.html', context)
 
+@require_POST
+def eliminar_reporte(request, reporte_id):
+    try:
+        reporte = Reportes_Problemas.objects.get(id=reporte_id)
+        reporte.delete()
+        return JsonResponse({'success': True})
+    except Reportes_Problemas.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Reporte no encontrado'})
+
 def ver_imagen(request, reporte_id):
     reporte = get_object_or_404(Reportes_Problemas, id=reporte_id)
     return render(request, 'ver_imagen.html', {'reporte': reporte})
