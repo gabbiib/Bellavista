@@ -22,11 +22,18 @@ class Reportes_Problemas(models.Model):
     
 class Gestion_Fallas(models.Model):
     id_reporte = models.ForeignKey(Reportes_Problemas, on_delete=models.CASCADE)
-    rut_usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
-    descripcion = models.TextField()
-    ubicacion_geografica = models.CharField(max_length=255)
     estado = models.CharField(max_length=50)
     fecha_reporte = models.DateTimeField()
+    fecha_solucion = models.DateTimeField()
+
+#class Gestion_Fallas(models.Model):
+#    id_reporte = models.ForeignKey(Reportes_Problemas, on_delete=models.CASCADE)
+#    rut_usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+#    descripcion = models.TextField()
+#    ubicacion_geografica = models.CharField(max_length=255)
+#    estado = models.CharField(max_length=50)
+#    fecha_reporte = models.DateTimeField()
+
 
 # ----------------------------- GESTION DE TAREAS -----------------------------
 
