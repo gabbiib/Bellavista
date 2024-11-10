@@ -8,7 +8,8 @@ from django.db.models import Q
 from django.db.models import Count, Avg, F
 from django.core.serializers.json import DjangoJSONEncoder
 import json
-
+from datetime import datetime
+from datetime import timedelta
 
 def dashboard(request):
     # Obtener los datos de reportes
@@ -94,6 +95,33 @@ def filtrar_reportes(request):
 
     if fecha_inicio and fecha_fin:
         reportes = reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
+        # Calcular el número de días entre las fechas
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+        delta_dias = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir el día de inicio
+    else:
+        # Si no hay fechas, usar el rango completo de datos
+        fecha_inicio = reportes.earliest('fecha_reporte').fecha_reporte
+        fecha_fin = reportes.latest('fecha_reporte').fecha_reporte
+        delta_dias = (fecha_fin - fecha_inicio).days + 1
+
+    total_problemas = reportes.count()
+
+    # Calcular promedios
+    meses = delta_dias / 30.44  # Promedio de días por mes
+    semanas = delta_dias / 7.0  # Días por semana
+    dias = delta_dias
+
+    promedio_mensual = total_problemas / meses if meses > 0 else 0
+    promedio_semanal = total_problemas / semanas if semanas > 0 else 0
+    promedio_diario = total_problemas / dias if dias > 0 else 0
+
+    kpi_data = {
+        'total_problemas': total_problemas,
+        'promedio_mensual': promedio_mensual,
+        'promedio_semanal': promedio_semanal,
+        'promedio_diario': promedio_diario
+    }
 
     # Obtener las categorías de incidentes de forma dinámica
     categorias = reportes.values('tipo_incidente').distinct()
@@ -120,9 +148,28 @@ def filtrar_reportes(request):
         'categorias': categorias,
         'series': series,
         'fechas_reporte': [fecha.strftime('%Y-%m') for fecha in fechas_reporte],
-        'trabajadores_series': trabajadores_series
+        'trabajadores_series': trabajadores_series,
+        'total_problemas': kpi_data['total_problemas'],
+        'promedio_mensual': kpi_data['promedio_mensual'],
+        'promedio_semanal': kpi_data['promedio_semanal'],
+        'promedio_diario': kpi_data['promedio_diario']
     })
+def obtener_promedio_problemas(request):
+    # Calcula el total de problemas y el número de meses registrados
+    total_problemas = Reportes_Problemas.objects.count()
+    meses = Reportes_Problemas.objects.dates('fecha_reporte', 'month', order='ASC').count()
+    
+    # Si no hay datos, evitar la división por cero
+    if meses == 0:
+        promedio_mensual = 0
+    else:
+        promedio_mensual = total_problemas / meses
 
+    return JsonResponse({
+        'total_problemas': total_problemas,
+        'meses': meses,
+        'promedio_mensual': promedio_mensual
+    })  
 
 def inicio_admin(request):
     return render(request, 'inicio_admin.html')
