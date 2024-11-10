@@ -67,7 +67,7 @@ def dashboard(request):
         fecha_fin = request.GET.get('fecha_fin')
 
         if tipo_seleccionado:
-            incidentes = incidentes.filter(tipo_incidente=tipo_seleccionado)
+            incidentes = incidentes.filter(tipo_incidente_id=tipo_seleccionado)
 
         if marco_seleccionado and marco_seleccionado != 'Todos':
             incidentes = incidentes.filter(marco=marco_seleccionado)
