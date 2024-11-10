@@ -121,7 +121,7 @@ def trabajador(request):
     rut_usuario = request.user.rut
 
     # Filtra las asignaciones usando el campo correcto
-    asignaciones = Asignacion.objects.filter(trabajador__rut=rut_usuario).exclude(estado='terminada')
+    asignaciones = Asignacion.objects.filter(trabajador__rut=rut_usuario).exclude(estado='Completada')
 
     # Inicializa una lista para las tareas asignadas
     tareas_asignadas = []
