@@ -6,6 +6,8 @@ from gestion_datos.models import Usuarios
 from django.db.models.functions import TruncMonth
 from django.db.models import Q
 from django.db.models import Count, Avg, F
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 def dashboard(request):
     # Obtener los datos de reportes
@@ -124,6 +126,18 @@ def filtrar_reportes(request):
 def inicio_admin(request):
     return render(request, 'inicio_admin.html')
 
+##-------------------------Medida Marco -----------------------
+
+
+def grafico_medidas(request):
+    # Obtener los datos del modelo
+    datos = Reportes_Problemas.objects.values('fecha_reporte', 'medida_marco').order_by('fecha_reporte')
+    # Formatear los datos para Highcharts
+    data = {
+        "fechas": [dato['fecha_reporte'].strftime('%Y-%m-%d %H:%M:%S') for dato in datos],
+        "medidas": [float(dato['medida_marco']) for dato in datos]
+    }
+    return render(request, 'grafico.html', {'data': json.dumps(data, cls=DjangoJSONEncoder)})
 
 ###Benja
 def reportes(request):
