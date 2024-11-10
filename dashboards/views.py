@@ -8,6 +8,8 @@ from django.db.models import Q
 from django.db.models import Count, Avg, F
 import json
 from datetime import datetime
+import logging
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def dashboard(request):
@@ -99,107 +101,108 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
+    logger = logging.getLogger(__name__)
 def filtrar_reportes(request):
-    # Obtener los filtros del request
-    trabajador = request.GET.get('trabajador')
-    marco = request.GET.get('marco')
-    tipo_incidente = request.GET.get('tipo_incidente')
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    try:
+        # Obtener los filtros del request
+        trabajador = request.GET.get('trabajador')
+        marco = request.GET.get('marco')
+        tipo_incidente = request.GET.get('tipo_incidente')
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
 
-    # Inicializar la queryset
-    reportes = Reportes_Problemas.objects.all()
+        # Inicializar la queryset
+        reportes = Reportes_Problemas.objects.all()
 
-    # Aplicar filtros
-    if trabajador:
-        reportes = reportes.filter(rut_usuario__rut=trabajador)
+        # Aplicar filtros
+        if trabajador:
+            reportes = reportes.filter(rut_usuario__rut=trabajador)
 
-    if marco:
-        # Filtrar por el ID de la clave foránea
-        reportes = reportes.filter(marco_id=marco)
+        if marco:
+            reportes = reportes.filter(marco_id=marco)
 
-    if tipo_incidente:
-        # Filtrar por el ID de la clave foránea
-        reportes = reportes.filter(tipo_incidente=tipo_incidente)
+        if tipo_incidente:
+            reportes = reportes.filter(tipo_incidente_id=tipo_incidente)
 
-    # Manejar el caso en el que no se proporcionen fechas
-    if fecha_inicio and fecha_fin:
-        reportes = reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
-    else:
-        # Si no hay fechas proporcionadas, usar el rango completo de datos
-        fecha_inicio = reportes.earliest('fecha_reporte').fecha_reporte
-        fecha_fin = reportes.latest('fecha_reporte').fecha_reporte
+        # Manejar el caso en el que no se proporcionen fechas
+        if fecha_inicio and fecha_fin:
+            reportes = reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+        else:
+            fecha_inicio = reportes.earliest('fecha_reporte').fecha_reporte
+            fecha_fin = reportes.latest('fecha_reporte').fecha_reporte
 
-    # Calcular el número de días entre las fechas
-    delta_dias = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir el día de inicio
+        # Calcular el número de días entre las fechas
+        delta_dias = (fecha_fin - fecha_inicio).days + 1
 
-    total_problemas = reportes.count()
+        total_problemas = reportes.count()
 
-    # Inicializar los promedios
-    promedio_mensual = promedio_semanal = promedio_diario = 0
+        # Inicializar los promedios
+        promedio_mensual = promedio_semanal = promedio_diario = 0
 
-    # Calcular promedios
-    if delta_dias > 0:
-        dias = delta_dias
-        promedio_diario = total_problemas / dias
+        # Calcular promedios
+        if delta_dias > 0:
+            dias = delta_dias
+            promedio_diario = total_problemas / dias
 
-        # Calcular promedio semanal si el rango es al menos una semana
-        if delta_dias >= 7:
-            semanas = dias / 7.0
-            promedio_semanal = total_problemas / semanas
+            if delta_dias >= 7:
+                semanas = dias / 7.0
+                promedio_semanal = total_problemas / semanas
 
-        # Calcular promedio mensual si el rango es al menos un mes
-        if delta_dias >= 30:
-            meses = dias / 30.44  # Promedio de días por mes
-            promedio_mensual = total_problemas / meses
+            if delta_dias >= 30:
+                meses = dias / 30.44
+                promedio_mensual = total_problemas / meses
 
-    kpi_data = {
-        'total_problemas': total_problemas,
-        'promedio_mensual': promedio_mensual,
-        'promedio_semanal': promedio_semanal,
-        'promedio_diario': promedio_diario
-    }
+        kpi_data = {
+            'total_problemas': total_problemas,
+            'promedio_mensual': promedio_mensual,
+            'promedio_semanal': promedio_semanal,
+            'promedio_diario': promedio_diario
+        }
 
-    # Obtener las categorías de incidentes de forma dinámica y sus conteos
-    tipo_incidentes = reportes.values('tipo_incidente').annotate(count=Count('id'))
-    tipos = []
-    counts = []
+        # Obtener las categorías de incidentes de forma dinámica y sus conteos
+        tipo_incidentes = reportes.values('tipo_incidente').annotate(count=Count('id'))
+        tipos = []
+        counts = []
 
-    for tipo in tipo_incidentes:
-        try:
-            problema = Problemas.objects.get(id=tipo['tipo_incidente'])
-            tipos.append(problema.nombre)
-            counts.append(tipo['count'])
-        except Problemas.DoesNotExist:
-            tipos.append('Desconocido')
-            counts.append(tipo['count'])
+        for tipo in tipo_incidentes:
+            try:
+                problema = Problemas.objects.get(id=tipo['tipo_incidente'])
+                tipos.append(problema.nombre)
+                counts.append(tipo['count'])
+            except ObjectDoesNotExist:
+                tipos.append('Desconocido')
+                counts.append(tipo['count'])
 
-    # Datos para gráfico de desempeño por trabajadores a lo largo del tiempo
-    fechas_reporte = reportes.dates('fecha_reporte', 'month', order='ASC')
-    trabajadores_series = []
+        # Datos para gráfico de desempeño por trabajadores a lo largo del tiempo
+        fechas_reporte = reportes.dates('fecha_reporte', 'month', order='ASC')
+        trabajadores_series = []
 
-    for trabajador in Usuarios.objects.all():
-        data = []
-        for fecha in fechas_reporte:
-            count = reportes.filter(rut_usuario=trabajador, fecha_reporte__year=fecha.year, fecha_reporte__month=fecha.month).count()
-            data.append(count)
-        trabajadores_series.append({
-            'name': f"{trabajador.nombre} {trabajador.apellido_p} {trabajador.apellido_m}",
-            'data': data
+        for trabajador in Usuarios.objects.all():
+            data = []
+            for fecha in fechas_reporte:
+                count = reportes.filter(rut_usuario=trabajador, fecha_reporte__year=fecha.year, fecha_reporte__month=fecha.month).count()
+                data.append(count)
+            trabajadores_series.append({
+                'name': f"{trabajador.nombre} {trabajador.apellido_p} {trabajador.apellido_m}",
+                'data': data
+            })
+
+        return JsonResponse({
+            'tipos': tipos,
+            'counts': counts,
+            'fechas_reporte': [fecha.strftime('%Y-%m') for fecha in fechas_reporte],
+            'trabajadores_series': trabajadores_series,
+            'total_problemas': kpi_data['total_problemas'],
+            'promedio_mensual': kpi_data['promedio_mensual'],
+            'promedio_semanal': kpi_data['promedio_semanal'],
+            'promedio_diario': kpi_data['promedio_diario']
         })
 
-    return JsonResponse({
-        'tipos': tipos,
-        'counts': counts,
-        'fechas_reporte': [fecha.strftime('%Y-%m') for fecha in fechas_reporte],
-        'trabajadores_series': trabajadores_series,
-        'total_problemas': kpi_data['total_problemas'],
-        'promedio_mensual': kpi_data['promedio_mensual'],
-        'promedio_semanal': kpi_data['promedio_semanal'],
-        'promedio_diario': kpi_data['promedio_diario']
-    })
+    except Exception as e:
+        logger.error(f"Error al filtrar reportes: {e}")
+        return JsonResponse({'error': 'Error interno del servidor'}, status=500)
 
 
 
