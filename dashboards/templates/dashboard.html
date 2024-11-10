@@ -341,38 +341,39 @@
     
 
         function updateIncidentChart(data) {
-            Highcharts.chart('incidentChart', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Incidentes Reportados por Tipo'
-                },
-                plotOptions: {
-                    pie: {
-                        innerSize: '50%',  // gráfico de dona
-                        dataLabels: {
-                            enabled: true,
-                            format: '{point.name}: {point.y} ({point.percentage:.1f}%)'
-                        }
-                    }
-                },
-                series: [{
-                    name: 'Tipos de Problemas',
-                    data: data.tipos.map(function(tipo, index) {
-                        return {
-                            name: tipo.nombre,
-                            y: data.counts[index]
-                        };
-                    }),
-                    showInLegend: true,
-                    dataLabels: {
-                        enabled: true,
-                        format: '{point.name}: {point.percentage:.1f} %'
-                    }
-                }]
-            });
-        }
+    Highcharts.chart('incidentChart', {
+        chart: {
+            type: 'pie'
+        },
+        title: {
+            text: 'Incidentes Reportados por Tipo'
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '50%',  // gráfico de dona
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}: {point.y} ({point.percentage:.1f}%)'
+                }
+            }
+        },
+        series: [{
+            name: 'Tipos de Problemas',
+            data: data.tipos.map(function(tipo, index) {
+                return {
+                    name: tipo,  // Asegúrate de que aquí se usa el nombre directamente
+                    y: data.counts[index]
+                };
+            }),
+            showInLegend: true,
+            dataLabels: {
+                enabled: true,
+                format: '{point.name}: {point.percentage:.1f} %'
+            }
+        }]
+    });
+}
+
     
     
         function updateBarChart(data) {
