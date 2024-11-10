@@ -155,7 +155,8 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 import os
 
-MEDIA_URL = 'https://res.cloudinary.com/dmek5slfw/image/upload/' 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Configuración de sesiones
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Usa sesiones basadas en base de datos
