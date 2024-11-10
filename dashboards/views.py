@@ -98,6 +98,7 @@ def dashboard(request):
         return JsonResponse({'tipos': tipos, 'counts': counts, 'porcentajes': porcentajes})
 
     return render(request, 'dashboard.html', context)
+
 def filtrar_reportes(request):
     # Obtener los filtros del request
     trabajador = request.GET.get('trabajador')
@@ -159,12 +160,19 @@ def filtrar_reportes(request):
         'promedio_diario': promedio_diario
     }
 
-    # Obtener las categorías de incidentes de forma dinámica
-    categorias = reportes.values('tipo_incidente').distinct()
-    categorias = [cat['tipo_incidente'] for cat in categorias]
+    # Obtener las categorías de incidentes de forma dinámica y sus conteos
+    tipo_incidentes = reportes.values('tipo_incidente').annotate(count=Count('id'))
+    tipos = []
+    counts = []
 
-    # Obtener las series de datos dinámicamente
-    series = [reportes.filter(tipo_incidente=categoria).count() for categoria in categorias]
+    for tipo in tipo_incidentes:
+        try:
+            problema = Problemas.objects.get(id=tipo['tipo_incidente'])
+            tipos.append(problema.nombre)
+            counts.append(tipo['count'])
+        except Problemas.DoesNotExist:
+            tipos.append('Desconocido')
+            counts.append(tipo['count'])
 
     # Datos para gráfico de desempeño por trabajadores a lo largo del tiempo
     fechas_reporte = reportes.dates('fecha_reporte', 'month', order='ASC')
@@ -181,8 +189,8 @@ def filtrar_reportes(request):
         })
 
     return JsonResponse({
-        'categorias': categorias,
-        'series': series,
+        'tipos': tipos,
+        'counts': counts,
         'fechas_reporte': [fecha.strftime('%Y-%m') for fecha in fechas_reporte],
         'trabajadores_series': trabajadores_series,
         'total_problemas': kpi_data['total_problemas'],
