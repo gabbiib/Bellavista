@@ -232,6 +232,7 @@
       <thead>
         <tr>
           <th class="tareas-reportes-th">ID</th>
+          <th class="tareas-reportes-th">Tipo de Incidente</th>
           <th class="tareas-reportes-th">Descripción</th>
           <th class="tareas-reportes-th">Marco</th>
           <th class="tareas-reportes-th">Medida del Marco</th>
@@ -255,6 +256,7 @@
         {% for reporte in reportes %}
           <tr>
             <td class="tareas-reportes-td">{{ reporte.id }}</td>
+            <td class="tareas-reportes-td">{{ reporte.tipo_incidente }}</td>
             <td class="tareas-reportes-td">{{ reporte.descripcion }}</td>
             <td class="tareas-reportes-td">{{ reporte.marco }}</td>
             <td class="tareas-reportes-td">{{ reporte.medida_marco }}</td>
