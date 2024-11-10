@@ -16,7 +16,7 @@ def dashboard(request):
     # Obtener todos los trabajadores
     trabajadores_list = Usuarios.objects.all()
 
-    # Filtrar incidentes por tipo y obtener sus nombres e IDs
+    # Obtener tipos de problemas con sus nombres e IDs
     tipo_incidentes = incidentes.values('tipo_incidente').annotate(count=Count('id'))
     tipos = []
     counts = []
@@ -63,11 +63,20 @@ def dashboard(request):
         fecha_inicio = request.GET.get('fecha_inicio')
         fecha_fin = request.GET.get('fecha_fin')
 
+        # Convertir a entero si no es 'Todos' o vacío
         if tipo_seleccionado:
-            incidentes = incidentes.filter(tipo_incidente=tipo_seleccionado)
+            try:
+                tipo_seleccionado = int(tipo_seleccionado)
+                incidentes = incidentes.filter(tipo_incidente=tipo_seleccionado)
+            except ValueError:
+                pass
 
         if marco_seleccionado and marco_seleccionado != 'Todos':
-            incidentes = incidentes.filter(marco=marco_seleccionado)
+            try:
+                marco_seleccionado = int(marco_seleccionado)
+                incidentes = incidentes.filter(marco=marco_seleccionado)
+            except ValueError:
+                pass
 
         if trabajador_seleccionado:
             incidentes = incidentes.filter(rut_usuario__rut=trabajador_seleccionado)
@@ -92,15 +101,7 @@ def dashboard(request):
         total_incidentes = sum(counts)
         porcentajes = [(count / total_incidentes * 100) if total_incidentes > 0 else 0 for count in counts]
 
-        # Enviar nombres en lugar de IDs
-        categorias = [tipo['nombre'] for tipo in tipos]
-
-        return JsonResponse({
-            'tipos': tipos,
-            'counts': counts,
-            'porcentajes': porcentajes,
-            'categorias': categorias
-        })
+        return JsonResponse({'tipos': tipos, 'counts': counts, 'porcentajes': porcentajes})
 
     return render(request, 'dashboard.html', context)
 
