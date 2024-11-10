@@ -273,7 +273,7 @@ def asignar_tarea_ajax(request):
         # Busca los objetos de Tarea y Trabajador (Usuario con rol de Trabajador)
         try:
             tarea = Tareas.objects.get(id=tarea_id)
-            trabajador = Usuarios.objects.get(rut=trabajador_id, rol__nombre='Trabajador')
+            trabajador = Usuarios.objects.get(rut=trabajador_id, rol__nombre='Usuario')
 
             # Crear la asignación
             asignacion = Asignacion.objects.create(tarea=tarea, trabajador=trabajador, estado='En espera')
@@ -304,7 +304,7 @@ def eliminar_asignacion_ajax(request):
             tarea = asignacion.tarea
             asignacion.delete()
 
-            trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')
+            trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
             trabajadores_data = [{'id': trabajador.rut, 'nombre': trabajador.full_name()} for trabajador in trabajadores]
 
             # Devuelve los datos de la tarea eliminada y los trabajadores
@@ -328,7 +328,7 @@ def editar_asignacion_ajax(request):
 
         try:
             asignacion = Asignacion.objects.get(id=asignacion_id)
-            trabajador = Usuarios.objects.get(rut=trabajador_id, rol__nombre='Trabajador')
+            trabajador = Usuarios.objects.get(rut=trabajador_id, rol__nombre='Usuario')
             
             # Actualizar la asignación
             asignacion.trabajador = trabajador
@@ -381,7 +381,7 @@ def editar_tarea_ajax(request):
             tarea.prioridad = prioridad
             tarea.save()
 
-            trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')
+            trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
             trabajadores_data = [{'id': trabajador.rut, 'nombre': trabajador.full_name()} for trabajador in trabajadores]
 
             return JsonResponse({
@@ -485,7 +485,7 @@ def filtrar_tareas_ajax(request):
         if filter_worker:
             asignaciones = asignaciones.filter(trabajador__rut=filter_worker)
 
-        trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')
+        trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
 
         # Renderizar los partials de las tablas filtradas
         html_tareas = render_to_string('partials/tabla_tareas.html', {'tareas': tareas, 'trabajadores': trabajadores}) 
@@ -496,7 +496,7 @@ def filtrar_tareas_ajax(request):
 
 def obtener_tabla_asignaciones(request):
     asignaciones = Asignacion.objects.all()
-    trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')  # Asegurarse de que los trabajadores estén en el contexto
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')  # Asegurarse de que los trabajadores estén en el contexto
     html = render_to_string('partials/tabla_asignaciones.html', {
         'asignaciones': asignaciones,
         'trabajadores': trabajadores,
@@ -507,7 +507,7 @@ def obtener_tabla_asignaciones(request):
 def obtener_tabla_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
     tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
-    trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')  # Asegurarse de que los trabajadores estén en el contexto
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')  # Asegurarse de que los trabajadores estén en el contexto
     html = render_to_string('partials/tabla_tareas.html', {
         'tareas': tareas,
         'trabajadores': trabajadores,
@@ -520,7 +520,7 @@ def obtener_tareas_predeterminadas2(request):
     return JsonResponse({'html': html})
 
 def reportes_tareas(request):
-    trabajadores = Usuarios.objects.filter(rol__nombre='Trabajador')
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
     return render(request, 'reportes.html', {'trabajadores': trabajadores})
 
 def get_report_data(request):
