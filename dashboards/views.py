@@ -120,6 +120,14 @@ def filtrar_reportes(request):
             reportes = reportes.filter(rut_usuario__rut=trabajador)
 
         if marco:
+            try:
+                # Buscar el ID del tipo de incidente por su nombre
+                marco_obj = Marcos.objects.get(nombre=marco)
+                reportes = reportes.filter(marco_id=marco_obj.id)
+            except ObjectDoesNotExist:
+                # Maneja el caso en que el tipo de incidente no exista
+                return JsonResponse({'error': 'Tipo de incidente no encontrado'}, status=400)
+            
             reportes = reportes.filter(marco_id=marco)
 
         if tipo_incidente:
