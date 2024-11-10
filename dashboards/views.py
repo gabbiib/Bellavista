@@ -94,17 +94,18 @@ def filtrar_reportes(request):
     if tipo_incidente:
         reportes = reportes.filter(tipo_incidente=tipo_incidente)
 
+    # Manejar el caso en el que no se proporcionen fechas
     if fecha_inicio and fecha_fin:
         reportes = reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
-        # Calcular el número de días entre las fechas
         fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
         fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
-        delta_dias = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir el día de inicio
     else:
-        # Si no hay fechas, usar el rango completo de datos
+        # Si no hay fechas proporcionadas, usar el rango completo de datos
         fecha_inicio = reportes.earliest('fecha_reporte').fecha_reporte
         fecha_fin = reportes.latest('fecha_reporte').fecha_reporte
-        delta_dias = (fecha_fin - fecha_inicio).days + 1
+
+    # Calcular el número de días entre las fechas
+    delta_dias = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir el día de inicio
 
     total_problemas = reportes.count()
 
@@ -155,6 +156,7 @@ def filtrar_reportes(request):
         'promedio_semanal': kpi_data['promedio_semanal'],
         'promedio_diario': kpi_data['promedio_diario']
     })
+
 def obtener_promedio_problemas(request):
     # Calcula el total de problemas y el número de meses registrados
     total_problemas = Reportes_Problemas.objects.count()
