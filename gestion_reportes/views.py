@@ -215,7 +215,7 @@ def editar_reporte(request, id):
             # Guardamos el formulario si es válido
             form.save()
             messages.success(request, "El reporte fue actualizado exitosamente.")
-            return redirect('ver_reportes')
+            return redirect('gestion_reportes:ver_reportes')
         else:
             # Si el formulario tiene errores, los imprimimos para depurar
             print(form.errors)
