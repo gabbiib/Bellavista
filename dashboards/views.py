@@ -72,7 +72,6 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
-
 def filtrar_reportes(request):
     # Obtener los filtros del request
     trabajador = request.GET.get('trabajador')
@@ -109,14 +108,23 @@ def filtrar_reportes(request):
 
     total_problemas = reportes.count()
 
-    # Calcular promedios
-    meses = delta_dias / 30.44  # Promedio de días por mes
-    semanas = delta_dias / 7.0  # Días por semana
-    dias = delta_dias
+    # Inicializar los promedios
+    promedio_mensual = promedio_semanal = promedio_diario = 0
 
-    promedio_mensual = total_problemas / meses if meses > 0 else 0
-    promedio_semanal = total_problemas / semanas if semanas > 0 else 0
-    promedio_diario = total_problemas / dias if dias > 0 else 0
+    # Calcular promedios
+    if delta_dias > 0:
+        dias = delta_dias
+        promedio_diario = total_problemas / dias
+
+        # Calcular promedio semanal si el rango es al menos una semana
+        if delta_dias >= 7:
+            semanas = dias / 7.0
+            promedio_semanal = total_problemas / semanas
+
+        # Calcular promedio mensual si el rango es al menos un mes
+        if delta_dias >= 30:
+            meses = dias / 30.44  # Promedio de días por mes
+            promedio_mensual = total_problemas / meses
 
     kpi_data = {
         'total_problemas': total_problemas,
@@ -156,6 +164,8 @@ def filtrar_reportes(request):
         'promedio_semanal': kpi_data['promedio_semanal'],
         'promedio_diario': kpi_data['promedio_diario']
     })
+
+
 
 def obtener_promedio_problemas(request):
     # Calcula el total de problemas y el número de meses registrados
