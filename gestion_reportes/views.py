@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Avg, F
 from django.db.models.functions import TruncMonth
+from django.contrib.auth.decorators import login_required
 
 from .models import Tareas, Reportes_Problemas, Asignacion
 from gestion_datos.models import Usuarios, Problemas, Marcos
@@ -27,75 +28,6 @@ from twilio.rest import Client
 
 
 #anto
-def reporte(request):
-    return render(request, 'reporte.html')
-
-def reporte_exito(request):
-    return render(request, 'reporte_exito.html')
-
-def reporte_view(request):
-    trabajadores = Usuarios.objects.filter(rol__id_rol=2)
-
-    if request.method == 'POST':
-        rut_usuario = request.POST.get('rut_usuario')
-        tipo_incidente = request.POST.get('tipo_incidente')
-        descripcion = request.POST.get('descripcion')
-        marco = request.POST.get('marco')
-        medida_marco = request.POST.get('medida')
-        foto_url = request.FILES.get('foto')
-        latitud = request.POST.get('latitud')
-        longitud = request.POST.get('longitud')
-
-        try:
-            usuario = Usuarios.objects.get(rut=rut_usuario)
-            
-            nuevo_reporte = Reportes_Problemas(
-                rut_usuario=usuario,
-                tipo_incidente=tipo_incidente,
-                descripcion=descripcion,
-                marco=marco,
-                medida_marco=medida_marco,
-                foto_url=foto_url,
-                fecha_reporte=timezone.now(),
-                latitud=latitud,
-                longitud=longitud
-            )
-            nuevo_reporte.save()
-
-            administradores = Usuarios.objects.filter(rol__id_rol=1)
-
-            mensaje = (
-                f'{usuario.nombre} {usuario.apellido_p} {usuario.apellido_m} '
-                f'ha reportado {tipo_incidente}.\nDescripción: {descripcion}\nMarco: {marco}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d")}'
-            )
-
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-            for admin in administradores:
-                client.messages.create(
-                    body=mensaje,
-                    from_= settings.TWILIO_PHONE_NUMBER,
-                    to= admin.telefono
-                )
-
-            return redirect('gestion_reportes:reporte_exito') 
-
-        except Usuarios.DoesNotExist:
-            return render(request, 'reporte.html', {'trabajadores': trabajadores, 'error': 'Usuario no encontrado.'})
-
-    return render(request, 'reporte.html', {'trabajadores': trabajadores})
-
-def ver_reportes(request):
-    ordenar = request.GET.get('ordenar', 'asc')
-    
-    if ordenar == 'asc':
-        reportes = Reportes_Problemas.objects.all().order_by('fecha_reporte')
-    else:
-        reportes = Reportes_Problemas.objects.all().order_by('-fecha_reporte')
-    
-    context = {
-        'reportes': reportes
-    }
-    return render(request, 'ver_reportes.html', context)
 
 def ver_imagen(request, reporte_id):
     reporte = get_object_or_404(Reportes_Problemas, id=reporte_id)
