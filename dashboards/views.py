@@ -72,6 +72,7 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
+
 def filtrar_reportes(request):
     # Obtener los filtros del request
     trabajador = request.GET.get('trabajador')
