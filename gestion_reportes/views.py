@@ -77,7 +77,7 @@ def reporte_view(request):
                     to= admin.telefono
                 )
 
-            return redirect('reporte_exito') 
+            return redirect('gestion_reportes:reporte_exito') 
 
         except Usuarios.DoesNotExist:
             return render(request, 'reporte.html', {'trabajadores': trabajadores, 'error': 'Usuario no encontrado.'})
@@ -161,7 +161,7 @@ def reporte_view(request):
                     to= admin.telefono
                 )
 
-            return redirect('reporte_exito') 
+            return redirect('gestion_reportes:reporte_exito') 
 
         except Usuarios.DoesNotExist:
             return render(request, 'reporte.html', {
