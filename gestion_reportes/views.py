@@ -10,6 +10,8 @@ from django.template.loader import render_to_string
 from django.db.models import Q, Count, Avg, F
 from django.db.models.functions import TruncMonth
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+
 
 from .models import Tareas, Reportes_Problemas, Asignacion
 from gestion_datos.models import Usuarios, Problemas, Marcos
