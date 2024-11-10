@@ -435,8 +435,8 @@ $(document).ready(function() {
                 
                 data.forEach(function(reporte) {
                     reporteSelect.append(
-                        `<option value="${reporte.id}" data-tipo="${reporte.tipo_incidente}" data-descripcion="${reporte.descripcion}">
-                            ${reporte.tipo_incidente} - ${reporte.fecha_reporte}
+                        `<option value="${reporte.id}" data-tipo="${reporte.tipo_incidente.nombre}" data-descripcion="${reporte.descripcion}">
+                            ${reporte.tipo_incidente.nombre} - ${reporte.fecha_reporte}
                         </option>`
                     );
                 });
