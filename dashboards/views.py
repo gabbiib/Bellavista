@@ -6,13 +6,9 @@ from gestion_datos.models import Usuarios
 from django.db.models.functions import TruncMonth
 from django.db.models import Q
 from django.db.models import Count, Avg, F
-from django.core.serializers.json import DjangoJSONEncoder
 import json
 from datetime import datetime
-from datetime import timedelta
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()
@@ -190,7 +186,6 @@ def inicio_admin(request):
     return render(request, 'inicio_admin.html')
 
 ###Benja
-@login_required
 def reportes(request):
     trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
     return render(request, 'reportes.html', {'trabajadores': trabajadores})

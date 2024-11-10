@@ -4,10 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 
-
-@login_required
 def gestion_usuario(request):
     UsuariosListados = Usuarios.objects.all()
     return render(request, "gestionUsuarios.html", {"usuarios": UsuariosListados})
@@ -102,7 +99,6 @@ def eliminarUsuario(request, rut):
     messages.success(request, '¡Usuario eliminado exitosamente!')
     return redirect('/data/gestion_usuario/')
 ##-----------------------PROBLEMAS-----------------------------
-@login_required
 def gestion_problema(request):
     ProblemasListados = Problemas.objects.all()
     return render(request, "gestionProblemas.html", {"problemas": ProblemasListados})
@@ -144,7 +140,6 @@ def eliminarProblema(request, id):
 
 ##-----------------------MARCOS-----------------------------
 
-@login_required
 def gestion_marcos(request):
     MarcosListados = Marcos.objects.all()
     return render(request, "gestionMarco.html", {"marcos": MarcosListados})
