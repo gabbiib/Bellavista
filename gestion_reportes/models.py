@@ -1,15 +1,15 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from gestion_datos.models import Usuarios
+from gestion_datos.models import Usuarios, Marcos, Problemas
 
 
 # ----------------------------- GESTION DE PROBLEMAS -----------------------------
 class Reportes_Problemas(models.Model):
     rut_usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
-    tipo_incidente = models.CharField(max_length=100)
+    tipo_incidente = models.ForeignKey(Problemas, on_delete=models.CASCADE)
     descripcion = models.TextField()
-    marco = models.CharField(max_length=255, blank=True, null=True) 
+    marco = models.ForeignKey(Marcos, on_delete=models.CASCADE, blank=True, null=True)
     medida_marco = models.TextField(default='Sin medir')
     foto_url = models.ImageField(upload_to='reportes_fotos/', blank=True, null=True)
     fecha_reporte = models.DateTimeField(auto_now_add=True)
@@ -17,22 +17,9 @@ class Reportes_Problemas(models.Model):
     longitud = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
 
     def __str__(self):
-        return self.tipo_incidente
+        return self.tipo_incidente.nombre
 
-    
-class Gestion_Fallas(models.Model):
-    id_reporte = models.ForeignKey(Reportes_Problemas, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=50)
-    fecha_reporte = models.DateTimeField()
-    fecha_solucion = models.DateTimeField()
 
-#class Gestion_Fallas(models.Model):
-#    id_reporte = models.ForeignKey(Reportes_Problemas, on_delete=models.CASCADE)
-#    rut_usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
-#    descripcion = models.TextField()
-#    ubicacion_geografica = models.CharField(max_length=255)
-#    estado = models.CharField(max_length=50)
-#    fecha_reporte = models.DateTimeField()
 
 
 # ----------------------------- GESTION DE TAREAS -----------------------------
