@@ -240,6 +240,7 @@
           <th class="tareas-reportes-th">Ver Imagen</th>
           <th class="tareas-reportes-th">Ubicación</th> 
           <th class="tareas-reportes-th">Editar</th>
+          <th class="tareas-reportes-th">Eliminar</th>
         </tr>
       </thead>
       <tbody>
@@ -270,6 +271,10 @@
                 <img src="{% static 'images/edit-icon.png' %}" alt="Editar" class="edit-icon">
               </a>
             </td>
+            <td class="tareas-reportes-td">
+              <img src="{% static 'images/delete-icon.png' %}" alt="Eliminar" class="delete-icon" 
+                   onclick="confirmarEliminar({{ reporte.id }}, this)">
+            </td>
           </tr>
         {% empty %}
           <tr>
@@ -279,6 +284,35 @@
       </tbody>
     </table>
   </div>
+  <script>
+    function confirmarEliminar(reporteId, element) {
+      if (!confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
+        return;  // Detener si el usuario cancela
+      }
+  
+      // Enviar la solicitud para eliminar el reporte usando fetch
+      fetch(`/eliminar-reporte/${reporteId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',  // Necesario para CSRF en Django
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Eliminar la fila de la tabla en la interfaz
+          const row = element.closest('tr');
+          row.parentNode.removeChild(row);
+        } else {
+          alert('Error al eliminar el reporte: ' + (data.error || 'Desconocido'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al eliminar el reporte.');
+      });
+    }
+  </script>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
