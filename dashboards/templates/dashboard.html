@@ -357,10 +357,10 @@
                 },
                 series: [{
                     name: 'Tipos de Problemas',
-                    data: data.categorias.map(function(categoria, index) {
+                    data: data.tipos.map(function(tipo, index) {
                         return {
-                            name: categoria,
-                            y: data.series[index]
+                            name: tipo.nombre,
+                            y: data.counts[index]
                         };
                     }),
                     showInLegend: true,

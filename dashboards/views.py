@@ -9,7 +9,6 @@ from django.db.models import Count, Avg, F
 import json
 from datetime import datetime
 
-
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()
@@ -93,9 +92,18 @@ def dashboard(request):
         total_incidentes = sum(counts)
         porcentajes = [(count / total_incidentes * 100) if total_incidentes > 0 else 0 for count in counts]
 
-        return JsonResponse({'tipos': tipos, 'counts': counts, 'porcentajes': porcentajes})
+        # Enviar nombres en lugar de IDs
+        categorias = [tipo['nombre'] for tipo in tipos]
+
+        return JsonResponse({
+            'tipos': tipos,
+            'counts': counts,
+            'porcentajes': porcentajes,
+            'categorias': categorias
+        })
 
     return render(request, 'dashboard.html', context)
+
 def filtrar_reportes(request):
     # Obtener los filtros del request
     trabajador = request.GET.get('trabajador')
