@@ -291,7 +291,7 @@
       }
   
       // Enviar la solicitud para eliminar el reporte usando fetch
-      fetch(`/eliminar-reporte/${reporteId}/`, {
+      fetch(`/gestion_reportes:eliminar-reporte/${reporteId}/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': '{{ csrf_token }}',  // Necesario para CSRF en Django
