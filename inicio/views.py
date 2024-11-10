@@ -112,7 +112,7 @@ def actualizar_tarea(request, tarea_id):
         nuevo_estado = request.POST.get('estado')
         tarea.estado = nuevo_estado
         tarea.save()  
-        return redirect('trabajador') 
+        return redirect('inicio:trabajador') 
     
     return render(request, 'actualizar_tarea.html', {'tarea': tarea})
 
