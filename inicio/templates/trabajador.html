@@ -171,9 +171,9 @@
                 <form action="{% url 'inicio:actualizar_tarea' tarea.id %}" method="post">
                   {% csrf_token %}
                   <select name="estado" class="form-control" aria-label="Cambiar estado de la tarea">
-                    <option value="en_espera" {% if tarea.estado == 'en_espera' %}selected{% endif %}>En Espera</option>
-                    <option value="en_progreso" {% if tarea.estado == 'en_progreso' %}selected{% endif %}>En Progreso</option>
-                    <option value="terminada" {% if tarea.estado == 'terminada' %}selected{% endif %}>Terminada</option>
+                    <option value="En espera" {% if tarea.estado == 'En espera' %}selected{% endif %}>En Espera</option>
+                    <option value="En progreso" {% if tarea.estado == 'En progreso' %}selected{% endif %}>En Progreso</option>
+                    <option value="Completada" {% if tarea.estado == 'Completada' %}selected{% endif %}>Terminada</option>
                   </select>
               </td>
               <td>

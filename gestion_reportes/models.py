@@ -39,9 +39,9 @@ class Gestion_Fallas(models.Model):
 
 class Tareas(models.Model):
     ESTADOS_TAREA = [
-        ('en_espera', 'En Espera'),
-        ('en_progreso', 'En Progreso'),
-        ('terminada', 'Terminada'),
+        ('En espera', 'En Espera'),
+        ('En progreso', 'En Progreso'),
+        ('Completada', 'Completada'),
     ]   
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
