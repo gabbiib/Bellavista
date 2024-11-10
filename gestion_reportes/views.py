@@ -65,8 +65,8 @@ def reporte_view(request):
             administradores = Usuarios.objects.filter(rol__id_rol=1)
 
             mensaje = (
-                f'El usuario {usuario.nombre} {usuario.apellido_p} {usuario.apellido_m} '
-                f'ha reportado un problema.\nDescripción: {descripcion}\nMarco: {marco}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d %H:%M:%S")}'
+                f'{usuario.nombre} {usuario.apellido_p} {usuario.apellido_m} '
+                f'ha reportado {tipo_incidente}.\nDescripción: {descripcion}\nMarco: {marco}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d")}'
             )
 
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
