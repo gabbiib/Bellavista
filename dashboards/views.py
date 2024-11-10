@@ -120,7 +120,7 @@ def filtrar_reportes(request):
 
     if tipo_incidente:
         # Filtrar por el ID de la clave foránea
-        reportes = reportes.filter(tipo_incidente_id=tipo_incidente)
+        reportes = reportes.filter(tipo_incidente=tipo_incidente)
 
     # Manejar el caso en el que no se proporcionen fechas
     if fecha_inicio and fecha_fin:
