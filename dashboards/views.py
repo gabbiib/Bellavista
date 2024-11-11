@@ -73,7 +73,13 @@ def dashboard(request):
             incidentes = incidentes.filter(tipo_incidente=tipo_seleccionado)
 
         if marco_seleccionado and marco_seleccionado != 'Todos':
-            incidentes = incidentes.filter(marco=marco_seleccionado)
+            try:
+                # Buscar el ID del marco por su nombre
+                marco_obj = Marcos.objects.get(nombre=marco_seleccionado)
+                incidentes = incidentes.filter(marco=marco_obj.id)
+            except Marcos.DoesNotExist:
+                # Maneja el caso donde el marco no existe
+                return JsonResponse({'error': 'Marco no encontrado'}, status=400)
 
         if trabajador_seleccionado:
             incidentes = incidentes.filter(rut_usuario__rut=trabajador_seleccionado)
@@ -102,7 +108,6 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
-    
 def filtrar_reportes(request):
     try:
         # Obtener los filtros del request
@@ -121,14 +126,12 @@ def filtrar_reportes(request):
 
         if marco:
             try:
-                # Buscar el ID del tipo de incidente por su nombre
-                marco_obj = Marcos.objects.get(nombre=marco)
+                # Buscar el ID del marco por su nombre
+                marco_obj = Marco.objects.get(nombre=marco)
                 reportes = reportes.filter(marco_id=marco_obj.id)
             except ObjectDoesNotExist:
-                # Maneja el caso en que el tipo de incidente no exista
-                return JsonResponse({'error': 'Tipo de incidente no encontrado'}, status=400)
-            
-            reportes = reportes.filter(marco_id=marco)
+                # Maneja el caso en que el marco no exista
+                return JsonResponse({'error': 'Marco no encontrado'}, status=400)
 
         if tipo_incidente:
             try:
@@ -218,8 +221,7 @@ def filtrar_reportes(request):
     except Exception as e:
         logger.error(f"Error al filtrar reportes: {e}")
         return JsonResponse({'error': 'Error interno del servidor'}, status=500)
-
-
+    
 def obtener_promedio_problemas(request):
     # Calcula el total de problemas y el número de meses registrados
     total_problemas = Reportes_Problemas.objects.count()
