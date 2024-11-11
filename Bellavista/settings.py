@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'inicio',
     'cloudinary',
     'cloudinary_storage',
+    'inicio.apps.InicioConfig',  # Asegúrate de incluir esta línea
+
 
 ]
 
