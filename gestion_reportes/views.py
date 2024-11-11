@@ -32,7 +32,7 @@ from twilio.rest import Client
 #anto
 def enviar_notificacion_tarea(trabajador, tarea):
     mensaje = (
-        f"Tienes una nueva tarea asignada: {tarea.nombre}\n"
+        f"Tienes una nueva tarea asignada: \n"
         f"Descripción: {tarea.descripcion}\n"
         f"Prioridad: {tarea.prioridad}"
     )
