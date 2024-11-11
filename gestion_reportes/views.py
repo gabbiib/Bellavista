@@ -30,7 +30,20 @@ from twilio.rest import Client
 
 
 #anto
+def enviar_notificacion_tarea(trabajador, tarea):
+    mensaje = (
+        f"Tienes una nueva tarea asignada: {tarea.nombre}\n"
+        f"Descripción: {tarea.descripcion}\n"
+        f"Prioridad: {tarea.prioridad}"
+    )
 
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    client.messages.create(
+        body=mensaje,
+        from_=settings.TWILIO_PHONE_NUMBER,
+        to=trabajador.telefono
+    )
+    
 @require_POST
 def eliminar_reporte(request, reporte_id):
     try:
@@ -220,6 +233,8 @@ def asignar_tarea_ajax(request):
 
             # Crear la asignación
             asignacion = Asignacion.objects.create(tarea=tarea, trabajador=trabajador, estado='En espera')
+            enviar_notificacion_tarea(trabajador, tarea)
+
             return JsonResponse({
                 'message': 'Asignación realizada correctamente.',
                 'asignacion_id': asignacion.id,
