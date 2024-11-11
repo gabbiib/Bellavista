@@ -127,7 +127,7 @@ def filtrar_reportes(request):
         if marco:
             try:
                 # Buscar el ID del marco por su nombre
-                marco_obj = Marco.objects.get(nombre=marco)
+                marco_obj = Marcos.objects.get(nombre=marco)
                 reportes = reportes.filter(marco_id=marco_obj.id)
             except ObjectDoesNotExist:
                 # Maneja el caso en que el marco no exista
