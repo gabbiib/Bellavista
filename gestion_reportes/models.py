@@ -11,7 +11,7 @@ class Reportes_Problemas(models.Model):
     descripcion = models.TextField()
     marco = models.ForeignKey(Marcos, on_delete=models.CASCADE, blank=True, null=True)
     medida_marco = models.TextField(default='Sin medir')
-    foto_url = models.ImageField(upload_to='reportes_fotos/', blank=True, null=True)
+    foto_url = models.URLField(blank=True, null=True)
     fecha_reporte = models.DateTimeField(auto_now_add=True)
     latitud = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitud = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
