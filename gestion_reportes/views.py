@@ -21,11 +21,44 @@ from twilio.rest import Client
 
 
 
-#class crearTareaView(CreateView):
-#    model=Tareas
-#    template_name=lista_tareas.html
-#    success_url="/"
-#    fields='__all__'
+import json
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from .upload_to_drive import upload_to_drive  # Importa la función upload_to_drive
+
+
+# Función para cargar el archivo en Google Drive
+def upload_to_drive(file):
+    # Carga el contenido de GOOGLE_CREDENTIALS desde las variables de entorno
+    google_credentials = json.loads(os.getenv('GOOGLE_CREDENTIALS'))
+    creds = service_account.Credentials.from_service_account_info(
+        google_credentials, scopes=["https://www.googleapis.com/auth/drive.file"]
+    )
+
+    # Servicio de Google Drive
+    service = build('drive', 'v3', credentials=creds)
+
+    # ID de la carpeta donde se almacenarán las fotos
+    folder_id = '1tF5rKetujaSi0zbCuDL-GcU05PxLdHQz' 
+
+    # Configura los metadatos del archivo
+    file_metadata = {
+        'name': file.name,
+        'parents': [folder_id]
+    }
+    media = MediaFileUpload(file.temporary_file_path(), mimetype=file.content_type)
+
+    # Subir el archivo
+    uploaded_file = service.files().create(
+        body=file_metadata, media_body=media, fields='id'
+    ).execute()
+
+    # Genera el enlace del archivo usando el ID
+    file_id = uploaded_file.get('id')
+    file_link = f"https://drive.google.com/uc?id={file_id}"
+    return file_link
+
 
 
 
@@ -88,6 +121,8 @@ def reporte_view(request):
 
         try:
             usuario = Usuarios.objects.get(rut=rut_usuario)
+            foto_url = upload_to_drive(foto) if foto else None
+
             
             nuevo_reporte = Reportes_Problemas(
                 rut_usuario=usuario,
