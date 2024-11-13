@@ -262,13 +262,13 @@
             <td class="tareas-reportes-td">{{ reporte.medida_marco }}</td>
             <td class="tareas-reportes-td usuario-reporto">{{ reporte.rut_usuario }}</td>
             <td class="tareas-reportes-td">{{ reporte.fecha_reporte }}</td>
-            <td class="tareas-reportes-td">
-              {% if reporte.foto_url %}
-                <a href="{% url 'gestion_reportes:ver_imagen' reporte.id %}">Ver</a>
-              {% else %}
-                No disponible
-              {% endif %}
-            </td>
+              <td class="tareas-reportes-td">
+                {% if reporte.foto_url %}
+                  <a href="{{ reporte.foto_url }}" target="_blank">Ver</a>
+                {% else %}
+                  No disponible
+                {% endif %}
+              </td>
             <td class="tareas-reportes-td">
               {% if reporte.latitud and reporte.longitud %}
                 <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver ubicación</a>
