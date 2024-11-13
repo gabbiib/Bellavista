@@ -1,0 +1,15 @@
+.table-container {
+    max-height: 400px; /* Ajusta la altura máxima que deseas */
+    overflow-y: auto;  /* Activa el desplazamiento vertical */
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
