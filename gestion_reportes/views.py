@@ -20,13 +20,11 @@ import os
 from twilio.rest import Client
 
 
-
+import tempfile
 import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-
-
 
 # Función para cargar el archivo en Google Drive
 def upload_to_drive(file):
@@ -42,25 +40,31 @@ def upload_to_drive(file):
     # ID de la carpeta donde se almacenarán las fotos
     folder_id = '1tF5rKetujaSi0zbCuDL-GcU05PxLdHQz' 
 
+    # Crea un archivo temporal para guardar el archivo subido
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        # Escribe el contenido del archivo en el archivo temporal
+        temp_file.write(file.read())
+        temp_file_path = temp_file.name
+
     # Configura los metadatos del archivo
     file_metadata = {
         'name': file.name,
         'parents': [folder_id]
     }
-    media = MediaFileUpload(file.temporary_file_path(), mimetype=file.content_type)
-
-    # Subir el archivo
+      # Subir el archivo al Drive
+    media = MediaFileUpload(temp_file_path, mimetype=file.content_type)
     uploaded_file = service.files().create(
         body=file_metadata, media_body=media, fields='id'
     ).execute()
 
+    # Elimina el archivo temporal después de subirlo
+    os.remove(temp_file_path)
+
     # Genera el enlace del archivo usando el ID
     file_id = uploaded_file.get('id')
     file_link = f"https://drive.google.com/uc?id={file_id}"
+    
     return file_link
-
-
-
 
 #anto
 def enviar_notificacion_tarea(trabajador, tarea):
@@ -121,14 +125,17 @@ def reporte_view(request):
 
         try:
             usuario = Usuarios.objects.get(rut=rut_usuario)
-            foto_url = upload_to_drive(foto) if foto else None
+            foto_url = upload_to_drive(foto_url) if foto_url else None
+            tipo_incidente_obj = Problemas.objects.get(id=tipo_incidente)  # Asumiendo que 'tipo_incidente' es el ID
+            marcos_obj = Marcos.objects.get(id=marco)  # Asumiendo que 'tipo_incidente' es el ID
+
 
             
             nuevo_reporte = Reportes_Problemas(
                 rut_usuario=usuario,
-                tipo_incidente=tipo_incidente,
+                tipo_incidente=tipo_incidente_obj,
                 descripcion=descripcion,
-                marco=marco,
+                marco=marcos_obj,
                 medida_marco=medida_marco,
                 foto_url=foto_url,
                 fecha_reporte=timezone.now(),
