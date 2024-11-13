@@ -121,8 +121,8 @@ def reporte_view(request):
 
         try:
             usuario = Usuarios.objects.get(rut=rut_usuario)
-        if foto_url:
-            foto_url = upload_to_drive(foto_url) 
+            foto_url = upload_to_drive(foto_url) if foto_url else None
+
 
             
             nuevo_reporte = Reportes_Problemas(
