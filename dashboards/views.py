@@ -5,7 +5,7 @@ from gestion_reportes.models import Reportes_Problemas, Tareas, Asignacion
 from gestion_datos.models import Usuarios, Problemas, Marcos
 from django.db.models.functions import TruncMonth
 from django.db.models import Q
-from django.db.models import Count, Avg, F
+from django.db.models import Count, Avg, F, ExpressionWrapper, fields
 import json
 from datetime import datetime
 import logging
@@ -172,12 +172,27 @@ def filtrar_reportes(request):
                 meses = dias / 30.44
                 promedio_mensual = total_problemas / meses
 
+        asignaciones = Asignacion.objects.filter(estado='Completada')
+        if fecha_inicio and fecha_fin:
+            asignaciones = asignaciones.filter(fecha_fin__range=[fecha_inicio, fecha_fin])
+
+        promedio_finalizacion = asignaciones.annotate(
+            duracion=ExpressionWrapper(
+                F('fecha_fin') - F('asignado_en'),
+                output_field=fields.DurationField()
+            )
+        ).aggregate(Avg('duracion'))
+
+        promedio_dias = promedio_finalizacion['duracion__avg'].days if promedio_finalizacion['duracion__avg'] else 0
+
         kpi_data = {
             'total_problemas': total_problemas,
             'promedio_mensual': promedio_mensual,
             'promedio_semanal': promedio_semanal,
-            'promedio_diario': promedio_diario
+            'promedio_diario': promedio_diario,
+            'promedio_dias': promedio_dias
         }
+
 
         # Obtener las categorías de incidentes de forma dinámica y sus conteos
         tipo_incidentes = reportes.values('tipo_incidente').annotate(count=Count('id'))
@@ -215,7 +230,8 @@ def filtrar_reportes(request):
             'total_problemas': kpi_data['total_problemas'],
             'promedio_mensual': kpi_data['promedio_mensual'],
             'promedio_semanal': kpi_data['promedio_semanal'],
-            'promedio_diario': kpi_data['promedio_diario']
+            'promedio_diario': kpi_data['promedio_diario'],
+            'promedio_dias': promedio_dias  
         })
 
     except Exception as e:

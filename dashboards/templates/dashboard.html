@@ -151,6 +151,12 @@
             margin-top: 10px;
         }
 
+        .kpi-item {
+        flex: 1; /* Hace que todos los KPI tengan el mismo tamaño */
+        margin-right: 10px; /* Espacio entre los KPI */
+        text-align: center;
+        }
+
 
     </style>
 </head>
@@ -270,11 +276,20 @@
         </div>
     </div>
     
+    <div class="kpi-section" style="margin-left: 400px; width: 30%; text-align: center; font-size: 20px;">
+        <div class="kpi-item">
+            <h4 style="font-size: 19px; font-weight: bold;">Promedio de Finalización de Tareas</h4>
+            <div id="kpi-finalizacion" class="kpi-value">{{ promedio_dias }} días</div>
+        </div>
+    </div>
+    
+    
     <script>
         function updateKPI(data) {
             $('#kpi-mensual').text(data.promedio_mensual.toFixed(2) + ' problemas/mes');
             $('#kpi-semanal').text(data.promedio_semanal.toFixed(2) + ' problemas/semana');
             $('#kpi-diario').text(data.promedio_diario.toFixed(2) + ' problemas/día');
+            $('#kpi-finalizacion').text(data.promedio_dias.toFixed(2) + ' días');
         }
     </script>
     
@@ -377,6 +392,11 @@
     
     
         function updateBarChart(data) {
+
+            var filteredSeries = data.trabajadores_series.filter(function(trabajador) {
+                return trabajador.rol === 1 ;
+                    });
+
             Highcharts.chart('trabajadoresChart', {
                 chart: {
                     type: 'column'
