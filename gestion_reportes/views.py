@@ -148,7 +148,7 @@ def reporte_view(request):
 
             mensaje = (
                 f'{usuario.nombre} {usuario.apellido_p} {usuario.apellido_m} '
-                f'ha reportado {tipo_incidente}.\nDescripción: {descripcion}\nMarco: {marco}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d")}'
+                f'ha reportado {tipo_incidente_obj.nombre}.\nDescripción: {descripcion}\nMarco: {marcos_obj.nombre}\nFecha: {nuevo_reporte.fecha_reporte.strftime("%Y-%m-%d")}'
             )
 
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
