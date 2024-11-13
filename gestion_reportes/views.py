@@ -128,6 +128,7 @@ def reporte_view(request):
             usuario = Usuarios.objects.get(rut=rut_usuario)
             foto_url = upload_to_drive(foto_url) if foto_url else None
             tipo_incidente_obj = Problemas.objects.get(id=tipo_incidente)  # Asumiendo que 'tipo_incidente' es el ID
+            marcos_obj = Marcos.objects.get(id=marco)  # Asumiendo que 'tipo_incidente' es el ID
 
 
             
@@ -135,7 +136,7 @@ def reporte_view(request):
                 rut_usuario=usuario,
                 tipo_incidente=tipo_incidente_obj,
                 descripcion=descripcion,
-                marco=marco,
+                marco=marco_obj,
                 medida_marco=medida_marco,
                 foto_url=foto_url,
                 fecha_reporte=timezone.now(),
