@@ -136,7 +136,7 @@ def reporte_view(request):
                 rut_usuario=usuario,
                 tipo_incidente=tipo_incidente_obj,
                 descripcion=descripcion,
-                marco=marco_obj,
+                marco=marcos_obj,
                 medida_marco=medida_marco,
                 foto_url=foto_url,
                 fecha_reporte=timezone.now(),
