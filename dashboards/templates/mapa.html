@@ -46,10 +46,10 @@
             height: 100%;
             overflow-y: auto;
             z-index: 1000;
-            margin-top: 100px;
+            margin-top: 90px;
             margin-left: 10px;
             margin-bottom: 20px;
-            max-height: 530px;
+            max-height: 611px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
             transition: all 0.3s ease-in-out; /* Transición suave */
@@ -161,6 +161,14 @@
         <select id="marcoSelect" class="form-control">
             <option value="">Seleccionar Marco</option>
         </select>
+
+        <label for="tipoIncidenteSelect">Tipo de Incidente</label>
+        <select id="tipoIncidenteSelect" class="form-control">
+            <option value="">Seleccione Tipo</option>
+            {% for tipo in tipos_incidentes %}
+                <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+            {% endfor %}
+        </select>
     
         <label for="fechaInicio">Fecha Inicio</label>
         <input type="date" id="fechaInicio" name="fecha_inicio">
@@ -245,8 +253,18 @@
                 url: "{% url 'dashboards:obtener_marcos' %}",
                 method: "GET",
                 success: function (data) {
-                    data.forEach(function (marco) {
-                        $('#marcoSelect').append(new Option(marco.nombre, marco.id));
+                            data.forEach(function (marco) {
+                                    $('#marcoSelect').append(new Option(marco.nombre, marco.id));
+                    });
+                }
+            });
+            
+            $.ajax({
+                url: "{% url 'dashboards:obtener_tipos' %}",  // Usar el nombre de la URL de Django
+                method: "GET",
+                success: function (data) {
+                    data.forEach(function (tipo) {
+                        $('#tipoIncidenteSelect').append(new Option(tipo.nombre, tipo.id));
                     });
                 }
             });
@@ -255,6 +273,7 @@
             $('#filtrarBtn').on('click', function () {
                 var trabajadorId = $('#trabajadorSelect').val();
                 var marcoId = $('#marcoSelect').val();
+                var tipoIncidente = $('#tipoIncidenteSelect').val();
                 var fechaInicio = $('#fechaInicio').val();
                 var fechaFin = $('#fechaFin').val();
 
@@ -262,7 +281,7 @@
     
     
                 // Construir la URL con los parámetros de filtro
-                var url = "{% url 'dashboards:obtener_ubicaciones' %}?trabajador=" + trabajadorId + "&marco=" + marcoId;
+                var url = "{% url 'dashboards:obtener_ubicaciones' %}?trabajador=" + trabajadorId + "&marco=" + marcoId + '&tipo_incidente=' + tipoIncidente;
 
                 if (fechaInicio) {
                     url += "&fechaInicio=" + fechaInicio;
@@ -270,6 +289,7 @@
                 if (fechaFin) {
                     url += "&fechaFin=" + fechaFin;
                 }
+
 
                 fetch(url)
                     .then(response => response.json())

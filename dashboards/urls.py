@@ -14,5 +14,6 @@ urlpatterns = [
     path('mapa-reportes/', views.mapa_reportes, name='mapa_reportes'),
     path('api/trabajadores/', views.obtener_trabajadores, name='obtener_trabajadores'),
     path('api/marcos/', views.obtener_marcos, name='obtener_marcos'),
+    path('api/tipo/', views.obtener_tipos_incidentes, name='obtener_tipos'),
     
 ]

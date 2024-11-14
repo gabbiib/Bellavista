@@ -14,15 +14,15 @@ from django.utils.dateparse import parse_datetime
 
 logger = logging.getLogger(__name__)
 
-
+#-------------------------Mapa------------------------------------
 def mapa_reportes(request):  # Solo si quieres requerir autenticación
     return render(request, 'mapa.html')
-
 
 def obtener_ubicaciones(request):
     # Obtener los filtros desde los parámetros GET
     trabajador_rut = request.GET.get('trabajador')
     marco_id = request.GET.get('marco')
+    tipo_incidente_id = request.GET.get('tipo_incidente')  # Filtro por tipo de incidente
     fecha_inicio = request.GET.get('fechaInicio')  # Nombre de parámetro en el frontend
     fecha_fin = request.GET.get('fechaFin')  # Nombre de parámetro en el frontend
 
@@ -36,6 +36,10 @@ def obtener_ubicaciones(request):
     # Filtro por marco
     if marco_id:
         reportes = reportes.filter(marco__id=marco_id)
+
+    # Filtro por tipo de incidente
+    if tipo_incidente_id:
+        reportes = reportes.filter(tipo_incidente__id=tipo_incidente_id)
     
     # Filtro por fechas: se aplicará solo si ambos campos de fecha están presentes
     if fecha_inicio and fecha_fin:
@@ -77,6 +81,7 @@ def obtener_ubicaciones(request):
 
     return JsonResponse(data, safe=False)
 
+
 def obtener_trabajadores(request):
     # Filtrar solo usuarios activos con rol 2
     trabajadores = Usuarios.objects.filter(is_active=True, rol=2).values('rut', 'nombre', 'apellido_p', 'apellido_m')
@@ -92,6 +97,7 @@ def obtener_trabajadores(request):
     
     # Devolver la respuesta en formato JSON
     return JsonResponse(trabajadores_list, safe=False)
+
 def obtener_marcos(request):
     # Obtener todos los marcos y serializar los datos necesarios
     marcos = Marcos.objects.all().values('id', 'nombre')
@@ -103,6 +109,25 @@ def obtener_marcos(request):
         for marco in marcos
     ]
     return JsonResponse(data, safe=False)
+
+def obtener_tipos_incidentes(request):
+    # Obtener todos los tipos de incidentes y serializar los datos necesarios
+    tipos_incidentes = Problemas.objects.all().values('id', 'nombre')
+    
+    # Crear una lista con los tipos de incidentes
+    tipos_incidentes_list = [
+        {
+            "id": tipo_incidente['id'],
+            "nombre": tipo_incidente['nombre']
+        }
+        for tipo_incidente in tipos_incidentes
+    ]
+    
+    # Devolver la respuesta en formato JSON
+    return JsonResponse(tipos_incidentes_list, safe=False)
+
+
+#------------------------------Dashboard Problema-----------------------------
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()
