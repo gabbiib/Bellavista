@@ -25,75 +25,89 @@
       background-position: top left;
       background-size: auto;
     }
-      .content {
+    .content {
         background: white;
-        padding: 30px;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         max-width: 600px;
         width: 100%;
+        max-width: 450px;
+        max-height: 650px;
         text-align: center;
       }
-      .content h3 {
+    .content h3 {
         margin-bottom: 20px;
         font-size: 24px;
         color: #2D6A8E;
       }
-      .form-group {
-        margin-bottom: 15px;
+    .form-group {
+        margin-bottom: 10px;
       }
-      .form-control {
+    .form-control {
         border-radius: 5px;
       }
-      .btn-primary {
+    .btn-primary {
         background-color: #2D6A8E;
         border-color: #2D6A8E;
       }
-      .btn-primary:hover {
+    .btn-primary:hover {
         background-color: #245870;
         border-color: #245870;
       }
-      .file-input {
+    .file-input {
         display: flex;
         justify-content: center;
         align-items: center;
         margin-top: 10px;
         flex-direction: column;
+        
       }
-      .file-input input[type="file"] {
+    .file-input input[type="file"] {
         display: none;
       }
-      .file-input label {
+    .file-input label {
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
       }
-      .file-input img {
-        max-width: 100px;
-        margin-bottom: 5px;
+    .file-input img {
+        max-width: 50px;
+        margin-bottom: -60px;
+        margin-top: 50px;
+        position: relative;
+        top: -60px;
       }
-      .file-input span {
+    .file-input span {
         font-size: 16px;
         color: #2D6A8E;
+        margin-bottom: -10px;
       }
-      .file-preview {
+    .file-preview {
         margin-top: 10px;
         max-width: 100%;
         max-height: 300px;
         border: 1px solid #ddd;
-        border-radius: 5px;
         overflow: hidden;
+        margin-bottom: 0px;
       }
-      .file-preview img {
+    .file-preview img {
         width: 100%;
-        height: auto;
+        max-width: 50px;
+        margin-bottom: 50px;
+
+      }
+
+    .header-image {
+            max-width: 100px;
+            margin-bottom: 5px;
       }
     </style>
   </head>
   <body>
     
     <div class="content">
+      <img src="{% static 'images/logogris.svg' %}" alt="Logo" class="header-image">
       <h3><strong>Reporte de Problemas</strong></h3>
       <form action="{% url 'gestion_reportes:reporte' %}" method="post" enctype="multipart/form-data" onsubmit="return getLocation(event)">
         {% csrf_token %}
@@ -144,12 +158,11 @@
           <div class="file-preview" id="file-preview"></div>
         </div>
 
-        <!-- Campos ocultos para geolocalización -->
         <input type="hidden" id="latitude" name="latitud">
         <input type="hidden" id="longitude" name="longitud">
         
-        <button type="submit" class="btn btn-primary mt-3">Enviar Reporte</button>
-        <button type="button" class="btn btn-primary mt-3" onclick="window.location.href='{% url 'inicio:trabajador' %}'">Volver atrás</button>
+        <button type="submit" class="btn btn-primary mt-3" style="margin-top: 0px;">Enviar Reporte</button>
+        <button type="button" class="btn btn-primary mt-3" style="margin-top: 0px" onclick="window.location.href='{% url 'inicio:trabajador' %}'" >Volver atrás</button>
       </form>
     </div>
 
