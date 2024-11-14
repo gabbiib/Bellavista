@@ -78,8 +78,10 @@ def obtener_ubicaciones(request):
     return JsonResponse(data, safe=False)
 
 def obtener_trabajadores(request):
-    # Filtrar solo usuarios activos y serializar los datos necesarios
-    trabajadores = Usuarios.objects.filter(is_active=True).values('rut', 'nombre', 'apellido_p', 'apellido_m')
+    # Filtrar solo usuarios activos con rol 2
+    trabajadores = Usuarios.objects.filter(is_active=True, rol=2).values('rut', 'nombre', 'apellido_p', 'apellido_m')
+    
+    # Crear una lista con los trabajadores y su nombre completo
     trabajadores_list = [
         {
             'id': trabajador['rut'],
@@ -87,8 +89,9 @@ def obtener_trabajadores(request):
         }
         for trabajador in trabajadores
     ]
+    
+    # Devolver la respuesta en formato JSON
     return JsonResponse(trabajadores_list, safe=False)
-
 def obtener_marcos(request):
     # Obtener todos los marcos y serializar los datos necesarios
     marcos = Marcos.objects.all().values('id', 'nombre')
