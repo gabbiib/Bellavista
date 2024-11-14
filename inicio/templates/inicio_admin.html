@@ -219,6 +219,9 @@
           </div>
         </div>
 
+        <a href="{% url 'dashboards:mapa_reportes' %}">Mapa</a>
+
+
         <!-- Botón de cierre de sesión -->
         <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
           {% csrf_token %}

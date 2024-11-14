@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+        integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/gestionDatos.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/images/topography.png');
+            background-repeat: repeat;
+            background-position: top left;
+            height: 100vh;
+            background-size: auto;
+        }
+
+        .navbar-nav .nav-link {
+            color: #fbfbfb;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #3c46a0;
+        }
+
+        #map {
+        height: 550px;
+        border-radius: 10px; 
+        overflow: hidden; 
+        }
+
+        .filters-container {
+            width: 250px;
+            padding: 20px;
+            background-color: #2D6A8E;
+            color: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 100px;
+            margin-left: 10px;
+            margin-bottom: 20px;
+            max-height: 530px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            transition: all 0.3s ease-in-out; /* Transición suave */
+        }
+
+        .filters-container select,
+        .filters-container input[type="date"] {
+            width: 100%;
+            margin-bottom: 15px; /* Espacio entre cada filtro */
+            padding: 5px;
+        }   
+        .filters-container h3 {
+            color: #fbfbfb;
+        }
+
+        .filters-container select {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 5px;
+        }
+
+        .main-content {
+            margin-left: 270px; 
+            padding: 20px;
+        }
+
+        .container {
+            margin-left: 270px;
+        }
+        .filters-container button {
+            margin-top: 10px; /* Espacio superior para separar los botones de los filtros */
+            margin-bottom: 10px; /* Espacio inferior entre botones */
+            width: 100%; /* Asegura que los botones tengan el mismo ancho que los filtros */
+        }
+
+        .filters-container label {
+            margin-bottom: 5px; /* Espacio entre el label y el campo de entrada */
+        }
+
+        .filters-container input[type="date"]:last-of-type {
+            margin-bottom: 20px; /* Espacio extra antes de los botones */
+        }
+    
+
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2D6A8E;">
+        <a class="navbar-brand" href="#">
+            <img src="{% static 'images/logogris.svg' %}" alt="Logo" style="height: 50px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="gestionDatosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Gestión de Datos
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="gestionDatosDropdown">
+                        <a class="dropdown-item" href="{% url 'gestion_datos:gestion_usuario' %}">Gestión de Usuarios</a>
+                        <a class="dropdown-item" href="{% url 'gestion_datos:gestion_problema' %}">Gestión de Problemas</a>
+                        <a class="dropdown-item" href="{% url 'gestion_datos:gestion_marco' %}">Gestión de Marcos</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'gestion_reportes:lista_tareas' %}">Control de Tareas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'gestion_reportes:ver_reportes' %}">Historial de Reportes</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="dashboardsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Dashboards
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="gestionDatosDropdown">
+                        <a class="dropdown-item" href="{% url 'dashboards:dashboard' %}">Dashboard Problemas</a>
+                        <a class="dropdown-item" href="{% url 'dashboards:reportes' %}">Dashboard Asignaciones</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'dashboards:mapa_reportes' %}">Mapa</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'inicio:inicio_admin' %}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger logout-btn">Cerrar Sesión</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="filters-container">
+        <h3>Filtros</h3>
+        
+        <label for="trabajadorSelect">Trabajador</label>
+        <select id="trabajadorSelect" class="form-select">
+            <option value="">Seleccione un trabajador</option>
+        </select>
+    
+        <label for="marcoSelect">Marco</label>
+        <select id="marcoSelect" class="form-control">
+            <option value="">Seleccionar Marco</option>
+        </select>
+    
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input type="date" id="fechaInicio" name="fecha_inicio">
+    
+        <label for="fechaFin">Fecha Fin:</label>
+        <input type="date" id="fechaFin" name="fecha_fin">
+        
+        <button type="button" class="btn btn-primary" id="filtrarBtn">Filtrar</button>
+        <button type="button" class="btn btn-secondary" id="limpiarBtn">Limpiar Filtros</button>
+    
+    </div>
+    
+
+    <div class="main-content">
+        <h2>Mapa de Reportes</h2>
+        <div id="map"></div>
+
+        {% block body %}{% endblock %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
+        integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous">
+    </script>
+    <script src="{% static 'js/gestionDatos.js' %}"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var map = L.map("map").setView([0, 0], 2);
+    
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 18,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+    
+            var markers = L.markerClusterGroup();
+            var bounds = L.latLngBounds();
+    
+            // Cargar todas las ubicaciones al iniciar
+            fetch("{% url 'dashboards:obtener_ubicaciones' %}")
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(function (reporte) {
+                        if (reporte.latitud && reporte.longitud) {
+                            var popupContent = `
+                                <b>${reporte.tipo_incidente}</b><br>
+                                ${reporte.descripcion}<br>
+                                <b>Reportado por:</b> ${reporte.nombre_usuario}<br>
+                                <b>Marco:</b> ${reporte.nombre_marco}<br>
+                                <b>Fecha:</b> ${reporte.fecha_reporte}<br>
+                            `;
+                            var marker = L.marker([reporte.latitud, reporte.longitud])
+                                .bindPopup(popupContent);
+                            markers.addLayer(marker);
+                            bounds.extend([reporte.latitud, reporte.longitud]);
+                        }
+                    });
+                    map.addLayer(markers);
+                    map.fitBounds(bounds);
+                })
+                .catch(error => console.error("Error al cargar las ubicaciones:", error));
+    
+            // Cargar los trabajadores con AJAX
+            $.ajax({
+                url: "{% url 'dashboards:obtener_trabajadores' %}",
+                method: "GET",
+                success: function (data) {
+                    data.forEach(function (trabajador) {
+                        $('#trabajadorSelect').append(new Option(trabajador.nombre_completo, trabajador.id));
+                    });
+                }
+            });
+    
+            // Cargar los marcos con AJAX
+            $.ajax({
+                url: "{% url 'dashboards:obtener_marcos' %}",
+                method: "GET",
+                success: function (data) {
+                    data.forEach(function (marco) {
+                        $('#marcoSelect').append(new Option(marco.nombre, marco.id));
+                    });
+                }
+            });
+    
+            // Filtrar reportes al hacer clic en el botón de "Filtrar"
+            $('#filtrarBtn').on('click', function () {
+                var trabajadorId = $('#trabajadorSelect').val();
+                var marcoId = $('#marcoSelect').val();
+                var fechaInicio = $('#fechaInicio').val();
+                var fechaFin = $('#fechaFin').val();
+
+
+    
+    
+                // Construir la URL con los parámetros de filtro
+                var url = "{% url 'dashboards:obtener_ubicaciones' %}?trabajador=" + trabajadorId + "&marco=" + marcoId;
+
+                if (fechaInicio) {
+                    url += "&fechaInicio=" + fechaInicio;
+                }
+                if (fechaFin) {
+                    url += "&fechaFin=" + fechaFin;
+                }
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Limpiar los marcadores existentes
+                        markers.clearLayers();
+                        bounds = L.latLngBounds();
+    
+                        // Agregar nuevos marcadores basados en el filtro
+                        data.forEach(function (reporte) {
+                            if (reporte.latitud && reporte.longitud) {
+                                var popupContent = `
+                                    <b>${reporte.tipo_incidente}</b><br>
+                                    ${reporte.descripcion}<br>
+                                    <b>Reportado por:</b> ${reporte.nombre_usuario}<br>
+                                    <b>Marco:</b> ${reporte.nombre_marco}
+                                    <b>Fecha:</b> ${reporte.fecha_reporte}
+                                `;
+                                var marker = L.marker([reporte.latitud, reporte.longitud])
+                                    .bindPopup(popupContent);
+                                markers.addLayer(marker);
+                                bounds.extend([reporte.latitud, reporte.longitud]);
+                            }
+                        });
+    
+                        // Añadir los clusters al mapa y ajustar la vista
+                        map.addLayer(markers);
+                        map.fitBounds(bounds);
+                    })
+                    .catch(error => console.error("Error al filtrar reportes:", error));
+            });
+    
+            // Función para limpiar filtros
+            function limpiarFiltros() {
+                console.log("Limpiando filtros...");
+                // Resetea los campos de selección
+                $('#trabajadorSelect').val("");
+                $('#marcoSelect').val("");
+                $('#fechaInicio').val("");
+                $('#fechaFin').val("");
+    
+                // Recargar los reportes sin filtros aplicados
+                fetch("{% url 'dashboards:obtener_ubicaciones' %}")
+                    .then(response => response.json())
+                    .then(data => {
+                        // Limpiar los marcadores existentes
+                        markers.clearLayers();
+                        bounds = L.latLngBounds();
+    
+                        // Agregar todos los marcadores
+                        data.forEach(function (reporte) {
+                            if (reporte.latitud && reporte.longitud) {
+                                var popupContent = `
+                                    <b>${reporte.tipo_incidente}</b><br>
+                                    ${reporte.descripcion}<br>
+                                    <b>Reportado por:</b> ${reporte.nombre_usuario}<br>
+                                    <b>Marco:</b> ${reporte.nombre_marco}
+                                `;
+                                var marker = L.marker([reporte.latitud, reporte.longitud])
+                                    .bindPopup(popupContent);
+                                markers.addLayer(marker);
+                                bounds.extend([reporte.latitud, reporte.longitud]);
+                            }
+                        });
+    
+                        // Añadir los clusters al mapa y ajustar la vista
+                        map.addLayer(markers);
+                        map.fitBounds(bounds);
+                    })
+                    .catch(error => console.error("Error al recargar reportes:", error));
+            }
+    
+            // Llamada a la función de limpiar filtros cuando el botón es presionado
+            $('#limpiarBtn').on('click', limpiarFiltros);
+        });
+    </script>
+    
+    
+    
+</body>
+
+</html>

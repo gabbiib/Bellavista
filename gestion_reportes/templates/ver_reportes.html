@@ -179,7 +179,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">  <!-- Agregamos ml-auto para mover los elementos a la derecha -->
+        <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle text-white" href="#" id="gestionDatosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Gestión de Datos
@@ -206,6 +206,9 @@
                 </div>
             </li>
             <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'dashboards:mapa_reportes' %}">Mapa</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-white" href="{% url 'inicio:inicio_admin' %}">Inicio</a>
             </li>
             <li class="nav-item">
@@ -217,7 +220,6 @@
         </ul>
     </div>
 </nav>
-
   <div class="report-container">
     <h1>Reportes de Problemas</h1>
     {% if messages %}

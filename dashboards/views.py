@@ -10,9 +10,96 @@ import json
 from datetime import datetime
 import logging
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.dateparse import parse_datetime
 
 logger = logging.getLogger(__name__)
 
+
+def mapa_reportes(request):  # Solo si quieres requerir autenticación
+    return render(request, 'mapa.html')
+
+
+def obtener_ubicaciones(request):
+    # Obtener los filtros desde los parámetros GET
+    trabajador_rut = request.GET.get('trabajador')
+    marco_id = request.GET.get('marco')
+    fecha_inicio = request.GET.get('fechaInicio')  # Nombre de parámetro en el frontend
+    fecha_fin = request.GET.get('fechaFin')  # Nombre de parámetro en el frontend
+
+    # Filtrar los reportes según los filtros proporcionados
+    reportes = Reportes_Problemas.objects.all()
+    
+    # Filtro por trabajador
+    if trabajador_rut:
+        reportes = reportes.filter(rut_usuario__rut=trabajador_rut)
+    
+    # Filtro por marco
+    if marco_id:
+        reportes = reportes.filter(marco__id=marco_id)
+    
+    # Filtro por fechas: se aplicará solo si ambos campos de fecha están presentes
+    if fecha_inicio and fecha_fin:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            reportes = reportes.filter(fecha_reporte__range=(fecha_inicio, fecha_fin))
+        except ValueError:
+            return JsonResponse({"error": "Formato de fecha incorrecto."}, status=400)
+    
+    elif fecha_inicio:  # Si solo se pasa fecha de inicio
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            reportes = reportes.filter(fecha_reporte__gte=fecha_inicio)
+        except ValueError:
+            return JsonResponse({"error": "Formato de fecha incorrecto."}, status=400)
+    
+    elif fecha_fin:  # Si solo se pasa fecha de fin
+        try:
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            reportes = reportes.filter(fecha_reporte__lte=fecha_fin)
+        except ValueError:
+            return JsonResponse({"error": "Formato de fecha incorrecto."}, status=400)
+
+    # Serializar los datos de los reportes filtrados
+    data = [
+        {
+            "latitud": reporte.latitud,
+            "longitud": reporte.longitud,
+            "descripcion": reporte.descripcion,
+            "tipo_incidente": reporte.tipo_incidente.nombre,
+            "nombre_usuario": reporte.rut_usuario.full_name(),
+            "nombre_marco": reporte.marco.nombre if reporte.marco else 'Sin marco',
+            "fecha_reporte": reporte.fecha_reporte.strftime('%Y-%m-%d')
+        }
+        for reporte in reportes
+        if reporte.latitud and reporte.longitud
+    ]
+
+    return JsonResponse(data, safe=False)
+
+def obtener_trabajadores(request):
+    # Filtrar solo usuarios activos y serializar los datos necesarios
+    trabajadores = Usuarios.objects.filter(is_active=True).values('rut', 'nombre', 'apellido_p', 'apellido_m')
+    trabajadores_list = [
+        {
+            'id': trabajador['rut'],
+            'nombre_completo': f"{trabajador['nombre']} {trabajador['apellido_p']} {trabajador['apellido_m']}"
+        }
+        for trabajador in trabajadores
+    ]
+    return JsonResponse(trabajadores_list, safe=False)
+
+def obtener_marcos(request):
+    # Obtener todos los marcos y serializar los datos necesarios
+    marcos = Marcos.objects.all().values('id', 'nombre')
+    data = [
+        {
+            "id": marco['id'],
+            "nombre": marco['nombre']
+        }
+        for marco in marcos
+    ]
+    return JsonResponse(data, safe=False)
 def dashboard(request):
     # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()

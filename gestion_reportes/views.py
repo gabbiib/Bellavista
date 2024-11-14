@@ -241,16 +241,17 @@ def lista_tareas(request):
 
 
 def obtener_reportes_problemas_disponibles(request):
-
     # Obtener los IDs de reportes que están asignados a alguna tarea
     reportes_asignados_ids = Tareas.objects.exclude(id_reporte__isnull=True).values_list('id_reporte', flat=True)
+    
     # Excluir los reportes que ya están asignados a tareas
-    reportes_disponibles = Reportes_Problemas.objects.exclude(id__in=reportes_asignados_ids)
+    reportes_disponibles = Reportes_Problemas.objects.select_related('tipo_incidente').exclude(id__in=reportes_asignados_ids)
+
 
     reportes_data = [
         {
             'id': reporte.id,
-            'tipo_incidente': reporte.tipo_incidente.nombre,
+            'tipo_incidente': reporte.tipo_incidente.nombre,  # No es necesario obtener 'tipo_incidente' de nuevo
             'fecha_reporte': reporte.fecha_reporte.strftime('%Y-%m-%d'),
             'descripcion': reporte.descripcion
         }
@@ -258,6 +259,7 @@ def obtener_reportes_problemas_disponibles(request):
     ]
 
     return JsonResponse(reportes_data, safe=False)
+
 
 def asignar_tarea_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
