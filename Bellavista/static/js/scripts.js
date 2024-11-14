@@ -428,15 +428,15 @@ $(document).ready(function() {
             type: 'GET',
             success: function(data) {
                 recargarListaTareasPredeterminadas();
-                // console.log(data);  // Verifica si los datos están llegando
+                console.log(data);  // Verifica si los datos están llegando
                 var reporteSelect = $('#reporteProblemaSelect');
                 reporteSelect.empty(); // Limpiar las opciones actuales
                 reporteSelect.append('<option value="">Seleccione un reporte</option>');
                 
                 data.forEach(function(reporte) {
                     reporteSelect.append(
-                        `<option value="${reporte.id}" data-tipo="${reporte.tipo_incidente.nombre}" data-descripcion="${reporte.descripcion}">
-                            ${reporte.tipo_incidente.nombre} - ${reporte.fecha_reporte}
+                        `<option value="${reporte.id}" data-tipo="${reporte.tipo_incidente}" data-descripcion="${reporte.descripcion}">
+                            ${reporte.tipo_incidente} - ${reporte.fecha_reporte}
                         </option>`
                     );
                 });
