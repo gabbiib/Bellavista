@@ -13,7 +13,6 @@
             </tr>
         </thead>
         <tbody>
-             <!-- {% for asignacion in asignaciones %} -->
             <tr>
                 <td>{{ asignacion.tarea.nombre }}</td>
                 <td>{{ asignacion.tarea.descripcion }}</td>
@@ -35,7 +34,7 @@
                     </div>
                 </td>
             </tr>
-            <!-- Formulario de edición oculto -->
+            <!-- Edit form row if needed -->
             <tr id="editRow{{ asignacion.id }}" class="edit-form-row" style="display: none;">
                 <td colspan="7">
                     <form id="editFormAsignacion{{ asignacion.id }}" class="edit-assignment-form" data-assignment-id="{{ asignacion.id }}" data-url="{% url 'gestion_reportes:editar_asignacion_ajax' %}">
@@ -62,11 +61,9 @@
                     </form>
                 </td>
             </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7">No hay tareas asignadas.</td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
 </div>
+{% empty %}
+<p>No hay tareas asignadas.</p>
+{% endfor %}
