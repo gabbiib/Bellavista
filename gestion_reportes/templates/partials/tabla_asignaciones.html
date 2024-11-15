@@ -1,18 +1,6 @@
 {% load static %}
 {% for asignacion in asignaciones %}
-<div class="table-container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Tarea</th>
-                <th>Descripción</th>
-                <th>Prioridad</th>
-                <th>Trabajador</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
+
             <tr>
                 <td>{{ asignacion.tarea.nombre }}</td>
                 <td>{{ asignacion.tarea.descripcion }}</td>
