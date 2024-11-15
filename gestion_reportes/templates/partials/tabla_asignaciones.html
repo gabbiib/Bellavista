@@ -61,9 +61,11 @@
                     </form>
                 </td>
             </tr>
-        </tbody>
+        {% empty %}
+        <tr>
+            <td colspan="7">No hay tareas asignadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
     </table>
 </div>
-{% empty %}
-<p>No hay tareas asignadas.</p>
-{% endfor %}
