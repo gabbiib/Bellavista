@@ -50,9 +50,8 @@ def edicionUsuario(request, rut):
     usuario = Usuarios.objects.get(rut=rut)
     
     if request.method == 'POST':
-        cambios = False  # Flag para verificar si se realizaron cambios
+        cambios = False 
         
-        # Verificar si al menos uno de los campos ha cambiado
         if (request.POST['txtNombre'] != usuario.nombre or
             request.POST['txtApellido_P'] != usuario.apellido_p or
             request.POST['txtApellido_M'] != usuario.apellido_m or
@@ -61,31 +60,26 @@ def edicionUsuario(request, rut):
             request.POST['numTelefono'] != usuario.telefono):
             cambios = True
         
-        # Verificar si la contraseña ha cambiado
         nueva_contraseña = request.POST.get('numPassword', '').strip()
-        if nueva_contraseña:  # Si se ingresa una nueva contraseña
-            cambios = True  # Se considera un cambio en los datos
+        if nueva_contraseña:  
+            cambios = True 
             usuario.password = make_password(nueva_contraseña)
 
-        # Si no hubo cambios en los datos, mostrar mensaje de error
         if not cambios:
             messages.error(request, 'Debe realizar cambios en alguno de los campos para guardar.')
             return redirect(f'/data/gestion_usuario/')
         
-        # Si hay cambios, actualizar los datos
         usuario.nombre = request.POST['txtNombre']
         usuario.apellido_p = request.POST['txtApellido_P']
         usuario.apellido_m = request.POST['txtApellido_M']
         usuario.fecha_n = request.POST['txtFecha_n']
         usuario.correo = request.POST['numCorreo']
         
-        # Verificar y agregar el prefijo +569 al número de teléfono si es necesario
         telefono = request.POST['numTelefono']
         if not telefono.startswith('+569'):
             telefono = '+569' + telefono
         usuario.telefono = telefono
         
-        # Guardar el usuario con los cambios
         usuario.save()
         
         messages.success(request, 'Usuario actualizado correctamente.')

@@ -191,7 +191,7 @@
       });
 
       function getLocation(event) {
-        event.preventDefault();  // Evita el envío del formulario hasta obtener la ubicación
+        event.preventDefault();  
         console.log("Solicitando ubicación...");
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -199,7 +199,7 @@
             alert("Geolocalización no es soportada por este navegador.");
             return false;
         }
-        return false; // Asegura que el formulario no se envíe hasta que tengamos la ubicación
+        return false; 
       }
 
 
@@ -207,7 +207,7 @@
         console.log("Ubicación obtenida:", position.coords);
         document.getElementById("latitude").value = position.coords.latitude;
         document.getElementById("longitude").value = position.coords.longitude;
-        document.querySelector('form').submit();  // Envía el formulario después de obtener la ubicación
+        document.querySelector('form').submit(); 
       }
 
 

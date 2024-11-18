@@ -34,7 +34,6 @@
     </div>
     <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8">
         <h1>Listado de Problemas</h1>
-        <!-- Contenedor scrollable para la tabla -->
         <div class="table-responsive py-2" style="max-height: 600px; overflow-y: auto;">
             <table class="table table-striped">
                 <thead>
@@ -54,17 +53,14 @@
                         <td>{{ p.nombre }}</td>
                         <td>{{ p.descripcion }}</td>
                         <td>
-                            <!-- Botones en una fila -->
+                   
                             <div class="d-flex justify-content-start">
-                                <!-- Botón de Editar -->
                                 <button class="btn btn-info mr-2" data-toggle="modal" data-target="#editProblemaModal{{ p.id }}">Editar</button>
-                                <!-- Botón de Eliminar -->
                                 <a href="/data/eliminarProblema/{{ p.id }}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar a {{ p.nombre }}?')">Eliminar</a>
                             </div>
                         </td>
                     </tr>
     
-                    <!-- Modal para editar problema -->
                     <div class="modal fade" id="editProblemaModal{{ p.id }}" tabindex="-1" role="dialog" aria-labelledby="editProblemaModalLabel{{ p.id }}" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">

@@ -113,7 +113,6 @@
 <div class="container">
     <h1>Reportes de Tareas</h1>
 
-    <!-- Filtros -->
     <table class="table">
         <thead>
             <tr>
@@ -157,30 +156,25 @@
         </tbody>
     </table>
 
-    <!-- Separador -->
     <hr class="separator-line">
 
-    <!-- Contenedor para los gráficos -->
     <div id="chartContainer" class="chart-container"></div>
 
-    <!-- Separador -->
     <hr class="separator-line">
 
-    <!-- Contenedor para el DataGrid -->
     <div id="dataGridContainer" class="table-responsive">
         <table id="dataGrid" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <!-- Aquí se llenarán los encabezados dinámicamente -->
+                 
                 </tr>
             </thead>
             <tbody>
-                <!-- Aquí se llenarán los datos dinámicamente -->
+
             </tbody>
         </table>
     </div>
 
-    <!-- Separador -->
     <hr class="separator-line">
 
 </div>
@@ -192,7 +186,6 @@
 
 <script>
 
-// Configuración de idioma para Highcharts
 Highcharts.setOptions({
     lang: {
         months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
@@ -239,7 +232,7 @@ function generateChart(chartType, workerId, startDate, endDate) {
                         yAxis: { title: { text: 'Número de Tareas' } },
                         series: [{ name: 'Tareas', data: responseData }]
                     };
-                    // Configurar DataGrid para este gráfico
+
                     dataGridHeaders = ['Prioridad', 'Cantidad'];
                     responseData.forEach(item => {
                         dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
@@ -252,7 +245,7 @@ function generateChart(chartType, workerId, startDate, endDate) {
                         title: { text: 'Asignaciones por Estado' },
                         series: [{ name: 'Asignaciones', data: responseData }]
                     };
-                    // Configurar DataGrid
+
                     dataGridHeaders = ['Estado', 'Cantidad'];
                     responseData.forEach(item => {
                         dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
@@ -267,7 +260,7 @@ function generateChart(chartType, workerId, startDate, endDate) {
                         yAxis: { title: { text: 'Número de Tareas' } },
                         series: [{ name: 'Tareas', data: responseData }]
                     };
-                    // Configurar DataGrid
+                   
                     dataGridHeaders = ['Tipo', 'Cantidad'];
                     responseData.forEach(item => {
                         dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
@@ -282,7 +275,7 @@ function generateChart(chartType, workerId, startDate, endDate) {
                         yAxis: { title: { text: 'Tareas Completadas' } },
                         series: [{ name: 'Tareas Completadas', data: responseData.map(item => item.y) }]
                     };
-                    // Configurar DataGrid
+                   
                     dataGridHeaders = ['Trabajador', 'Tareas Completadas'];
                     responseData.forEach(item => {
                         dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
@@ -297,7 +290,7 @@ function generateChart(chartType, workerId, startDate, endDate) {
                         yAxis: { title: { text: 'Tiempo en días' } },
                         series: [{ name: 'Tiempo Promedio', data: responseData.map(item => item.y) }]
                     };
-                    // Configurar DataGrid
+                   
                     dataGridHeaders = ['Mes', 'Tiempo en días'];
                     responseData.forEach(item => {
                         dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
@@ -312,7 +305,7 @@ function generateChart(chartType, workerId, startDate, endDate) {
                         yAxis: { title: { text: 'Número de Tareas' } },
                         series: [{ name: 'Tareas', data: responseData.map(item => item.y) }]
                     };
-                    // Configurar DataGrid
+                    
                     dataGridHeaders = ['Mes', 'Cantidad'];
                     responseData.forEach(item => {
                         dataGridBody += `<tr><td>${item.name}</td><td>${item.y}</td></tr>`;
@@ -320,26 +313,22 @@ function generateChart(chartType, workerId, startDate, endDate) {
                     break;
             }
 
-            // Renderizar el gráfico
             Highcharts.chart('chartContainer', chartOptions);
 
-            // Actualizar el DataGrid
             updateDataGrid(dataGridHeaders, dataGridBody);
         }
     });
 }
 
 function updateDataGrid(headers, body) {
-    // Limpiar la tabla
+   
     $('#dataGrid thead tr').html('');
     $('#dataGrid tbody').html('');
 
-    // Agregar los encabezados
     headers.forEach(header => {
         $('#dataGrid thead tr').append(`<th>${header}</th>`);
     });
 
-    // Agregar el cuerpo de la tabla
     $('#dataGrid tbody').append(body);
 }
 

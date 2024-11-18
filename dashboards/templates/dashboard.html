@@ -50,19 +50,19 @@
             margin-left: 340px; 
             display: flex;
             flex-wrap: wrap;
-            justify-content: flex-start; /* Alinea los gráficos a la izquierda */
+            justify-content: flex-start;
             padding: 20px;
         }
 
         .chart-section {
-            flex: 1; /* Permite que cada gráfico ocupe el espacio disponible */
+            flex: 1; 
             padding: 15px;
             background-color: #fff;
             border-radius: 8px;
             margin-bottom: 20px;
             margin-right: 15px;
             min-width: 300px;
-            border: 2px solid #003366; /* Asegura que los gráficos no se hagan demasiado pequeños */
+            border: 2px solid #003366; 
         }
 
         #incidentChart, #trabajadoresChart {
@@ -147,13 +147,13 @@
 
         .kpi-value {
             font-size: 19px;
-            color: #121740; /* Verde para indicar algo positivo */
+            color: #121740; 
             margin-top: 10px;
         }
 
         .kpi-item {
-        flex: 1; /* Hace que todos los KPI tengan el mismo tamaño */
-        margin-right: 10px; /* Espacio entre los KPI */
+        flex: 1; 
+        margin-right: 10px; 
         text-align: center;
         }
 
@@ -368,7 +368,7 @@
         },
         plotOptions: {
             pie: {
-                innerSize: '50%',  // gráfico de dona
+                innerSize: '50%',
                 dataLabels: {
                     enabled: true,
                     format: '{point.name}: {point.y} ({point.percentage:.1f}%)'
@@ -379,7 +379,7 @@
             name: 'Tipos de Problemas',
             data: data.tipos.map(function(tipo, index) {
                 return {
-                    name: tipo,  // Asegúrate de que aquí se usa el nombre directamente
+                    name: tipo,
                     y: data.counts[index]
                 };
             }),
@@ -421,13 +421,13 @@
         
         function calculateMonthlyAverage() {
             $.ajax({
-                url: "{% url 'dashboards:obtener_promedio_problemas' %}",  // Crea una URL para obtener el promedio desde el backend
+                url: "{% url 'dashboards:obtener_promedio_problemas' %}",
                 method: "GET",
                 success: function(data) {
-                    var totalProblemas = data.total_problemas; // Total de problemas registrados
-                    var meses = data.meses; // Número de meses
-                    var promedioMensual = (totalProblemas / meses).toFixed(2); // Calcula el promedio mensual
-                    $('#kpi-indicator').text(promedioMensual + ' problemas/mes'); // Muestra el promedio en el KPI
+                    var totalProblemas = data.total_problemas;
+                    var meses = data.meses; 
+                    var promedioMensual = (totalProblemas / meses).toFixed(2);
+                    $('#kpi-indicator').text(promedioMensual + ' problemas/mes');
                 },
                 error: function(xhr, status, error) {
                     console.error("Error al obtener el promedio de problemas: ", error);
@@ -437,7 +437,7 @@
         }
 
         $(document).ready(function() {
-            calculateMonthlyAverage(); // Llama a la función cuando la página se carga
+            calculateMonthlyAverage();
         });
         
         $(document).ready(function() {

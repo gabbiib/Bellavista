@@ -84,14 +84,14 @@
         }
         .edit-form-row {
             background-color: #f9f9f9; 
-            border-top: 2px solid #2D6A8E; /* Línea superior para separar del resto */
+            border-top: 2px solid #2D6A8E;
         }
         .edit-form {
             padding: 10px;
         }
         .btn-floating {
             position: fixed;
-            bottom: 100px; /*filtros */
+            bottom: 100px;
             right: 20px;
             width: 50px;
             height: 50px;
@@ -120,7 +120,7 @@
             z-index: 999; 
         }
         .create-task-form-inner {
-            border-top: 2px solid #2D6A8E; /* Línea azul arriba del formulario */
+            border-top: 2px solid #2D6A8E; 
             padding-top: 20px; 
         }
         .create-task-form-inner::before {
@@ -184,7 +184,7 @@
         }
 
         .form-row .col-md-6 {
-            width: 48%;  /* Asegura que ambos campos estén uno al lado del otro */
+            width: 48%; 
         }
 
     </style>
@@ -251,7 +251,6 @@
         <img src="{% static 'images/add-icon.png' %}" alt="Añadir tarea">
     </button>
 
-    <!-- Formulario de filtros flotante -->
 
     <div id="filterForm" class="filter-form" style="display: none;">
         <div class="create-task-header">
@@ -269,7 +268,6 @@
                 </select>
             </div>
     
-            <!-- Filtros comunes -->
             <div id="commonFilters">
                 <div class="form-group">
                     <label for="filterName">Nombre:</label>
@@ -289,11 +287,10 @@
                 </div>
             </div>            
     
-            <!-- Filtros para tareas asignadas -->
              
             <div id="assignedTaskFilters" style="display: none;">
                 <div class="form-row">
-                    <div class="col-md mb-3">  <!-- Agrega mb-3 para márgenes -->
+                    <div class="col-md mb-3"> 
                         <label for="filterState">Estado:</label>
                         <select id="filterState" name="filterState" class="form-control">
                             <option value="">Todos</option>
@@ -326,7 +323,6 @@
     </div>
     
     
-    <!-- Formulario de creación de nueva tarea -->
     <div id="createTaskForm" class="create-task-form" style="display: none;">
         <div class="create-task-header">
             <h2>Crear nueva tarea</h2>
@@ -339,7 +335,6 @@
                 <label for="reporteProblemaSelect">Seleccionar Reporte de Problema:</label>
                 <select id="reporteProblemaSelect" class="form-control">
                     <option value="">Seleccione un reporte</option>
-                    <!-- Los reportes disponibles se cargarán aquí mediante AJAX -->
                 </select>
             </div>
             <div class="form-group">
@@ -419,7 +414,7 @@
                     </button>
                 </td>                
             </tr>
-            <!-- Fila del formulario de edición, inicialmente oculta -->
+
             <tr id="editForm{{ tarea.id }}" class="edit-form-row" style="display: none;">
                 <td colspan="6">
                     <form id="editTarea{{ tarea.id }}" class="edit-tarea-form" data-assignment-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:editar_tarea_ajax' %}">
@@ -488,7 +483,7 @@
                 </div>
             </td>
         </tr>
-        <!-- Fila para el formulario de edición -->
+   
         <tr id="editRow{{ asignacion.id }}" class="edit-form-row" style="display: none;">
             <td colspan="7">
                 <div class="edit-form">
@@ -552,7 +547,7 @@
                     </button>
                 </td>
             </tr>
-            <!-- Fila del formulario de edición, inicialmente oculta -->
+           
             <tr id="editForm{{ tarea.id }}" class="edit-form-row" style="display: none;">
                 <td colspan="4">
                     <form id="editTarea{{ tarea.id }}" class="edit-tarea-form2" data-tarea-id="{{ tarea.id }}" data-url="{% url 'gestion_reportes:editar_tarea_ajax' %}">

@@ -15,33 +15,28 @@ from django.utils.dateparse import parse_datetime
 logger = logging.getLogger(__name__)
 
 #-------------------------Mapa------------------------------------
-def mapa_reportes(request):  # Solo si quieres requerir autenticación
+def mapa_reportes(request): 
     return render(request, 'mapa.html')
 
 def obtener_ubicaciones(request):
-    # Obtener los filtros desde los parámetros GET
+
     trabajador_rut = request.GET.get('trabajador')
     marco_id = request.GET.get('marco')
-    tipo_incidente_id = request.GET.get('tipo_incidente')  # Filtro por tipo de incidente
-    fecha_inicio = request.GET.get('fechaInicio')  # Nombre de parámetro en el frontend
-    fecha_fin = request.GET.get('fechaFin')  # Nombre de parámetro en el frontend
+    tipo_incidente_id = request.GET.get('tipo_incidente')
+    fecha_inicio = request.GET.get('fechaInicio') 
+    fecha_fin = request.GET.get('fechaFin') 
 
-    # Filtrar los reportes según los filtros proporcionados
     reportes = Reportes_Problemas.objects.all()
     
-    # Filtro por trabajador
     if trabajador_rut:
         reportes = reportes.filter(rut_usuario__rut=trabajador_rut)
     
-    # Filtro por marco
     if marco_id:
         reportes = reportes.filter(marco__id=marco_id)
 
-    # Filtro por tipo de incidente
     if tipo_incidente_id:
         reportes = reportes.filter(tipo_incidente__id=tipo_incidente_id)
     
-    # Filtro por fechas: se aplicará solo si ambos campos de fecha están presentes
     if fecha_inicio and fecha_fin:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
@@ -50,21 +45,20 @@ def obtener_ubicaciones(request):
         except ValueError:
             return JsonResponse({"error": "Formato de fecha incorrecto."}, status=400)
     
-    elif fecha_inicio:  # Si solo se pasa fecha de inicio
+    elif fecha_inicio: 
         try:
             fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
             reportes = reportes.filter(fecha_reporte__gte=fecha_inicio)
         except ValueError:
             return JsonResponse({"error": "Formato de fecha incorrecto."}, status=400)
     
-    elif fecha_fin:  # Si solo se pasa fecha de fin
+    elif fecha_fin:
         try:
             fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
             reportes = reportes.filter(fecha_reporte__lte=fecha_fin)
         except ValueError:
             return JsonResponse({"error": "Formato de fecha incorrecto."}, status=400)
 
-    # Serializar los datos de los reportes filtrados
     data = [
         {
             "latitud": reporte.latitud,
@@ -83,10 +77,8 @@ def obtener_ubicaciones(request):
 
 
 def obtener_trabajadores(request):
-    # Filtrar solo usuarios activos con rol 2
     trabajadores = Usuarios.objects.filter(is_active=True, rol=2).values('rut', 'nombre', 'apellido_p', 'apellido_m')
     
-    # Crear una lista con los trabajadores y su nombre completo
     trabajadores_list = [
         {
             'id': trabajador['rut'],
@@ -95,11 +87,10 @@ def obtener_trabajadores(request):
         for trabajador in trabajadores
     ]
     
-    # Devolver la respuesta en formato JSON
     return JsonResponse(trabajadores_list, safe=False)
 
 def obtener_marcos(request):
-    # Obtener todos los marcos y serializar los datos necesarios
+   
     marcos = Marcos.objects.all().values('id', 'nombre')
     data = [
         {
@@ -111,10 +102,9 @@ def obtener_marcos(request):
     return JsonResponse(data, safe=False)
 
 def obtener_tipos_incidentes(request):
-    # Obtener todos los tipos de incidentes y serializar los datos necesarios
+    
     tipos_incidentes = Problemas.objects.all().values('id', 'nombre')
     
-    # Crear una lista con los tipos de incidentes
     tipos_incidentes_list = [
         {
             "id": tipo_incidente['id'],
@@ -123,19 +113,14 @@ def obtener_tipos_incidentes(request):
         for tipo_incidente in tipos_incidentes
     ]
     
-    # Devolver la respuesta en formato JSON
     return JsonResponse(tipos_incidentes_list, safe=False)
 
 
 #------------------------------Dashboard Problema-----------------------------
 def dashboard(request):
-    # Obtener los datos de reportes
     incidentes = Reportes_Problemas.objects.all()
-
-    # Obtener todos los trabajadores
     trabajadores_list = Usuarios.objects.all()
 
-    # Filtrar incidentes por tipo y obtener sus nombres
     tipo_incidentes = incidentes.values('tipo_incidente').annotate(count=Count('id'))
     tipos = []
     counts = []
@@ -146,11 +131,9 @@ def dashboard(request):
             tipos.append(problema.nombre)
             counts.append(tipo['count'])
         except Problemas.DoesNotExist:
-            # Maneja el caso donde el tipo de incidente no existe
             tipos.append('Desconocido')
             counts.append(tipo['count'])
 
-    # Obtener marcos únicos desde el modelo reportes_problemas y sus nombres
     marcos_ids = incidentes.values_list('marco', flat=True).distinct()
     marcos = []
 
@@ -159,10 +142,8 @@ def dashboard(request):
             marco = Marcos.objects.get(id=marco_id)
             marcos.append(marco.nombre)
         except Marcos.DoesNotExist:
-            # Maneja el caso donde el marco no existe
             marcos.append('Desconocido')
 
-    # Calcular el promedio de incidentes por mes
     num_meses = incidentes.dates('fecha_reporte', 'month').count()
     total_reportes = incidentes.count()
     promedio_reportes_por_mes = total_reportes / num_meses if num_meses > 0 else 0
@@ -175,9 +156,7 @@ def dashboard(request):
         'promedio_reportes_por_mes': promedio_reportes_por_mes,
     }
 
-    # Verificar si la solicitud es AJAX
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # Filtrar por tipo y marco si se recibe un request AJAX
         tipo_seleccionado = request.GET.get('tipo')
         marco_seleccionado = request.GET.get('marco')
         trabajador_seleccionado = request.GET.get('trabajador')
@@ -189,11 +168,9 @@ def dashboard(request):
 
         if marco_seleccionado and marco_seleccionado != 'Todos':
             try:
-                # Buscar el ID del marco por su nombre
                 marco_obj = Marcos.objects.get(nombre=marco_seleccionado)
                 incidentes = incidentes.filter(marco=marco_obj.id)
             except Marcos.DoesNotExist:
-                # Maneja el caso donde el marco no existe
                 return JsonResponse({'error': 'Marco no encontrado'}, status=400)
 
         if trabajador_seleccionado:
@@ -215,7 +192,6 @@ def dashboard(request):
                 tipos.append('Desconocido')
                 counts.append(tipo['count'])
 
-        # Calcular el porcentaje para los incidentes filtrados
         total_incidentes = sum(counts)
         porcentajes = [(count / total_incidentes * 100) if total_incidentes > 0 else 0 for count in counts]
 
@@ -225,39 +201,31 @@ def dashboard(request):
 
 def filtrar_reportes(request):
     try:
-        # Obtener los filtros del request
         trabajador = request.GET.get('trabajador')
         marco = request.GET.get('marco')
         tipo_incidente = request.GET.get('tipo_incidente')
         fecha_inicio = request.GET.get('fecha_inicio')
         fecha_fin = request.GET.get('fecha_fin')
 
-        # Inicializar la queryset
         reportes = Reportes_Problemas.objects.all()
 
-        # Aplicar filtros
         if trabajador:
             reportes = reportes.filter(rut_usuario__rut=trabajador)
 
         if marco:
             try:
-                # Buscar el ID del marco por su nombre
                 marco_obj = Marcos.objects.get(nombre=marco)
                 reportes = reportes.filter(marco_id=marco_obj.id)
             except ObjectDoesNotExist:
-                # Maneja el caso en que el marco no exista
                 return JsonResponse({'error': 'Marco no encontrado'}, status=400)
 
         if tipo_incidente:
             try:
-                # Buscar el ID del tipo de incidente por su nombre
                 tipo_incidente_obj = Problemas.objects.get(nombre=tipo_incidente)
                 reportes = reportes.filter(tipo_incidente_id=tipo_incidente_obj.id)
             except ObjectDoesNotExist:
-                # Maneja el caso en que el tipo de incidente no exista
                 return JsonResponse({'error': 'Tipo de incidente no encontrado'}, status=400)
 
-        # Manejar el caso en el que no se proporcionen fechas
         if fecha_inicio and fecha_fin:
             reportes = reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
             fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
@@ -266,15 +234,12 @@ def filtrar_reportes(request):
             fecha_inicio = reportes.earliest('fecha_reporte').fecha_reporte
             fecha_fin = reportes.latest('fecha_reporte').fecha_reporte
 
-        # Calcular el número de días entre las fechas
         delta_dias = (fecha_fin - fecha_inicio).days + 1
 
         total_problemas = reportes.count()
 
-        # Inicializar los promedios
         promedio_mensual = promedio_semanal = promedio_diario = 0
 
-        # Calcular promedios
         if delta_dias > 0:
             dias = delta_dias
             promedio_diario = total_problemas / dias
@@ -309,7 +274,6 @@ def filtrar_reportes(request):
         }
 
 
-        # Obtener las categorías de incidentes de forma dinámica y sus conteos
         tipo_incidentes = reportes.values('tipo_incidente').annotate(count=Count('id'))
         tipos = []
         counts = []
@@ -323,7 +287,6 @@ def filtrar_reportes(request):
                 tipos.append('Desconocido')
                 counts.append(tipo['count'])
 
-        # Datos para gráfico de desempeño por trabajadores a lo largo del tiempo
         fechas_reporte = reportes.dates('fecha_reporte', 'month', order='ASC')
         trabajadores_series = []
 
@@ -354,11 +317,10 @@ def filtrar_reportes(request):
         return JsonResponse({'error': 'Error interno del servidor'}, status=500)
     
 def obtener_promedio_problemas(request):
-    # Calcula el total de problemas y el número de meses registrados
+
     total_problemas = Reportes_Problemas.objects.count()
     meses = Reportes_Problemas.objects.dates('fecha_reporte', 'month', order='ASC').count()
-    
-    # Si no hay datos, evitar la división por cero
+
     if meses == 0:
         promedio_mensual = 0
     else:
@@ -387,11 +349,9 @@ def get_report_data(request):
 
     data = Tareas.objects.all() 
 
-    # Filtrar por trabajador si se selecciona uno
     if worker_id:
         data = data.filter(asignacion__trabajador__rut=worker_id)
 
-    # Filtrar por rango de fechas
     if start_date and end_date:
         data = data.filter(creado_en__range=[start_date, end_date])
     elif start_date:

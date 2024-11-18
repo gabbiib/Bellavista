@@ -87,7 +87,7 @@
     .tareas-reportes-th, .tareas-reportes-td {
       padding: 10px;
       border: 1px solid #ddd;
-      white-space: nowrap; /* Evita que el texto se ajuste en varias líneas */
+      white-space: nowrap; 
     }
 
     .tareas-reportes-th {
@@ -117,23 +117,22 @@
 
     @media (max-width: 768px) {
       .header img {
-        margin-bottom: 10px; /* Dejar un pequeño espacio entre la imagen y los botones */
+        margin-bottom: 10px; 
       }
 
       .header-buttons {
         justify-content: center;
-        width: 100%; /* Los botones ocupan todo el ancho del contenedor */
+        width: 100%; 
       }
 
       .header .logout-btn, .header .edit-profile-btn {
-        width: auto; /* Elimina la limitación de ancho en dispositivos pequeños */
-        padding: 10px 20px; /* Asegura que los botones se vean uniformes */
+        width: auto;
+        padding: 10px 20px; 
       }
     }
   </style>
 </head>
 <body>
-  <!-- Header con logo y botones de cerrar sesión y editar perfil -->
   <div class="header">
     <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
     <div class="header-buttons">
@@ -145,11 +144,9 @@
     </div>
   </div>
 
-  <!-- Contenedor principal para las tareas -->
   <div class="tareas-reportes-container">
     <h1 class="tareas-reportes-header">Tareas Asignadas y Reporte de Problemas</h1>
 
-    <!-- Tabla de tareas con scroll horizontal para pantallas pequeñas -->
     <div class="table-responsive">
       <table class="tareas-reportes-table">
         <thead>

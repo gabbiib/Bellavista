@@ -35,8 +35,8 @@ from twilio.rest import Client
 
 def reporte_view(request):
     trabajadores = Usuarios.objects.filter(rol__id_rol=2)
-    marcos = Marcos.objects.all()  # Obtenemos todos los marcos
-    tipos_incidente = Problemas.objects.all()  # Obtenemos todos los tipos de incidente
+    marcos = Marcos.objects.all()
+    tipos_incidente = Problemas.objects.all() 
 
     if request.method == 'POST':
         rut_usuario = request.POST.get('rut_usuario')
@@ -120,10 +120,8 @@ def actualizar_tarea(request, tarea_id):
 def trabajador(request):
     rut_usuario = request.user.rut
 
-    # Filtra las asignaciones usando el campo correcto
     asignaciones = Asignacion.objects.filter(trabajador__rut=rut_usuario).exclude(estado='Completada')
 
-    # Inicializa una lista para las tareas asignadas
     tareas_asignadas = []
     for asignacion in asignaciones:
         tareas_asignadas.append({
@@ -151,31 +149,26 @@ def editar_perfil(request):
         nuevo_telefono = request.POST.get('telefono')
         nueva_contrasena = request.POST.get('contrasena')
 
-        # Validar el nuevo teléfono: debe tener 8 dígitos numéricos
         if nuevo_telefono and nuevo_telefono.isdigit() and len(nuevo_telefono) == 8:
-            if nuevo_telefono != usuario.telefono[-8:]:  # Comparar solo los últimos 8 dígitos
+            if nuevo_telefono != usuario.telefono[-8:]:  
                 usuario.telefono = f'+569{nuevo_telefono}'
                 telefono_cambiado = True
         elif nuevo_telefono:
             messages.error(request, 'El teléfono debe contener exactamente 8 dígitos.')
 
-        # Validación de la nueva contraseña con regex
         password_regex = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]|;:'\",<.>/?])(?=.*[A-Z]).{8,}$")
         if nueva_contrasena and password_regex.match(nueva_contrasena):
-            usuario.set_password(nueva_contrasena)  # Cambia la contraseña usando set_password
+            usuario.set_password(nueva_contrasena)
             contrasena_cambiada = True
         elif nueva_contrasena:
             messages.error(request, 'La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.')
 
-        # Guardar solo si hubo algún cambio válido
         if telefono_cambiado or contrasena_cambiada:
             usuario.save()
 
-            # Mantener la sesión si la contraseña ha cambiado
             if contrasena_cambiada:
                 update_session_auth_hash(request, usuario)
 
-        # Mensajes de éxito o información
         if telefono_cambiado and contrasena_cambiada:
             messages.success(request, 'Tu teléfono y contraseña han sido actualizados.')
         elif telefono_cambiado:

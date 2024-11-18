@@ -99,9 +99,8 @@
       background-color: #f7f7f7;
     }
 
-    /* Aumento de tamaño para la columna 'Usuario que Reportó' */
     .tareas-reportes-td.usuario-reporto {
-      min-width: 500x; /* Asegura que la columna tenga un tamaño mínimo */
+      min-width: 500x; 
     }
 
     .tareas-reportes-button-wrapper {
@@ -299,23 +298,20 @@
  <script>
     function confirmarEliminar(reporteId, element) {
       if (!confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
-        return;  // Detener si el usuario cancela
+        return; 
       }
 
-      // Genera la URL con el template tag de Django y reemplaza el marcador
       const urlEliminar = "{% url 'gestion_reportes:eliminar_reporte' 0 %}".replace('0', reporteId);
 
-      // Enviar la solicitud para eliminar el reporte usando fetch
       fetch(urlEliminar, {
         method: 'POST',
         headers: {
-          'X-CSRFToken': '{{ csrf_token }}',  // Necesario para CSRF en Django
+          'X-CSRFToken': '{{ csrf_token }}', 
         },
       })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Eliminar la fila de la tabla en la interfaz
           const row = element.closest('tr');
           row.parentNode.removeChild(row);
         } else {

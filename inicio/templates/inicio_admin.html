@@ -87,13 +87,12 @@
         max-width: 150px;
       }
 
-      /* Estilos del dropdown */
       .dropdown-menu {
             background-color: #0a4263; 
         }
 
         .dropdown-item {
-            color: white; /* Color del texto */
+            color: white;
             font-size: 10px;
         }
 
@@ -194,7 +193,6 @@
       <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista" class="logo">
 
       <div class="nav-links">
-        <!-- Menú desplegable de Gestionar Datos -->
         <div class="dropdown">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Gestionar Datos
@@ -208,7 +206,6 @@
         <a href="{% url 'gestion_reportes:lista_tareas' %}">Control de Tareas</a>
         <a href="{% url 'gestion_reportes:ver_reportes' %}">Historial de Reportes</a>
 
-        <!-- Menú desplegable de Dashboards -->
         <div class="dropdown">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Dashboards
@@ -222,7 +219,6 @@
         <a href="{% url 'dashboards:mapa_reportes' %}">Mapa</a>
 
 
-        <!-- Botón de cierre de sesión -->
         <form action="{% url 'inicio:logout' %}" method="post" style="display:inline;">
           {% csrf_token %}
           <button type="submit" class="btn btn-danger logout-btn">Cerrar Sesión</button>

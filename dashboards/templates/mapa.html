@@ -51,14 +51,14 @@
             margin-bottom: 20px;
             max-height: 611px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            transition: all 0.3s ease-in-out; /* Transición suave */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out; 
         }
 
         .filters-container select,
         .filters-container input[type="date"] {
             width: 100%;
-            margin-bottom: 15px; /* Espacio entre cada filtro */
+            margin-bottom: 15px; 
             padding: 5px;
         }   
         .filters-container h3 {
@@ -80,17 +80,17 @@
             margin-left: 270px;
         }
         .filters-container button {
-            margin-top: 10px; /* Espacio superior para separar los botones de los filtros */
-            margin-bottom: 10px; /* Espacio inferior entre botones */
-            width: 100%; /* Asegura que los botones tengan el mismo ancho que los filtros */
+            margin-top: 10px; 
+            margin-bottom: 10px;
+            width: 100%;
         }
 
         .filters-container label {
-            margin-bottom: 5px; /* Espacio entre el label y el campo de entrada */
+            margin-bottom: 5px; 
         }
 
         .filters-container input[type="date"]:last-of-type {
-            margin-bottom: 20px; /* Espacio extra antes de los botones */
+            margin-bottom: 20px;
         }
     
 
@@ -189,7 +189,6 @@
         {% block body %}{% endblock %}
     </div>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
         integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
@@ -213,7 +212,6 @@
             var markers = L.markerClusterGroup();
             var bounds = L.latLngBounds();
     
-            // Cargar todas las ubicaciones al iniciar
             fetch("{% url 'dashboards:obtener_ubicaciones' %}")
                 .then(response => response.json())
                 .then(data => {
@@ -237,7 +235,7 @@
                 })
                 .catch(error => console.error("Error al cargar las ubicaciones:", error));
     
-            // Cargar los trabajadores con AJAX
+           
             $.ajax({
                 url: "{% url 'dashboards:obtener_trabajadores' %}",
                 method: "GET",
@@ -248,7 +246,7 @@
                 }
             });
     
-            // Cargar los marcos con AJAX
+        
             $.ajax({
                 url: "{% url 'dashboards:obtener_marcos' %}",
                 method: "GET",
@@ -260,7 +258,7 @@
             });
             
             $.ajax({
-                url: "{% url 'dashboards:obtener_tipos' %}",  // Usar el nombre de la URL de Django
+                url: "{% url 'dashboards:obtener_tipos' %}",  
                 method: "GET",
                 success: function (data) {
                     data.forEach(function (tipo) {
@@ -269,7 +267,7 @@
                 }
             });
     
-            // Filtrar reportes al hacer clic en el botón de "Filtrar"
+            
             $('#filtrarBtn').on('click', function () {
                 var trabajadorId = $('#trabajadorSelect').val();
                 var marcoId = $('#marcoSelect').val();
@@ -280,7 +278,7 @@
 
     
     
-                // Construir la URL con los parámetros de filtro
+             
                 var url = "{% url 'dashboards:obtener_ubicaciones' %}?trabajador=" + trabajadorId + "&marco=" + marcoId + '&tipo_incidente=' + tipoIncidente;
 
                 if (fechaInicio) {
@@ -294,11 +292,8 @@
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
-                        // Limpiar los marcadores existentes
                         markers.clearLayers();
-                        bounds = L.latLngBounds();
-    
-                        // Agregar nuevos marcadores basados en el filtro
+                        bounds = L.latLngBounds();                 
                         data.forEach(function (reporte) {
                             if (reporte.latitud && reporte.longitud) {
                                 var popupContent = `
@@ -315,31 +310,25 @@
                             }
                         });
     
-                        // Añadir los clusters al mapa y ajustar la vista
                         map.addLayer(markers);
                         map.fitBounds(bounds);
                     })
                     .catch(error => console.error("Error al filtrar reportes:", error));
             });
     
-            // Función para limpiar filtros
             function limpiarFiltros() {
                 console.log("Limpiando filtros...");
-                // Resetea los campos de selección
                 $('#trabajadorSelect').val("");
                 $('#marcoSelect').val("");
                 $('#fechaInicio').val("");
                 $('#fechaFin').val("");
     
-                // Recargar los reportes sin filtros aplicados
                 fetch("{% url 'dashboards:obtener_ubicaciones' %}")
                     .then(response => response.json())
                     .then(data => {
-                        // Limpiar los marcadores existentes
                         markers.clearLayers();
                         bounds = L.latLngBounds();
     
-                        // Agregar todos los marcadores
                         data.forEach(function (reporte) {
                             if (reporte.latitud && reporte.longitud) {
                                 var popupContent = `
@@ -355,14 +344,13 @@
                             }
                         });
     
-                        // Añadir los clusters al mapa y ajustar la vista
+              
                         map.addLayer(markers);
                         map.fitBounds(bounds);
                     })
                     .catch(error => console.error("Error al recargar reportes:", error));
             }
     
-            // Llamada a la función de limpiar filtros cuando el botón es presionado
             $('#limpiarBtn').on('click', limpiarFiltros);
         });
     </script>

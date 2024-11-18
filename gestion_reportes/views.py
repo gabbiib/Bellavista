@@ -26,41 +26,32 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
-# Función para cargar el archivo en Google Drive
 def upload_to_drive(file):
-    # Carga el contenido de GOOGLE_CREDENTIALS desde las variables de entorno
     google_credentials = json.loads(os.getenv('GOOGLE_CREDENTIALS'))
     creds = service_account.Credentials.from_service_account_info(
         google_credentials, scopes=["https://www.googleapis.com/auth/drive.file"]
     )
 
-    # Servicio de Google Drive
     service = build('drive', 'v3', credentials=creds)
 
-    # ID de la carpeta donde se almacenarán las fotos
     folder_id = '1tF5rKetujaSi0zbCuDL-GcU05PxLdHQz' 
 
-    # Crea un archivo temporal para guardar el archivo subido
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        # Escribe el contenido del archivo en el archivo temporal
         temp_file.write(file.read())
         temp_file_path = temp_file.name
 
-    # Configura los metadatos del archivo
     file_metadata = {
         'name': file.name,
         'parents': [folder_id]
     }
-      # Subir el archivo al Drive
+
     media = MediaFileUpload(temp_file_path, mimetype=file.content_type)
     uploaded_file = service.files().create(
         body=file_metadata, media_body=media, fields='id'
     ).execute()
 
-    # Elimina el archivo temporal después de subirlo
     os.remove(temp_file_path)
 
-    # Genera el enlace del archivo usando el ID
     file_id = uploaded_file.get('id')
     file_link = f"https://drive.google.com/uc?id={file_id}"
     
@@ -110,8 +101,8 @@ def reporte_exito(request):
     return render(request, 'reporte_exito.html')
 def reporte_view(request):
     trabajadores = Usuarios.objects.filter(rol__id_rol=2)
-    marcos = Marcos.objects.all()  # Obtenemos todos los marcos
-    tipos_incidente = Problemas.objects.all()  # Obtenemos todos los tipos de incidente
+    marcos = Marcos.objects.all() 
+    tipos_incidente = Problemas.objects.all() 
 
     if request.method == 'POST':
         rut_usuario = request.POST.get('rut_usuario')
@@ -126,8 +117,8 @@ def reporte_view(request):
         try:
             usuario = Usuarios.objects.get(rut=rut_usuario)
             foto_url = upload_to_drive(foto_url) if foto_url else None
-            tipo_incidente_obj = Problemas.objects.get(id=tipo_incidente)  # Asumiendo que 'tipo_incidente' es el ID
-            marcos_obj = Marcos.objects.get(id=marco)  # Asumiendo que 'tipo_incidente' es el ID
+            tipo_incidente_obj = Problemas.objects.get(id=tipo_incidente)
+            marcos_obj = Marcos.objects.get(id=marco) 
 
 
             
@@ -203,25 +194,20 @@ def actualizar_tarea(request, tarea_id):
     return render(request, 'actualizar_tarea.html', {'tarea': tarea})
 
 def editar_reporte(request, id):
-    # Obtenemos el reporte que queremos editar
+
     reporte = get_object_or_404(Reportes_Problemas, id=id)
 
     if request.method == 'POST':
-        # Creamos el formulario y lo llenamos con los datos enviados por el POST
         form = ReporteForm(request.POST, instance=reporte)
         if form.is_valid():
-            # Guardamos el formulario si es válido
             form.save()
             messages.success(request, "El reporte fue actualizado exitosamente.")
             return redirect('gestion_reportes:ver_reportes')
         else:
-            # Si el formulario tiene errores, los imprimimos para depurar
             print(form.errors)
     else:
-        # Si es un GET, prellenamos el formulario con los datos del reporte
         form = ReporteForm(instance=reporte)
 
-    # Retornamos la vista con el formulario y el reporte
     return render(request, 'editar_reporte.html', {'form': form, 'reporte': reporte})
 ###benja
 
@@ -229,7 +215,7 @@ def lista_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
     tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
     tareas_predeterminadas = Tareas.objects.filter(es_predeterminado=True)
-    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')  # Solo trabajadores
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario') 
     asignaciones = Asignacion.objects.all()
 
     return render(request, 'lista_tareas.html', {
@@ -241,17 +227,15 @@ def lista_tareas(request):
 
 
 def obtener_reportes_problemas_disponibles(request):
-    # Obtener los IDs de reportes que están asignados a alguna tarea
     reportes_asignados_ids = Tareas.objects.exclude(id_reporte__isnull=True).values_list('id_reporte', flat=True)
     
-    # Excluir los reportes que ya están asignados a tareas
     reportes_disponibles = Reportes_Problemas.objects.select_related('tipo_incidente').exclude(id__in=reportes_asignados_ids)
 
 
     reportes_data = [
         {
             'id': reporte.id,
-            'tipo_incidente': reporte.tipo_incidente.nombre,  # No es necesario obtener 'tipo_incidente' de nuevo
+            'tipo_incidente': reporte.tipo_incidente.nombre, 
             'fecha_reporte': reporte.fecha_reporte.strftime('%Y-%m-%d'),
             'descripcion': reporte.descripcion
         }
@@ -266,16 +250,13 @@ def asignar_tarea_ajax(request):
         tarea_id = request.POST.get('tarea_id')
         trabajador_id = request.POST.get('trabajador_id')
 
-        # Verifica que ambos IDs existan
         if not tarea_id or not trabajador_id:
             return JsonResponse({'error': 'Faltan datos de la tarea o trabajador.'}, status=400)
 
-        # Busca los objetos de Tarea y Trabajador (Usuario con rol de Trabajador)
         try:
             tarea = Tareas.objects.get(id=tarea_id)
             trabajador = Usuarios.objects.get(rut=trabajador_id, rol__nombre='Usuario')
 
-            # Crear la asignación
             asignacion = Asignacion.objects.create(tarea=tarea, trabajador=trabajador, estado='En espera')
             enviar_notificacion_tarea(trabajador, tarea)
 
@@ -309,7 +290,6 @@ def eliminar_asignacion_ajax(request):
             trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
             trabajadores_data = [{'id': trabajador.rut, 'nombre': trabajador.full_name()} for trabajador in trabajadores]
 
-            # Devuelve los datos de la tarea eliminada y los trabajadores
             return JsonResponse({
                 'message': 'Asignación eliminada correctamente.',
                 'tarea_id': tarea.id,
@@ -332,7 +312,6 @@ def editar_asignacion_ajax(request):
             asignacion = Asignacion.objects.get(id=asignacion_id)
             trabajador = Usuarios.objects.get(rut=trabajador_id, rol__nombre='Usuario')
             
-            # Actualizar la asignación
             asignacion.trabajador = trabajador
             asignacion.estado = estado
             asignacion.save()
@@ -392,7 +371,7 @@ def editar_tarea_ajax(request):
                 'nombre': tarea.nombre,
                 'descripcion': tarea.descripcion,
                 'prioridad': tarea.prioridad,
-                'trabajadores': trabajadores_data,  # Enviar la lista de trabajadores
+                'trabajadores': trabajadores_data, 
             })
         except Tareas.DoesNotExist:
             return JsonResponse({'error': 'La tarea no existe.'}, status=404)
@@ -416,26 +395,23 @@ def crear_tarea_ajax(request):
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion')
         prioridad = request.POST.get('prioridad')
-        id_reporte = request.POST.get('id_reporte')  # Obtener el ID del reporte si existe
+        id_reporte = request.POST.get('id_reporte') 
         es_predeterminado = request.POST.get('es_predeterminado') == 'true'
 
         if not nombre or not prioridad:
             return JsonResponse({'error': 'Faltan datos obligatorios.'}, status=400)
 
         try:
-            # Si existe el id_reporte, busca el reporte correspondiente
             reporte = Reportes_Problemas.objects.get(id=id_reporte) if id_reporte else None
 
-            # Crear la tarea con el reporte asociado si existe
             tarea = Tareas.objects.create(
                 nombre=nombre,
                 descripcion=descripcion,
                 prioridad=prioridad,
-                id_reporte=reporte,  # Asociar el reporte si existe
+                id_reporte=reporte,
                 es_predeterminado=es_predeterminado
             )
 
-            # Recargar la lista de tareas
             tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
             tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
             html = render_to_string('partials/tabla_tareas.html', {'tareas': tareas})
@@ -455,7 +431,6 @@ def filtrar_tareas_ajax(request):
         filter_worker = request.GET.get('filterWorker', '')
         hide_completed = request.GET.get('hideCompleted', 'off') == 'on'
 
-        # Filtrar tareas no asignadas
         tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
         tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
                 
@@ -467,12 +442,10 @@ def filtrar_tareas_ajax(request):
         if filter_priority:
             tareas = tareas.filter(prioridad=filter_priority)
 
-        # Filtrar tareas asignadas
         asignaciones = Asignacion.objects.all()
         for asignacion in asignaciones:
             print("Estado de la tarea", asignacion.tarea.nombre, ":", asignacion.estado)
 
-        # Filtrado del estado de la asignación
         if hide_completed:
             asignaciones = asignaciones.filter(estado__in=['En espera', 'En progreso'])
         if filter_state:
@@ -489,7 +462,6 @@ def filtrar_tareas_ajax(request):
 
         trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')
 
-        # Renderizar los partials de las tablas filtradas
         html_tareas = render_to_string('partials/tabla_tareas.html', {'tareas': tareas, 'trabajadores': trabajadores}) 
         html_asignaciones = render_to_string('partials/tabla_asignaciones.html', {'asignaciones': asignaciones, 'trabajadores': trabajadores})
 
@@ -498,7 +470,7 @@ def filtrar_tareas_ajax(request):
 
 def obtener_tabla_asignaciones(request):
     asignaciones = Asignacion.objects.all()
-    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')  # Asegurarse de que los trabajadores estén en el contexto
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario') 
     html = render_to_string('partials/tabla_asignaciones.html', {
         'asignaciones': asignaciones,
         'trabajadores': trabajadores,
@@ -509,7 +481,7 @@ def obtener_tabla_asignaciones(request):
 def obtener_tabla_tareas(request):
     tareas_asignadas_ids = Asignacion.objects.values_list('tarea_id', flat=True)
     tareas = Tareas.objects.exclude(id__in=tareas_asignadas_ids).filter(es_predeterminado=False)
-    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario')  # Asegurarse de que los trabajadores estén en el contexto
+    trabajadores = Usuarios.objects.filter(rol__nombre='Usuario') 
     html = render_to_string('partials/tabla_tareas.html', {
         'tareas': tareas,
         'trabajadores': trabajadores,
@@ -533,11 +505,9 @@ def get_report_data(request):
 
     data = Tareas.objects.all() 
 
-    # Filtrar por trabajador si se selecciona uno
     if worker_id:
         data = data.filter(asignacion__trabajador__rut=worker_id)
 
-    # Filtrar por rango de fechas
     if start_date and end_date:
         data = data.filter(creado_en__range=[start_date, end_date])
     elif start_date:
