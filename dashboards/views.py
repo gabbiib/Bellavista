@@ -286,15 +286,17 @@ def filtrar_reportes(request):
 
         divisor = reportes.count()
 
-        marco_mayor_promedio = (
-            reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])  # Asegurarse de filtrar por el rango de fechas
-            .values('marco__nombre')
-            .annotate(total_reportes=Count('id'))
-            .annotate(promedio=F('total_reportes') / Value(delta_dias / 30.44))  # Utilizar la fórmula correcta
-            .order_by('-promedio')
-            .first()
-        )
-
+        if delta_dias < 30.4:
+            marco_mayor_promedio = 0
+        else:
+            marco_mayor_promedio = (
+                reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin]) 
+                .values('marco__nombre')
+                .annotate(total_reportes=Count('id'))
+                .annotate(promedio=F('total_reportes') / Value(delta_dias / 30.44))  # Promedio basado en días
+                .order_by('-promedio')
+                .first()
+            )
 
 
         kpi_data = {
