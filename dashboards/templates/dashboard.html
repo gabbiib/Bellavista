@@ -132,30 +132,31 @@
         }
 
         .kpi-section {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            margin-left: 400px;
-            border: 2px solid #003366;
-            width: 30%;
-            text-align: center;
-            font-size: 20px;
             display: flex;
-            justify-content: space-around;
-        }
-
-        .kpi-value {
-            font-size: 19px;
-            color: #121740; 
-            margin-top: 10px;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            margin-bottom: -30px;
+            margin-top: -5px;
+            border: 2px solid #003366;
+            text-align: center;
+            font-size: 15px;
+            box-sizing: border-box;
         }
 
         .kpi-item {
-        flex: 1; 
-        margin-right: 10px; 
-        text-align: center;
+            flex: 1; /
+            margin-right: 15px;
         }
+
+        .kpi-section:last-child .kpi-item {
+            margin-right: 0;
+            font-size: 15px;
+        }
+
 
 
     </style>
@@ -259,45 +260,57 @@
                 <input type="date" class="form-control" id="filter-fecha-fin">
             </div>
     
-            <button type="button" class="btn btn-danger mb-3" onclick="clearDateFilters()">Limpiar Fechas</button>
+            <div class="btn-group mb-3" role="group" aria-label="Filtros">
+                <button type="button" class="btn btn-danger btn-sm" onclick="clearDateFilters()">Limpiar Fechas</button>
+                <button type="button" class="btn btn-secondary btn-sm ml-2" onclick="clearAllFilters()">Limpiar Filtros</button>
+            </div>            
+
             <button id="filterButton" type="button" onclick="applyFilters()">Filtrar</button>
         </form>
     </div>
     
-    <div class="kpi-section">
-        <div class="kpi-item">
-            <h4 style="font-size: 19px; font-weight: bold;">Promedio Mensual</h4>
-            <div id="kpi-mensual" class="kpi-value"></div>
+    <div class="container d-flex justify-content-between mb-3">
+        <div class="kpi-section" style="flex: 0.97; display: flex; justify-content: space-between;">
+            <div class="kpi-item">
+                <h4 style="font-size: 19px; font-weight: bold;">Promedio de Reportes Mensual</h4>
+                <div id="kpi-mensual" class="kpi-value"></div>
+            </div>
+            <div class="kpi-item">
+                <h4 style="font-size: 19px; font-weight: bold;">Promedio de Reportes Semanal</h4>
+                <div id="kpi-semanal" class="kpi-value"></div>
+            </div>
+            <div class="kpi-item">
+                <h4 style="font-size: 19px; font-weight: bold;">Promedio de Reportes Diario</h4>
+                <div id="kpi-diario" class="kpi-value"></div>
+            </div>
         </div>
-        <div class="kpi-item">
-            <h4 style="font-size: 19px; font-weight: bold;">Promedio Semanal</h4>
-            <div id="kpi-semanal" class="kpi-value"></div>
-        </div>
-        <div class="kpi-item">
-            <h4 style="font-size: 19px; font-weight: bold;">Promedio Diario</h4>
-            <div id="kpi-diario" class="kpi-value"></div>
+        
+        <div class="kpi-section" style="width: 30%; text-align: center; font-size: 17px;">
+            <h4 style="font-size: 19px; font-weight: bold;">Compuerta con mayor promedio de reportes</h4>
+            <p id="kpi-marco" class="kpi-value"></p>
         </div>
     </div>
     
-<!-- <div class="kpi-section" style="margin-left: 400px; width: 30%; text-align: center; font-size: 20px;">
-        <div class="kpi-item">
-            <h4 style="font-size: 19px; font-weight: bold;">Promedio de Finalización de Tareas</h4>
-            <div id="kpi-finalizacion" class="kpi-value">{{ promedio_dias }} días</div>
-        </div>
-    </div> -->
+    
     
     
     <script>
         function updateKPI(data) {
-            $('#kpi-mensual').text(data.promedio_mensual.toFixed(2) + ' problemas/mes');
-            $('#kpi-semanal').text(data.promedio_semanal.toFixed(2) + ' problemas/semana');
-            $('#kpi-diario').text(data.promedio_diario.toFixed(2) + ' problemas/día');
-            $('#kpi-finalizacion').text(data.promedio_dias.toFixed(2) + ' días');
-        }
-    </script>
-    
+            $('#kpi-mensual').text(data.promedio_mensual.toFixed(2));
+            $('#kpi-semanal').text(data.promedio_semanal.toFixed(2));
+            $('#kpi-diario').text(data.promedio_diario.toFixed(2));
 
-    
+            if (data.marco_mayor_promedio) {
+                const marcoNombre = data.marco_mayor_promedio.marco__nombre;
+                const promedio = data.marco_mayor_promedio.promedio.toFixed(2);
+                $('#kpi-marco').text(`${marcoNombre}: ${promedio} reportes/promedio`);
+            } else {
+                $('#kpi-marco').text('No hay datos suficientes');
+            }
+        }
+
+
+    </script>
     
     <div class="container">
         <div class="chart-section">
@@ -346,16 +359,36 @@
         }
         
         function updateKPI(data) {
-            $('#kpi-mensual').text(data.promedio_mensual.toFixed(2) );
-            $('#kpi-semanal').text(data.promedio_semanal.toFixed(2) );
-            $('#kpi-diario').text(data.promedio_diario.toFixed(2) );
+            $('#kpi-mensual').text(data.promedio_mensual.toFixed(2));
+            $('#kpi-semanal').text(data.promedio_semanal.toFixed(2));
+            $('#kpi-diario').text(data.promedio_diario.toFixed(2));
+
+            if (data.marco_mayor_promedio) {
+                const marcoNombre = data.marco_mayor_promedio.marco__nombre;
+                const promedio = data.marco_mayor_promedio.promedio.toFixed(2);
+                $('#kpi-marco').text(`${marcoNombre}: ${promedio} reportes/promedio`);
+            } else {
+                $('#kpi-marco').text('No hay datos suficientes');
+            }
         }
+
         
         function clearDateFilters() {
             $('#filter-fecha-inicio').val('');
             $('#filter-fecha-fin').val('');
             applyFilters();
         }
+
+        function clearAllFilters() {
+            $('#filter-tipo').val('');
+            $('#filter-trabajador').val('');
+            $('#filter-marco').val('');
+            $('#filter-fecha-inicio').val('');
+            $('#filter-fecha-fin').val('');
+            
+            applyFilters();
+        }
+
     
 
         function updateIncidentChart(data) {
@@ -448,6 +481,7 @@
                 success: function(data) {
                     updateIncidentChart(data);
                     updateBarChart(data);
+                    updateKPI(data);
                 },
                 error: function(xhr, status, error) {
                     console.error("Error al cargar los gráficos: ", error);

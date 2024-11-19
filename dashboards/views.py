@@ -11,6 +11,7 @@ from datetime import datetime
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
+from django.db.models import Value, F
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ def obtener_tipos_incidentes(request):
 
 #------------------------------Dashboard Problema-----------------------------
 def dashboard(request):
-    incidentes = Reportes_Problemas.objects.all()
+    incidentes = Reportes_Problemas.objects.all().select_related('tipo_incidente', 'marco')
     trabajadores_list = Usuarios.objects.all()
 
     tipo_incidentes = incidentes.values('tipo_incidente').annotate(count=Count('id'))
@@ -144,8 +145,38 @@ def dashboard(request):
         except Marcos.DoesNotExist:
             marcos.append('Desconocido')
 
-    num_meses = incidentes.dates('fecha_reporte', 'month').count()
+    fecha_inicio = request.GET.get('fecha_inicio', None)
+    fecha_fin = request.GET.get('fecha_fin', None)
+
+    # Convertir a objetos datetime si las fechas están presentes en la solicitud
+    if fecha_inicio and fecha_fin:
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+    else:
+        # Usar fechas por defecto si no se proporcionan en el request
+        fecha_inicio = incidentes.earliest('fecha_reporte').fecha_reporte
+        fecha_fin = incidentes.latest('fecha_reporte').fecha_reporte
+
+    delta_dias = (fecha_fin - fecha_inicio).days + 1
     total_reportes = incidentes.count()
+    if delta_dias >= 30:
+        meses = delta_dias / 30.44
+        promedio_reportes_por_mes = total_reportes / meses if meses > 0 else 0
+    else:
+        promedio_reportes_por_mes = 0
+
+    marcos_promedios = (
+        incidentes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])
+        .values('marco__nombre')
+        .annotate(total_reportes=Count('id'))
+        .annotate(promedio=F('total_reportes') / Value(delta_dias / 30.44))
+        .order_by('-promedio')
+    )
+
+    marco_mayor_promedio = marcos_promedios[0] if marcos_promedios else None
+
+    num_meses = incidentes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin]).dates('fecha_reporte', 'month').count()
+    total_reportes = incidentes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin]).count()
     promedio_reportes_por_mes = total_reportes / num_meses if num_meses > 0 else 0
 
     context = {
@@ -154,6 +185,7 @@ def dashboard(request):
         'marcos': marcos,
         'trabajadores': trabajadores_list,
         'promedio_reportes_por_mes': promedio_reportes_por_mes,
+        'marco_mayor_promedio': marco_mayor_promedio,
     }
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -252,27 +284,26 @@ def filtrar_reportes(request):
                 meses = dias / 30.44
                 promedio_mensual = total_problemas / meses
 
-        asignaciones = Asignacion.objects.filter(estado='Completada')
-        if fecha_inicio and fecha_fin:
-            asignaciones = asignaciones.filter(fecha_fin__range=[fecha_inicio, fecha_fin])
+        divisor = reportes.count()
 
-        promedio_finalizacion = asignaciones.annotate(
-            duracion=ExpressionWrapper(
-                F('fecha_fin') - F('asignado_en'),
-                output_field=fields.DurationField()
-            )
-        ).aggregate(Avg('duracion'))
+        marco_mayor_promedio = (
+            reportes.filter(fecha_reporte__range=[fecha_inicio, fecha_fin])  # Asegurarse de filtrar por el rango de fechas
+            .values('marco__nombre')
+            .annotate(total_reportes=Count('id'))
+            .annotate(promedio=F('total_reportes') / Value(delta_dias / 30.44))  # Utilizar la fórmula correcta
+            .order_by('-promedio')
+            .first()
+        )
 
-        promedio_dias = promedio_finalizacion['duracion__avg'].days if promedio_finalizacion['duracion__avg'] else 0
+
 
         kpi_data = {
             'total_problemas': total_problemas,
             'promedio_mensual': promedio_mensual,
             'promedio_semanal': promedio_semanal,
             'promedio_diario': promedio_diario,
-            'promedio_dias': promedio_dias
+            'marco_mayor_promedio': marco_mayor_promedio 
         }
-
 
         tipo_incidentes = reportes.values('tipo_incidente').annotate(count=Count('id'))
         tipos = []
@@ -309,7 +340,7 @@ def filtrar_reportes(request):
             'promedio_mensual': kpi_data['promedio_mensual'],
             'promedio_semanal': kpi_data['promedio_semanal'],
             'promedio_diario': kpi_data['promedio_diario'],
-            'promedio_dias': promedio_dias  
+            'marco_mayor_promedio': kpi_data['marco_mayor_promedio'],
         })
 
     except Exception as e:
