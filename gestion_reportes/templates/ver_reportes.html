@@ -166,6 +166,41 @@
       text-decoration: underline; 
     }
 
+    .pagination-container {
+        display: flex;              /* Flexbox para organizar los elementos */
+        justify-content: center;    /* Centra los elementos horizontalmente */
+        margin-top: 20px;
+    }
+
+    /* Estilos para la paginación */
+    .pagination {
+        display: flex;              /* Flexbox para la paginación */
+        list-style-type: none;      /* Elimina los puntos de la lista */
+        margin: 0;                  /* Elimina el margen de la lista */
+        padding: 0;
+        margin-left: 280px;                 /* Elimina el padding de la lista */
+    }
+
+    .pagination a, .pagination span {
+        color: rgb(156, 156, 234);                /* Color azul para los enlaces */
+        margin: 0 10px;             /* Espaciado entre los enlaces */
+        text-decoration: none;      /* Elimina el subrayado por defecto */
+        padding: 5px 10px;          /* Espaciado dentro de los enlaces */
+    }
+
+    .pagination a:hover {
+        text-decoration: underline; /* Subrayado al pasar el ratón */
+    }
+
+    .pagination .step-links {
+        display: flex;
+        align-items: center;        /* Centra los elementos verticalmente */
+    }
+
+    .pagination span {
+        font-weight: bold;          /* Hace que el texto sea negrita */
+    }
+
   </style>
 </head>
 <body>
@@ -294,6 +329,23 @@
         {% endfor %}
       </tbody>
     </table>
+    <!-- Controles de Paginación -->
+    <div class="pagination">
+      <span class="step-links">
+          {% if reportes.has_previous %}
+              <a href="?page=1{% if request.GET.ordenar %}&ordenar={{ request.GET.ordenar }}{% endif %}">&laquo; Primera</a>
+              <a href="?page={{ reportes.previous_page_number }}{% if request.GET.ordenar %}&ordenar={{ request.GET.ordenar }}{% endif %}">Anterior</a>
+          {% endif %}
+  
+          <span>Página {{ reportes.number }} de {{ reportes.paginator.num_pages }}</span>
+  
+          {% if reportes.has_next %}
+              <a href="?page={{ reportes.next_page_number }}{% if request.GET.ordenar %}&ordenar={{ request.GET.ordenar }}{% endif %}">Siguiente</a>
+              <a href="?page={{ reportes.paginator.num_pages }}{% if request.GET.ordenar %}&ordenar={{ request.GET.ordenar }}{% endif %}">Última &raquo;</a>
+          {% endif %}
+      </span>
+  </div>
+
   </div>
  <script>
     function confirmarEliminar(reporteId, element) {

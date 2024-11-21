@@ -11,7 +11,7 @@ from django.db.models import Q, Count, Avg, F
 from django.db.models.functions import TruncMonth
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Tareas, Reportes_Problemas, Asignacion
 from gestion_datos.models import Usuarios, Problemas, Marcos
@@ -165,16 +165,22 @@ def reporte_view(request):
         'marcos': marcos,
         'tipos_incidente': tipos_incidente
     })
+
 def ver_reportes(request):
     ordenar = request.GET.get('ordenar', 'asc')
-    
+
     if ordenar == 'asc':
         reportes = Reportes_Problemas.objects.all().order_by('fecha_reporte')
     else:
         reportes = Reportes_Problemas.objects.all().order_by('-fecha_reporte')
     
+    # Configuración de paginación
+    paginador = Paginator(reportes, 10)  # Cambia 10 al número de registros por página que desees
+    pagina = request.GET.get('page')  # Captura el número de la página actual desde la URL
+    reportes_paginados = paginador.get_page(pagina)  # Obtiene los reportes de la página actual
+    
     context = {
-        'reportes': reportes
+        'reportes': reportes_paginados  # Usa los reportes paginados en lugar de todos los reportes
     }
     return render(request, 'ver_reportes.html', context)
 
