@@ -97,9 +97,10 @@ def ver_imagen(request, reporte_id):
 def reporte(request):
     return render(request, 'reporte.html')
 
+@login_required
 def reporte_trabajador(request):
-    rut_usuario = request.user.rut 
-    reportes = Reportes_Problemas.objects.filter(rut=rut_usuario).order_by('-fecha_creacion') 
+    rut_usuario = request.user.rut_usuario
+    reportes = Reportes_Problemas.objects.filter(rut_usuario=rut_usuario).order_by('-fecha_creacion') 
     return render(request, 'reportes_trabajador.html', {'reportes': reportes})
 
 def reporte_exito(request):
