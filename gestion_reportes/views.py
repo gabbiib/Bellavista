@@ -98,7 +98,9 @@ def reporte(request):
     return render(request, 'reporte.html')
 
 def reporte_trabajador(request):
-    return render(request, 'reportes_trabajador.html')
+    rut_usuario = request.user.rut 
+    reportes = Reportes_Problemas.objects.filter(rut=rut_usuario).order_by('-fecha_creacion') 
+    return render(request, 'reportes_trabajador.html', {'reportes': reportes})
 
 def reporte_exito(request):
     return render(request, 'reporte_exito.html')
