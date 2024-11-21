@@ -98,7 +98,7 @@ def reporte(request):
     return render(request, 'reporte.html')
 
 def reporte_trabajador(request):
-    return render(request, 'reporte_trabajador.html')
+    return render(request, 'reportes_trabajador.html')
 
 def reporte_exito(request):
     return render(request, 'reporte_exito.html')
