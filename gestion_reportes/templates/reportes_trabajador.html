@@ -7,67 +7,134 @@
     <title>Historial de Reportes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        body {
-          font-family: 'Roboto', sans-serif;
-          background-color: #F3F5F7;
-          margin: 0;
-          padding: 0;
-          background-image: url('/static/images/topography.png');
-          background-repeat: repeat;
-          background-position: top left;
-          background-size: auto;
-        }
-    
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background-color: #2D6A8E;
-          padding: 10px 20px;
-          color: white;
-        }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #F3F5F7;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: url('/static/images/topography.png');
+      background-repeat: repeat;
+      background-position: top left;
+      background-size: auto;
+    }
 
-        .header .btn-secondary {
-          background-color: white;
-          color: #2D6A8E;
-          padding: 10px;
-          border: none;
-          border-radius: 5px;
-          text-decoration: none;
-          font-size: 16px;
-          width: 150px;
-          text-align: center;
-        }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2D6A8E;
+      padding: 10px 20px;
+      color: white;
+      flex-wrap: wrap;
+    }
 
-        .container {
-            margin-top: 20px;
-        }
-        table {
-            margin-top: 20px;
-        }
-        th, td {
-            text-align: center;
-        }
-        .sort-arrows a {
-            text-decoration: none;
-            margin: 0 5px;
-            color: #007bff;
-        }
-        .table-container {
-            overflow-x: auto;
-        }
-        @media (max-width: 768px) {
-            h2 {
-                font-size: 1.5rem;
-            }
-        }
+    .header img {
+      max-width: 100px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .header .logout-btn, .header .edit-profile-btn {
+      background-color: white;
+      color: #2D6A8E;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      text-align: center;
+      justify-content: center;
+      display: inline-block;
+      width: 150px;
+    }
+
+    .header .logout-btn:hover, .header .edit-profile-btn:hover {
+      background-color: #F3F5F7;
+      color: #2D6A8E;
+    }
+
+    .tareas-reportes-container {
+      padding: 20px;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    .tareas-reportes-header {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #2D6A8E;
+      text-align: center;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .tareas-reportes-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+
+    .tareas-reportes-th, .tareas-reportes-td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      white-space: nowrap; 
+    }
+
+    .tareas-reportes-th {
+      background-color: #f4f4f4;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .tareas-reportes-button-wrapper {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .tareas-reportes-button {
+      display: inline-block;
+      background-color: #2D6A8E;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .tareas-reportes-button:hover {
+      background-color: #245870;
+    }
+
+    @media (max-width: 768px) {
+      .header img {
+        margin-bottom: 10px; 
+      }
+
+      .header-buttons {
+        justify-content: center;
+        width: 100%; 
+      }
+
+      .header .logout-btn, .header .edit-profile-btn {
+        width: auto;
+        padding: 10px 20px; 
+      }
+    }
     </style>
 </head>
 <body>
     <div class="container">
         <header class="d-flex justify-content-between align-items-center">
             <h2>Historial de Reportes</h2>
-            <button onclick="window.history.back();" class="btn btn-secondary">Volver Atrás</button>
+            <button onclick="window.history.back();" class="edit-profile-btn">Volver Atrás</button>
         </header>
         <div class="table-container">
             <table class="table table-striped table-hover">
