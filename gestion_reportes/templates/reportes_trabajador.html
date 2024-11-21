@@ -131,47 +131,45 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="d-flex justify-content-between align-items-center">
-            <h2>Historial de Reportes</h2>
-            <button onclick="window.history.back();" class="edit-profile-btn">Volver Atrás</button>
-        </header>
-        <div class="table-container">
-            <table class="table table-striped table-hover">
-               <thead>
+     <div class="header">
+        <img src="{% static 'images/logogris.svg' %}" alt="Logo Canal Bellavista">
+        <button onclick="window.history.back();" class="edit-profile-btn">Volver Atrás</button>
+     </div> <!-- Aquí cambié </header> por </div> para cerrar correctamente el div de la clase 'header' -->
+     <div class="table-container">
+        <table class="table table-striped table-hover">
+           <thead>
+                <tr>
+                    <th class="tareas-reportes-th">ID</th>
+                    <th class="tareas-reportes-th">Tipo de Incidente</th>
+                    <th class="tareas-reportes-th">Descripción</th>
+                    <th class="tareas-reportes-th">Marco</th>
+                    <th class="tareas-reportes-th">Ubicación</th>
+                    <th class="tareas-reportes-th">Fecha del Reporte</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reporte in reportes %}
                     <tr>
-                        <th class="tareas-reportes-th">ID</th>
-                        <th class="tareas-reportes-th">Tipo de Incidente</th>
-                        <th class="tareas-reportes-th">Descripción</th>
-                        <th class="tareas-reportes-th">Marco</th>
-                        <th class="tareas-reportes-th">Ubicación</th>
-                        <th class="tareas-reportes-th">Fecha del Reporte</th>
+                        <td>{{ reporte.id }}</td>
+                        <td>{{ reporte.tipo_incidente.nombre }}</td>
+                        <td>{{ reporte.descripcion }}</td>
+                        <td>{{ reporte.marco }}</td>
+                        <td class="tareas-reportes-td">
+                            {% if reporte.latitud and reporte.longitud %}
+                                <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver ubicación</a>
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </td>
+                        <td>{{ reporte.fecha_reporte|date:"d/m/Y" }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for reporte in reportes %}
-                        <tr>
-                            <td>{{ reporte.id }}</td>
-                            <td>{{ reporte.tipo_incidente.nombre }}</td>
-                            <td>{{ reporte.descripcion }}</td>
-                            <td>{{ reporte.marco }}</td>
-                            <td class="tareas-reportes-td">
-                                {% if reporte.latitud and reporte.longitud %}
-                                    <a href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}" target="_blank">Ver ubicación</a>
-                                {% else %}
-                                    No disponible
-                                {% endif %}
-                            </td>
-                            <td>{{ reporte.fecha_reporte|date:"d/m/Y" }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6">No tienes reportes registrados.</td> <!-- Cambié a colspan="6" porque son 6 columnas en total -->
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">No tienes reportes registrados.</td> <!-- Cambié a colspan="6" porque son 6 columnas en total -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
