@@ -99,7 +99,7 @@ def reporte(request):
 
 @login_required
 def reporte_trabajador(request):
-    rut_usuario = request.user.rut_usuario
+    rut_usuario = request.user.rut
     reportes = Reportes_Problemas.objects.filter(rut_usuario=rut_usuario).order_by('-fecha_creacion') 
     return render(request, 'reportes_trabajador.html', {'reportes': reportes})
 
