@@ -97,6 +97,9 @@ def ver_imagen(request, reporte_id):
 def reporte(request):
     return render(request, 'reporte.html')
 
+def reporte_trabajador(request):
+    return render(request, 'reporte_trabajador.html')
+
 def reporte_exito(request):
     return render(request, 'reporte_exito.html')
 def reporte_view(request):
