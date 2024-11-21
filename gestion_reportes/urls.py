@@ -10,6 +10,7 @@ app_name = 'gestion_reportes'
 
 urlpatterns = [
     path('reporte/', views.reporte_view, name='reporte'),
+    path('reporte_trabajador/', views.reporte_trabajador, name='reporte_trabajador'),
     path('reporte_exito/', views.reporte_exito, name='reporte_exito'),
     path('reportes/', ver_reportes, name='ver_reportes'),
     path('ver-imagen/<int:reporte_id>/', views.ver_imagen, name='ver_imagen'),
