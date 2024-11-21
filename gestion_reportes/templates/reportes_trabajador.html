@@ -85,7 +85,7 @@
                     {% for reporte in reportes %}
                         <tr>
                             <td>{{ reporte.id }}</td>
-                            <td>{{ reporte.tipo_incidente }}</td>
+                            <td>{{ reporte.tipo_incidente.nombre }}</td>
                             <td>{{ reporte.descripcion }}</td>
                             <td>{{ reporte.marco }}</td>
                             <td class="tareas-reportes-td">
